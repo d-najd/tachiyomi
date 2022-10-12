@@ -32,6 +32,7 @@ import eu.kanade.presentation.library.LibraryState
 import eu.kanade.presentation.theme.active
 import eu.kanade.tachiyomi.R
 
+// TODO the title doesnt change the tile of the library manga
 @Composable
 fun LibraryToolbar(
     state: LibraryState,
@@ -77,16 +78,17 @@ fun LibraryToolbar(
             ),
         )
     }
-    else -> LibraryRegularToolbar(
-        title = title,
-        hasFilters = state.hasActiveFilters,
-        incognitoMode = incognitoMode,
-        downloadedOnlyMode = downloadedOnlyMode,
-        onClickSearch = { state.searchQuery = "" },
-        onClickFilter = onClickFilter,
-        onClickRefresh = onClickRefresh,
-        scrollBehavior = scrollBehavior,
-    )
+    else ->
+        LibraryRegularToolbar(
+            title = title,
+            hasFilters = state.hasActiveFilters,
+            incognitoMode = incognitoMode,
+            downloadedOnlyMode = downloadedOnlyMode,
+            onClickSearch = { state.searchQuery = "" },
+            onClickFilter = onClickFilter,
+            onClickRefresh = onClickRefresh,
+            scrollBehavior = scrollBehavior,
+        )
 }
 
 @Composable

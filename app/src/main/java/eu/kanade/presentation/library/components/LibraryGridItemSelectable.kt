@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 
+// TODO NOT THIS, its for selection behind the manga
 fun Modifier.selectedOutline(isSelected: Boolean) = composed {
     val secondary = MaterialTheme.colorScheme.secondary
     if (isSelected) {

@@ -1,5 +1,6 @@
 package eu.kanade.presentation.library.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -10,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,10 +23,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.domain.library.model.LibraryManga
+import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 
 @Composable
@@ -90,6 +96,7 @@ fun LibraryCompactGridItem(
         isLocal = item.isLocal,
         language = item.sourceLanguage,
     ) {
+        // TODO FOUND IT
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp))
@@ -104,7 +111,29 @@ fun LibraryCompactGridItem(
                 .align(Alignment.BottomCenter),
         )
         MangaGridCompactText(manga.title)
+        MangaReturnReadingButton()
     }
+}
+
+// TODO finish this
+// https://stackoverflow.com/questions/56767624/how-to-load-image-from-drawable-in-jetpack-compose
+
+@Composable
+fun BoxScope.MangaReturnReadingButton() {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .align(Alignment.BottomStart),
+        shape = CircleShape,
+    ) {
+        Image(
+            painterResource(R.drawable.ic_browse_filled_24dp),
+            contentDescription = "",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+    // Image(painter = painterResource(id = R.drawable.ic_browse_filled_24dp), contentDescription = "example")
 }
 
 @Composable
