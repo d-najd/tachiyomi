@@ -1,17 +1,20 @@
 package eu.kanade.presentation.library.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -111,6 +113,7 @@ fun LibraryCompactGridItem(
                 .align(Alignment.BottomCenter),
         )
         MangaGridCompactText(manga.title)
+
         MangaReturnReadingButton()
     }
 }
@@ -118,22 +121,49 @@ fun LibraryCompactGridItem(
 // TODO finish this
 // https://stackoverflow.com/questions/56767624/how-to-load-image-from-drawable-in-jetpack-compose
 
+//https://stackoverflow.com/questions/70708107/how-to-make-text-centered-vertically-in-android-compose
 @Composable
 fun BoxScope.MangaReturnReadingButton() {
     Card(
+        border = BorderStroke(2.dp, Color.Red),
         modifier = Modifier
             .padding(8.dp)
-            .align(Alignment.BottomStart),
-        shape = CircleShape,
+            .size(32.dp)
+            .align(Alignment.BottomEnd)
+            .clickable {
+            },
     ) {
         Image(
-            painterResource(R.drawable.ic_browse_filled_24dp),
+            painterResource(R.drawable.ic_continue_reading_24dp),
             contentDescription = "",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                //.absoluteOffset(x = 2.dp, y = 2.dp)
+                .size(24.dp),
+            verticalAlignment = Alignment.CenterVertically,
         )
     }
-    // Image(painter = painterResource(id = R.drawable.ic_browse_filled_24dp), contentDescription = "example")
+
+    /*
+    ElevatedCard(
+        modifier = modifier,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onRename() }
+                .padding(start = horizontalPadding, top = horizontalPadding, end = horizontalPadding),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(imageVector = Icons.Outlined.Label, contentDescription = "")
+            Text(
+                text = category.name,
+                modifier = Modifier
+                    .padding(start = horizontalPadding),
+            )
+        }
+
+     */
 }
 
 @Composable
@@ -143,7 +173,7 @@ fun BoxScope.MangaGridCompactText(
     Text(
         text = text,
         modifier = Modifier
-            .padding(8.dp)
+            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp, end = 34.dp)
             .align(Alignment.BottomStart),
         color = Color.White,
         fontSize = 12.sp,
