@@ -10,6 +10,7 @@ import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
 import eu.kanade.core.prefs.CheckboxState
 import eu.kanade.domain.chapter.model.Chapter
+import eu.kanade.domain.manga.interactor.GetMangaWithChapters
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.isLocal
 import eu.kanade.domain.manga.model.toDbManga
@@ -27,13 +28,17 @@ import eu.kanade.tachiyomi.ui.main.MainActivity
 import eu.kanade.tachiyomi.ui.manga.MangaController
 import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.util.lang.launchIO
+import eu.kanade.tachiyomi.util.system.logcat
 import eu.kanade.tachiyomi.util.system.toast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 
 class LibraryController(
     bundle: Bundle? = null,
+    private val getMangaAndChapters: GetMangaWithChapters = Injekt.get(),
 ) : FullComposeController<LibraryPresenter>(bundle), RootController {
 
     /**
@@ -180,32 +185,47 @@ class LibraryController(
     }
 
     private fun openManga(mangaId: Long) {
+        openLastRead(mangaId)
+
+        // Notify the presenter a manga is being opened.
+        //presenter.onOpenManga()
+
+        //router.pushController(MangaController(mangaId))
+    }
+
+    private fun openLastRead(mangaId: Long) {
         // Notify the presenter a manga is being opened.
         presenter.onOpenManga()
 
-        var mangaPresenter = MangaController(mangaId).presenter
+        val presenterScope: CoroutineScope = MainScope()
 
-        for (i in 0 until 50) {
-            runBlocking {
-                delay(50L)
-                val test = mangaPresenter.getNextUnreadChapter()
-                test?.let { openChapter(it) }
+        presenterScope.launchIO {
+            val manga = getMangaAndChapters.awaitManga(mangaId)
+            val chapters = getMangaAndChapters.awaitChapters(mangaId)
+
+            var latestUnread = chapters.findLast { !it.read }
+
+            val optimized = chapters.map { it }.let { _ ->
+                if (manga.sortDescending()) {
+                    chapters.findLast { !it.read }
+                } else {
+                    chapters.find { !it.read }
+                }
             }
+
+            logcat { "te hello is $optimized" }
+            logcat { "latestUnread hello is $latestUnread" }
+
+            openChapter(latestUnread!!)
+            /*
+            if (te != null) {
+                openChapter(te)
+            }
+             */
         }
-
-        /*
-        var MangaPresenter = MangaPresenter(
-            mangaId = mangaId,
-            isFromSource = args.getBoolean(MangaController.FROM_SOURCE_EXTRA, false),
-        )
-
-        val chapter = MangaPresenter(
-            mangaId = mangaId,
-            isFromSource = args.getBoolean(MangaController.FROM_SOURCE_EXTRA, false),
-        ).getNextUnreadChapter()
-         */
     }
 
+    //TODO this exists in MangaController so I am repeating myself
     private fun openChapter(chapter: Chapter) {
         activity?.run {
             startActivity(ReaderActivity.newIntent(this, chapter.mangaId, chapter.id))

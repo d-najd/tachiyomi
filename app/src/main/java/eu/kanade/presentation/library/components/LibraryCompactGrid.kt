@@ -126,8 +126,6 @@ fun BoxScope.MangaContinueReadingButton() {
             .padding(8.dp)
             .size(24.dp)
             .align(Alignment.BottomEnd)
-            .clickable {
-            },
     )
 
     // TODO try floating action button
