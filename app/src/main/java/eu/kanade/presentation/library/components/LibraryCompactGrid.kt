@@ -1,6 +1,5 @@
 package eu.kanade.presentation.library.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,7 +7,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -98,7 +95,6 @@ fun LibraryCompactGridItem(
         isLocal = item.isLocal,
         language = item.sourceLanguage,
     ) {
-        // TODO FOUND IT
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp))
@@ -113,37 +109,28 @@ fun LibraryCompactGridItem(
                 .align(Alignment.BottomCenter),
         )
         MangaGridCompactText(manga.title)
-
-        MangaReturnReadingButton()
+        MangaContinueReadingButton()
     }
 }
 
 // TODO finish this
 // https://stackoverflow.com/questions/56767624/how-to-load-image-from-drawable-in-jetpack-compose
 
-//https://stackoverflow.com/questions/70708107/how-to-make-text-centered-vertically-in-android-compose
+// https://stackoverflow.com/questions/70708107/how-to-make-text-centered-vertically-in-android-compose
 @Composable
-fun BoxScope.MangaReturnReadingButton() {
-    Card(
-        border = BorderStroke(2.dp, Color.Red),
+fun BoxScope.MangaContinueReadingButton() {
+    Image(
+        painterResource(R.drawable.ic_continue_reading_24dp),
+        contentDescription = "",
         modifier = Modifier
             .padding(8.dp)
-            .size(32.dp)
+            .size(24.dp)
             .align(Alignment.BottomEnd)
             .clickable {
             },
-    ) {
-        Image(
-            painterResource(R.drawable.ic_continue_reading_24dp),
-            contentDescription = "",
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                //.absoluteOffset(x = 2.dp, y = 2.dp)
-                .size(24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        )
-    }
+    )
 
+    // TODO try floating action button
     /*
     ElevatedCard(
         modifier = modifier,

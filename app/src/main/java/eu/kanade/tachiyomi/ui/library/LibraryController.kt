@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
 import eu.kanade.core.prefs.CheckboxState
+import eu.kanade.domain.chapter.model.Chapter
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.isLocal
 import eu.kanade.domain.manga.model.toDbManga
@@ -24,9 +25,12 @@ import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchController
 import eu.kanade.tachiyomi.ui.category.CategoryController
 import eu.kanade.tachiyomi.ui.main.MainActivity
 import eu.kanade.tachiyomi.ui.manga.MangaController
+import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 class LibraryController(
     bundle: Bundle? = null,
@@ -179,7 +183,33 @@ class LibraryController(
         // Notify the presenter a manga is being opened.
         presenter.onOpenManga()
 
-        router.pushController(MangaController(mangaId))
+        var mangaPresenter = MangaController(mangaId).presenter
+
+        for (i in 0 until 50) {
+            runBlocking {
+                delay(50L)
+                val test = mangaPresenter.getNextUnreadChapter()
+                test?.let { openChapter(it) }
+            }
+        }
+
+        /*
+        var MangaPresenter = MangaPresenter(
+            mangaId = mangaId,
+            isFromSource = args.getBoolean(MangaController.FROM_SOURCE_EXTRA, false),
+        )
+
+        val chapter = MangaPresenter(
+            mangaId = mangaId,
+            isFromSource = args.getBoolean(MangaController.FROM_SOURCE_EXTRA, false),
+        ).getNextUnreadChapter()
+         */
+    }
+
+    private fun openChapter(chapter: Chapter) {
+        activity?.run {
+            startActivity(ReaderActivity.newIntent(this, chapter.mangaId, chapter.id))
+        }
     }
 
     /**
