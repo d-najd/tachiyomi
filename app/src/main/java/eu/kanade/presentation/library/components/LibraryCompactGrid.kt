@@ -35,7 +35,7 @@ fun LibraryCompactGrid(
     selection: List<LibraryManga>,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickLastRead: (Long) -> Unit,
+    onClickContinueReading: (Long) -> Unit,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
@@ -55,7 +55,7 @@ fun LibraryCompactGrid(
                 isSelected = libraryItem.libraryManga in selection,
                 onClick = onClick,
                 onLongClick = onLongClick,
-                onClickLastRead = onClickLastRead,
+                onClickContinueReading = onClickContinueReading,
             )
         }
     }
@@ -67,7 +67,7 @@ fun LibraryCompactGridItem(
     isSelected: Boolean,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickLastRead: (Long) -> Unit,
+    onClickContinueReading: (Long) -> Unit,
 ) {
     val libraryManga = item.libraryManga
     val manga = libraryManga.manga
@@ -108,7 +108,7 @@ fun LibraryCompactGridItem(
                 .align(Alignment.BottomCenter),
         )
         MangaGridCompactText(manga.title)
-        LibraryGridItemLastReadButton(manga.id, onClickLastRead)
+        LibraryGridItemLastReadButton(manga.id, onClickContinueReading)
     }
 }
 

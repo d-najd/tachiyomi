@@ -31,7 +31,7 @@ fun LibraryPager(
     getLibraryForPage: @Composable (Int) -> List<LibraryItem>,
     onClickManga: (LibraryManga) -> Unit,
     onLongClickManga: (LibraryManga) -> Unit,
-    onClickLastRead: (Long) -> Unit,
+    onClickContinueReading: (Long) -> Unit,
 ) {
     HorizontalPager(
         count = pageCount,
@@ -74,7 +74,7 @@ fun LibraryPager(
                     selection = selectedManga,
                     onClick = onClickManga,
                     onLongClick = onLongClickManga,
-                    onClickLastRead = onClickLastRead,
+                    onClickContinueReading = onClickContinueReading,
                     searchQuery = searchQuery,
                     onGlobalSearchClicked = onGlobalSearchClicked,
                 )
@@ -86,7 +86,7 @@ fun LibraryPager(
                     contentPadding = contentPadding,
                     selection = selectedManga,
                     onClick = onClickManga,
-                    onClickLastRead = onClickLastRead,
+                    onClickContinueReading = onClickContinueReading,
                     onLongClick = onLongClickManga,
                     searchQuery = searchQuery,
                     onGlobalSearchClicked = onGlobalSearchClicked,
@@ -99,7 +99,7 @@ fun LibraryPager(
                     contentPadding = contentPadding,
                     selection = selectedManga,
                     onClick = onClickManga,
-                    onClickLastRead = onClickLastRead,
+                    onClickContinueReading = onClickContinueReading,
                     onLongClick = onLongClickManga,
                     searchQuery = searchQuery,
                     onGlobalSearchClicked = onGlobalSearchClicked,

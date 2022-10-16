@@ -52,7 +52,7 @@ class LibraryController(
         LibraryScreen(
             presenter = presenter,
             onMangaClicked = ::openManga,
-            onLastReadClicked = ::openLastRead,
+            onContinueReadingClicked = ::openLastRead,
             onGlobalSearchClicked = {
                 router.pushController(GlobalSearchController(presenter.searchQuery))
             },
@@ -191,9 +191,8 @@ class LibraryController(
     }
 
     fun openLastRead(mangaId: Long) {
-        // Notify the presenter a manga is being opened.
-        presenter.onOpenManga()
-
+        //TODO note cant notify that manga is being opened like in the method openManga because
+        // we wont be able to switch display modes for the library
         val presenterScope: CoroutineScope = MainScope()
 
         presenterScope.launchIO {

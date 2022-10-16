@@ -17,7 +17,7 @@ fun LibraryCoverOnlyGrid(
     selection: List<LibraryManga>,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickLastRead: (Long) -> Unit,
+    onClickContinueReading: (Long) -> Unit,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
@@ -37,7 +37,7 @@ fun LibraryCoverOnlyGrid(
                 isSelected = libraryItem.libraryManga in selection,
                 onClick = onClick,
                 onLongClick = onLongClick,
-                onClickLastRead = onClickLastRead,
+                onClickContinueReading = onClickContinueReading,
             )
         }
     }
@@ -49,7 +49,7 @@ fun LibraryCoverOnlyGridItem(
     isSelected: Boolean,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickLastRead: (Long) -> Unit,
+    onClickContinueReading: (Long) -> Unit,
 ) {
     val libraryManga = item.libraryManga
     val manga = libraryManga.manga
@@ -76,6 +76,6 @@ fun LibraryCoverOnlyGridItem(
         isLocal = item.isLocal,
         language = item.sourceLanguage,
     ) {
-        LibraryGridItemLastReadButton(manga.id, onClickLastRead)
+        LibraryGridItemLastReadButton(manga.id, onClickContinueReading)
     }
 }

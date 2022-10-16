@@ -25,7 +25,7 @@ fun LibraryComfortableGrid(
     selection: List<LibraryManga>,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickLastRead: (Long) -> Unit,
+    onClickContinueReading: (Long) -> Unit,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
@@ -45,7 +45,7 @@ fun LibraryComfortableGrid(
                 libraryItem.libraryManga in selection,
                 onClick,
                 onLongClick,
-                onClickLastRead,
+                onClickContinueReading,
             )
         }
     }
@@ -57,7 +57,7 @@ fun LibraryComfortableGridItem(
     isSelected: Boolean,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickLastRead: (Long) -> Unit,
+    onClickContinueReading: (Long) -> Unit,
 ) {
     val libraryManga = item.libraryManga
     val manga = libraryManga.manga
@@ -86,7 +86,7 @@ fun LibraryComfortableGridItem(
                 isLocal = item.isLocal,
                 language = item.sourceLanguage,
             ) {
-                LibraryGridItemLastReadButton(manga.id, onClickLastRead)
+                LibraryGridItemLastReadButton(manga.id, onClickContinueReading)
             }
             MangaGridComfortableText(
                 text = manga.title,
