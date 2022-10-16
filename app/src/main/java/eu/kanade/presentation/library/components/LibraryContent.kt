@@ -39,6 +39,7 @@ fun LibraryContent(
     showMangaCount: Boolean,
     onChangeCurrentPage: (Int) -> Unit,
     onMangaClicked: (Long) -> Unit,
+    onLastReadClicked: (Long) -> Unit,
     onToggleSelection: (LibraryManga) -> Unit,
     onRefresh: (Category?) -> Boolean,
     onGlobalSearchClicked: () -> Unit,
@@ -82,6 +83,9 @@ fun LibraryContent(
         val onLongClickManga = { manga: LibraryManga ->
             onToggleSelection(manga)
         }
+        val onClickLastRead = { mangaId: Long ->
+            onLastReadClicked(mangaId)
+        }
 
         SwipeRefresh(
             refreshing = isRefreshing,
@@ -107,6 +111,7 @@ fun LibraryContent(
                 getLibraryForPage = getLibraryForPage,
                 onClickManga = onClickManga,
                 onLongClickManga = onLongClickManga,
+                onClickLastRead = onClickLastRead,
                 onGlobalSearchClicked = onGlobalSearchClicked,
                 searchQuery = state.searchQuery,
             )

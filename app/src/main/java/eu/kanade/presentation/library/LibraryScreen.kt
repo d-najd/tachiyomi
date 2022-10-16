@@ -26,6 +26,7 @@ import eu.kanade.tachiyomi.widget.TachiyomiBottomNavigationView
 fun LibraryScreen(
     presenter: LibraryPresenter,
     onMangaClicked: (Long) -> Unit,
+    onLastReadClicked: (Long) -> Unit,
     onGlobalSearchClicked: () -> Unit,
     onChangeCategoryClicked: () -> Unit,
     onMarkAsReadClicked: () -> Unit,
@@ -95,6 +96,7 @@ fun LibraryScreen(
                     showMangaCount = presenter.mangaCountVisibility,
                     onChangeCurrentPage = { presenter.activeCategory = it },
                     onMangaClicked = onMangaClicked,
+                    onLastReadClicked = onLastReadClicked,
                     onToggleSelection = { presenter.toggleSelection(it) },
                     onRefresh = onClickRefresh,
                     onGlobalSearchClicked = onGlobalSearchClicked,

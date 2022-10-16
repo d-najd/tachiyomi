@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
 import eu.kanade.core.prefs.CheckboxState
-import eu.kanade.domain.chapter.model.Chapter
 import eu.kanade.domain.manga.interactor.GetMangaWithChapters
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.isLocal
@@ -28,7 +27,6 @@ import eu.kanade.tachiyomi.ui.main.MainActivity
 import eu.kanade.tachiyomi.ui.manga.MangaController
 import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.util.lang.launchIO
-import eu.kanade.tachiyomi.util.system.logcat
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -54,6 +52,7 @@ class LibraryController(
         LibraryScreen(
             presenter = presenter,
             onMangaClicked = ::openManga,
+            onLastReadClicked = ::openLastRead,
             onGlobalSearchClicked = {
                 router.pushController(GlobalSearchController(presenter.searchQuery))
             },
@@ -185,50 +184,27 @@ class LibraryController(
     }
 
     private fun openManga(mangaId: Long) {
-        openLastRead(mangaId)
-
         // Notify the presenter a manga is being opened.
-        //presenter.onOpenManga()
+        presenter.onOpenManga()
 
-        //router.pushController(MangaController(mangaId))
+        router.pushController(MangaController(mangaId))
     }
 
-    private fun openLastRead(mangaId: Long) {
+    fun openLastRead(mangaId: Long) {
         // Notify the presenter a manga is being opened.
         presenter.onOpenManga()
 
         val presenterScope: CoroutineScope = MainScope()
 
         presenterScope.launchIO {
-            val manga = getMangaAndChapters.awaitManga(mangaId)
             val chapters = getMangaAndChapters.awaitChapters(mangaId)
+            val latestUnread = chapters.findLast { !it.read }
 
-            var latestUnread = chapters.findLast { !it.read }
-
-            val optimized = chapters.map { it }.let { _ ->
-                if (manga.sortDescending()) {
-                    chapters.findLast { !it.read }
-                } else {
-                    chapters.find { !it.read }
+            if (latestUnread != null) {
+                activity?.run {
+                    startActivity(ReaderActivity.newIntent(this, latestUnread.mangaId, latestUnread.id))
                 }
             }
-
-            logcat { "te hello is $optimized" }
-            logcat { "latestUnread hello is $latestUnread" }
-
-            openChapter(latestUnread!!)
-            /*
-            if (te != null) {
-                openChapter(te)
-            }
-             */
-        }
-    }
-
-    //TODO this exists in MangaController so I am repeating myself
-    private fun openChapter(chapter: Chapter) {
-        activity?.run {
-            startActivity(ReaderActivity.newIntent(this, chapter.mangaId, chapter.id))
         }
     }
 

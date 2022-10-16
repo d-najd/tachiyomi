@@ -1,8 +1,6 @@
 package eu.kanade.presentation.library.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -23,12 +20,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import eu.kanade.data.manga.libraryManga
 import eu.kanade.domain.library.model.LibraryManga
-import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 
 @Composable
@@ -39,6 +35,7 @@ fun LibraryCompactGrid(
     selection: List<LibraryManga>,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
+    onClickLastRead: (Long) -> Unit,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
@@ -58,6 +55,7 @@ fun LibraryCompactGrid(
                 isSelected = libraryItem.libraryManga in selection,
                 onClick = onClick,
                 onLongClick = onLongClick,
+                onClickLastRead = onClickLastRead,
             )
         }
     }
@@ -69,6 +67,7 @@ fun LibraryCompactGridItem(
     isSelected: Boolean,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
+    onClickLastRead: (Long) -> Unit,
 ) {
     val libraryManga = item.libraryManga
     val manga = libraryManga.manga
@@ -109,46 +108,8 @@ fun LibraryCompactGridItem(
                 .align(Alignment.BottomCenter),
         )
         MangaGridCompactText(manga.title)
-        MangaContinueReadingButton()
+        LibraryGridItemLastReadButton(manga.id, onClickLastRead)
     }
-}
-
-// TODO finish this
-// https://stackoverflow.com/questions/56767624/how-to-load-image-from-drawable-in-jetpack-compose
-
-// https://stackoverflow.com/questions/70708107/how-to-make-text-centered-vertically-in-android-compose
-@Composable
-fun BoxScope.MangaContinueReadingButton() {
-    Image(
-        painterResource(R.drawable.ic_continue_reading_24dp),
-        contentDescription = "",
-        modifier = Modifier
-            .padding(8.dp)
-            .size(24.dp)
-            .align(Alignment.BottomEnd)
-    )
-
-    // TODO try floating action button
-    /*
-    ElevatedCard(
-        modifier = modifier,
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onRename() }
-                .padding(start = horizontalPadding, top = horizontalPadding, end = horizontalPadding),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(imageVector = Icons.Outlined.Label, contentDescription = "")
-            Text(
-                text = category.name,
-                modifier = Modifier
-                    .padding(start = horizontalPadding),
-            )
-        }
-
-     */
 }
 
 @Composable
