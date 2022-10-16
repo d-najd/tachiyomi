@@ -28,6 +28,10 @@ fun LibraryPager(
     getDisplayModeForPage: @Composable (Int) -> LibraryDisplayMode,
     getColumnsForOrientation: (Boolean) -> PreferenceMutableState<Int>,
     getLibraryForPage: @Composable (Int) -> List<LibraryItem>,
+    showDownloadBadges: Boolean,
+    showUnreadBadges: Boolean,
+    showLocalBadges: Boolean,
+    showLanguageBadges: Boolean,
     onClickManga: (LibraryManga) -> Unit,
     onLongClickManga: (LibraryManga) -> Unit,
     onClickContinueReading: (Long) -> Unit,
@@ -57,6 +61,10 @@ fun LibraryPager(
             LibraryDisplayMode.List -> {
                 LibraryList(
                     items = library,
+                    showDownloadBadges = showDownloadBadges,
+                    showUnreadBadges = showUnreadBadges,
+                    showLocalBadges = showLocalBadges,
+                    showLanguageBadges = showLanguageBadges,
                     contentPadding = contentPadding,
                     selection = selectedManga,
                     onClick = onClickManga,
@@ -68,6 +76,10 @@ fun LibraryPager(
             LibraryDisplayMode.CompactGrid -> {
                 LibraryCompactGrid(
                     items = library,
+                    showDownloadBadges = showDownloadBadges,
+                    showUnreadBadges = showUnreadBadges,
+                    showLocalBadges = showLocalBadges,
+                    showLanguageBadges = showLanguageBadges,
                     columns = columns,
                     contentPadding = contentPadding,
                     selection = selectedManga,
@@ -81,6 +93,10 @@ fun LibraryPager(
             LibraryDisplayMode.ComfortableGrid -> {
                 LibraryComfortableGrid(
                     items = library,
+                    showDownloadBadges = showDownloadBadges,
+                    showUnreadBadges = showUnreadBadges,
+                    showLocalBadges = showLocalBadges,
+                    showLanguageBadges = showLanguageBadges,
                     columns = columns,
                     contentPadding = contentPadding,
                     selection = selectedManga,
@@ -94,6 +110,10 @@ fun LibraryPager(
             LibraryDisplayMode.CoverOnlyGrid -> {
                 LibraryCoverOnlyGrid(
                     items = library,
+                    showDownloadBadges = showDownloadBadges,
+                    showUnreadBadges = showUnreadBadges,
+                    showLocalBadges = showLocalBadges,
+                    showLanguageBadges = showLanguageBadges,
                     columns = columns,
                     contentPadding = contentPadding,
                     selection = selectedManga,
