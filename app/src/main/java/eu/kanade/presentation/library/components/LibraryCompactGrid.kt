@@ -20,10 +20,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.kanade.data.manga.libraryManga
 import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 
@@ -119,7 +119,7 @@ fun BoxScope.MangaGridCompactText(
     Text(
         text = text,
         modifier = Modifier
-            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp, end = 34.dp)
+            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp, end = 42.dp)
             .align(Alignment.BottomStart),
         color = Color.White,
         fontSize = 12.sp,

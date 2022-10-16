@@ -31,7 +31,6 @@ import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import uy.kohesive.injekt.api.get
 
 class LibraryController(
     bundle: Bundle? = null,

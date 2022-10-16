@@ -17,7 +17,6 @@ import eu.kanade.presentation.components.BadgeGroup
 import eu.kanade.presentation.components.MangaCover
 import eu.kanade.tachiyomi.R
 
-// TODO seems to be for the top items?
 @Composable
 fun MangaGridCover(
     modifier: Modifier = Modifier,

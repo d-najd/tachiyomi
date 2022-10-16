@@ -17,7 +17,6 @@ import eu.kanade.domain.library.model.LibraryDisplayMode
 import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 
-// TODO seems to be the horizontal list not the items themselves
 @Composable
 fun LibraryPager(
     state: PagerState,

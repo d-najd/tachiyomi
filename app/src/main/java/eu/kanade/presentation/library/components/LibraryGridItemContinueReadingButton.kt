@@ -26,7 +26,7 @@ fun BoxScope.LibraryGridItemLastReadButton(
         onClick = { onClickLastRead(mangaId) },
         modifier = Modifier
             .size(34.dp)
-            .offset(x = (-6).dp, y = (-6).dp) // padding makes the icon smaller
+            .offset(x = (-5).dp, y = (-5).dp) // padding makes the icon smaller
             .align(Alignment.BottomEnd),
         shape = CircleShape,
         border = BorderStroke(1.dp, Color.White),

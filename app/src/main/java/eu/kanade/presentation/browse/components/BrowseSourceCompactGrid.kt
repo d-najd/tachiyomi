@@ -121,7 +121,7 @@ fun BrowseSourceCompactGridItem(
                     )
                     .fillMaxHeight(0.33f)
                     .fillMaxWidth()
-                    .align(Alignment.BottomEnd),
+                    .align(Alignment.BottomCenter),
             )
             MangaGridCompactText(manga.title)
         },
