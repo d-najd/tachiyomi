@@ -191,7 +191,7 @@ class LibraryController(
     }
 
     fun openLastRead(mangaId: Long) {
-        //TODO note cant notify that manga is being opened like in the method openManga because
+        // TODO note cant notify that manga is being opened like in the method openManga because
         // we wont be able to switch display modes for the library
         val presenterScope: CoroutineScope = MainScope()
 
