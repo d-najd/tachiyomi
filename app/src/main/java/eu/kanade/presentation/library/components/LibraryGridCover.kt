@@ -70,21 +70,6 @@ fun LibraryGridCover(
                 modifier = Modifier.fillMaxWidth(),
                 data = mangaCover,
             )
-            /*
-            Image(
-                painterResource(R.drawable.ic_continue_reading_24dp),
-                contentDescription = "",
-                modifier = modifier
-                    // .aspectRatio(MangaCover.Book.ratio)
-                    // .fillMaxWidth()
-                    .align(Alignment.BottomEnd)
-                    .padding(8.dp)
-                    .size(24.dp)
-                    .combinedClickable {
-                        // onClickLastRead(libraryManga.manga.id)
-                    },
-            )
-             */
         },
         badgesStart = {
             if (downloadCount > 0) {

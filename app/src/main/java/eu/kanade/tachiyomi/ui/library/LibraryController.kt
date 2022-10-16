@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
 import eu.kanade.core.prefs.CheckboxState
-import eu.kanade.domain.manga.interactor.GetMangaWithChapters
+import eu.kanade.domain.chapter.model.Chapter
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.isLocal
 import eu.kanade.domain.manga.model.toDbManga
@@ -31,12 +31,10 @@ import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
 class LibraryController(
     bundle: Bundle? = null,
-    private val getMangaAndChapters: GetMangaWithChapters = Injekt.get(),
 ) : FullComposeController<LibraryPresenter>(bundle), RootController {
 
     /**
@@ -52,7 +50,7 @@ class LibraryController(
         LibraryScreen(
             presenter = presenter,
             onMangaClicked = ::openManga,
-            onContinueReadingClicked = ::openLastRead,
+            onContinueReadingClicked = ::continueReading,
             onGlobalSearchClicked = {
                 router.pushController(GlobalSearchController(presenter.searchQuery))
             },
@@ -190,20 +188,18 @@ class LibraryController(
         router.pushController(MangaController(mangaId))
     }
 
-    fun openLastRead(mangaId: Long) {
-        // TODO note cant notify that manga is being opened like in the method openManga because
-        // we wont be able to switch display modes for the library
+    private fun continueReading(mangaId: Long) {
         val presenterScope: CoroutineScope = MainScope()
 
         presenterScope.launchIO {
-            val chapters = getMangaAndChapters.awaitChapters(mangaId)
-            val latestUnread = chapters.findLast { !it.read }
+            val chapter = presenter.getNextUnreadChapter(mangaId)
+            if (chapter != null) openChapter(chapter)
+        }
+    }
 
-            if (latestUnread != null) {
-                activity?.run {
-                    startActivity(ReaderActivity.newIntent(this, latestUnread.mangaId, latestUnread.id))
-                }
-            }
+    private fun openChapter(chapter: Chapter) {
+        activity?.run {
+            startActivity(ReaderActivity.newIntent(this, chapter.mangaId, chapter.id))
         }
     }
 
