@@ -25,6 +25,7 @@ import eu.kanade.domain.chapter.interactor.GetChapterByMangaId
 import eu.kanade.domain.chapter.interactor.SetReadStatus
 import eu.kanade.domain.chapter.model.Chapter
 import eu.kanade.domain.chapter.model.toDbChapter
+import eu.kanade.domain.history.interactor.GetNextChapter
 import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.domain.library.model.LibrarySort
 import eu.kanade.domain.library.model.sort
@@ -86,6 +87,7 @@ class LibraryPresenter(
     private val state: LibraryStateImpl = LibraryState() as LibraryStateImpl,
     private val handler: DatabaseHandler = Injekt.get(),
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
+    private val getNextChapter: GetNextChapter = Injekt.get(),
     private val getMangaWithChapters: GetMangaWithChapters = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
@@ -475,8 +477,7 @@ class LibraryPresenter(
     }
 
     suspend fun getNextUnreadChapter(mangaId: Long): Chapter? {
-        val chapters = getMangaWithChapters.awaitChapters(mangaId)
-        return chapters.findLast { !it.read }
+        return getNextChapter.await(mangaId)
     }
 
     /**

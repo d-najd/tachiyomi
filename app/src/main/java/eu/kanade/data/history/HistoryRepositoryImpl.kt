@@ -28,6 +28,22 @@ class HistoryRepositoryImpl(
         }
     }
 
+    override suspend fun getNextChapter(mangaId: Long): Chapter? {
+        val manga = handler.awaitOne { mangasQueries.getMangaById(mangaId, mangaMapper) }
+
+        val sortFunction: (Chapter, Chapter) -> Int = when (manga.sorting) {
+            Manga.CHAPTER_SORTING_SOURCE -> { c1, c2 -> c2.sourceOrder.compareTo(c1.sourceOrder) }
+            Manga.CHAPTER_SORTING_NUMBER -> { c1, c2 -> c1.chapterNumber.compareTo(c2.chapterNumber) }
+            Manga.CHAPTER_SORTING_UPLOAD_DATE -> { c1, c2 -> c1.dateUpload.compareTo(c2.dateUpload) }
+            else -> throw NotImplementedError("Unknown sorting method")
+        }
+
+        val chapters = handler.awaitList { chaptersQueries.getChaptersByMangaId(mangaId, chapterMapper) }
+            .sortedWith(sortFunction)
+
+        return chapters.find { !it.read }
+    }
+
     override suspend fun getNextChapter(mangaId: Long, chapterId: Long): Chapter? {
         val chapter = handler.awaitOne { chaptersQueries.getChapterById(chapterId, chapterMapper) }
         val manga = handler.awaitOne { mangasQueries.getMangaById(mangaId, mangaMapper) }

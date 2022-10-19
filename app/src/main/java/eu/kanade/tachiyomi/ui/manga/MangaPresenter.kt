@@ -18,6 +18,7 @@ import eu.kanade.domain.chapter.interactor.UpdateChapter
 import eu.kanade.domain.chapter.model.ChapterUpdate
 import eu.kanade.domain.chapter.model.toDbChapter
 import eu.kanade.domain.download.service.DownloadPreferences
+import eu.kanade.domain.history.interactor.GetNextChapter
 import eu.kanade.domain.library.service.LibraryPreferences
 import eu.kanade.domain.manga.interactor.GetDuplicateLibraryManga
 import eu.kanade.domain.manga.interactor.GetMangaWithChapters
@@ -101,6 +102,7 @@ class MangaPresenter(
     private val syncChaptersWithSource: SyncChaptersWithSource = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
     private val deleteTrack: DeleteTrack = Injekt.get(),
+    private val getNextChapter: GetNextChapter = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
     private val setMangaCategories: SetMangaCategories = Injekt.get(),
     private val insertTrack: InsertTrack = Injekt.get(),
@@ -579,15 +581,9 @@ class MangaPresenter(
     /**
      * Returns the next unread chapter or null if everything is read.
      */
-    fun getNextUnreadChapter(): DomainChapter? {
+    suspend fun getNextUnreadChapter(): DomainChapter? {
         val successState = successState ?: return null
-        return successState.processedChapters.map { it.chapter }.let { chapters ->
-            if (successState.manga.sortDescending()) {
-                chapters.findLast { !it.read }
-            } else {
-                chapters.find { !it.read }
-            }
-        }
+        return getNextChapter.await(successState.manga.id)
     }
 
     fun getUnreadChapters(): List<DomainChapter> {
