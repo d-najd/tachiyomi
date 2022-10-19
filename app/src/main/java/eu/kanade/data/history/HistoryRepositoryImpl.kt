@@ -41,7 +41,28 @@ class HistoryRepositoryImpl(
         val chapters = handler.awaitList { chaptersQueries.getChaptersByMangaId(mangaId, chapterMapper) }
             .sortedWith(sortFunction)
 
-        return chapters.find { !it.read }
+        val firstUnreadChapter = chapters.find { !it.read } ?: return null
+        val chapter = chapters.getOrElse(chapters.indexOf(firstUnreadChapter) - 1) { return null }
+
+        val currChapterIndex = chapters.indexOfFirst { chapter.id == it.id }
+        return when (manga.sorting) {
+            Manga.CHAPTER_SORTING_SOURCE -> chapters.getOrNull(currChapterIndex + 1)
+            Manga.CHAPTER_SORTING_NUMBER -> {
+                val chapterNumber = chapter.chapterNumber
+
+                ((currChapterIndex + 1) until chapters.size)
+                    .map { chapters[it] }
+                    .firstOrNull {
+                        it.chapterNumber > chapterNumber &&
+                            it.chapterNumber <= chapterNumber + 1
+                    }
+            }
+            Manga.CHAPTER_SORTING_UPLOAD_DATE -> {
+                chapters.drop(currChapterIndex + 1)
+                    .firstOrNull { it.dateUpload >= chapter.dateUpload }
+            }
+            else -> throw NotImplementedError("Unknown sorting method")
+        }
     }
 
     override suspend fun getNextChapter(mangaId: Long, chapterId: Long): Chapter? {
