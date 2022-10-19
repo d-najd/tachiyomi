@@ -131,7 +131,7 @@ fun BoxScope.MangaGridCompactText(
     Text(
         text = text,
         modifier = Modifier
-            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp, end = 42.dp)
+            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp, end = 38.dp)
             .align(Alignment.BottomStart),
         color = Color.White,
         fontSize = 12.sp,
