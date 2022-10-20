@@ -28,8 +28,6 @@ import eu.kanade.tachiyomi.ui.manga.MangaController
 import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.system.toast
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 
 class LibraryController(
@@ -182,9 +180,7 @@ class LibraryController(
     }
 
     private fun continueReading(mangaId: Long) {
-        val presenterScope: CoroutineScope = MainScope()
-
-        presenterScope.launchIO {
+        viewScope.launchIO {
             val chapter = presenter.getNextUnreadChapter(mangaId)
             if (chapter != null) openChapter(chapter)
         }

@@ -89,8 +89,8 @@ fun LibraryCoverOnlyGridItem(
         item = item,
         showDownloadBadge = showDownloadBadge,
         showUnreadBadge = showUnreadBadge,
-        showLanguageBadge = showLanguageBadge,
         showLocalBadge = showLocalBadge,
+        showLanguageBadge = showLanguageBadge,
     ) {
         if (showContinueReadingButton) {
             LibraryGridItemContinueReadingButton(manga.id, onClickContinueReading)

@@ -31,7 +31,6 @@ import eu.kanade.domain.library.model.LibrarySort
 import eu.kanade.domain.library.model.sort
 import eu.kanade.domain.library.service.LibraryPreferences
 import eu.kanade.domain.manga.interactor.GetLibraryManga
-import eu.kanade.domain.manga.interactor.GetMangaWithChapters
 import eu.kanade.domain.manga.interactor.UpdateManga
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.MangaUpdate
@@ -88,7 +87,6 @@ class LibraryPresenter(
     private val handler: DatabaseHandler = Injekt.get(),
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
     private val getNextChapter: GetNextChapter = Injekt.get(),
-    private val getMangaWithChapters: GetMangaWithChapters = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
     private val getBookmarkedChaptersByMangaId: GetBookmarkedChaptersByMangaId = Injekt.get(),
