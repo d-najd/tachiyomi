@@ -16,12 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BoxScope.LibraryGridItemLastReadButton(
+fun BoxScope.LibraryGridItemContinueReadingButton(
     mangaId: Long,
-    onClickLastRead: (Long) -> Unit,
+    onClickContinueReading: (Long) -> Unit,
 ) {
     FilledIconButton(
-        onClick = { onClickLastRead(mangaId) },
+        onClick = { onClickContinueReading(mangaId) },
         modifier = Modifier
             .size(38.dp)
             .padding(4.dp)

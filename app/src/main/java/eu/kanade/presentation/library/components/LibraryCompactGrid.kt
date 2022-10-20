@@ -33,6 +33,7 @@ fun LibraryCompactGrid(
     showUnreadBadges: Boolean,
     showLocalBadges: Boolean,
     showLanguageBadges: Boolean,
+    showContinueReadingButton: Boolean,
     columns: Int,
     contentPadding: PaddingValues,
     selection: List<LibraryManga>,
@@ -59,6 +60,7 @@ fun LibraryCompactGrid(
                 showUnreadBadge = showUnreadBadges,
                 showLocalBadge = showLocalBadges,
                 showLanguageBadge = showLanguageBadges,
+                showContinueReadingButton = showContinueReadingButton,
                 isSelected = libraryItem.libraryManga in selection,
                 onClick = onClick,
                 onLongClick = onLongClick,
@@ -75,6 +77,7 @@ fun LibraryCompactGridItem(
     showUnreadBadge: Boolean,
     showLocalBadge: Boolean,
     showLanguageBadge: Boolean,
+    showContinueReadingButton: Boolean,
     isSelected: Boolean,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
@@ -119,19 +122,28 @@ fun LibraryCompactGridItem(
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
         )
-        MangaGridCompactText(manga.title)
-        LibraryGridItemLastReadButton(manga.id, onClickContinueReading)
+        MangaGridCompactText(manga.title, showContinueReadingButton)
+        if (showContinueReadingButton) {
+            LibraryGridItemContinueReadingButton(manga.id, onClickContinueReading)
+        }
     }
 }
 
 @Composable
 fun BoxScope.MangaGridCompactText(
     text: String,
+    showContinueReadingButton: Boolean,
 ) {
+    val endPadding = if (showContinueReadingButton) 38.dp else 8.dp
     Text(
         text = text,
         modifier = Modifier
-            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp, end = 38.dp)
+            .padding(
+                start = 8.dp,
+                top = 8.dp,
+                bottom = 8.dp,
+                end = endPadding,
+            )
             .align(Alignment.BottomStart),
         color = Color.White,
         fontSize = 12.sp,

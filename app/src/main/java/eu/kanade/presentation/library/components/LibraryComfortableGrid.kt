@@ -24,6 +24,7 @@ fun LibraryComfortableGrid(
     showUnreadBadges: Boolean,
     showLocalBadges: Boolean,
     showLanguageBadges: Boolean,
+    showContinueReadingButton: Boolean,
     columns: Int,
     contentPadding: PaddingValues,
     selection: List<LibraryManga>,
@@ -50,6 +51,7 @@ fun LibraryComfortableGrid(
                 showUnreadBadge = showUnreadBadges,
                 showLocalBadge = showLocalBadges,
                 showLanguageBadge = showLanguageBadges,
+                showContinueReadingButton = showContinueReadingButton,
                 isSelected = libraryItem.libraryManga in selection,
                 onClick = onClick,
                 onLongClick = onLongClick,
@@ -66,6 +68,7 @@ fun LibraryComfortableGridItem(
     showUnreadBadge: Boolean,
     showLocalBadge: Boolean,
     showLanguageBadge: Boolean,
+    showContinueReadingButton: Boolean,
     isSelected: Boolean,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
@@ -99,7 +102,9 @@ fun LibraryComfortableGridItem(
                 showLocalBadge = showLocalBadge,
                 showLanguageBadge = showLanguageBadge,
             ) {
-                LibraryGridItemLastReadButton(manga.id, onClickContinueReading)
+                if (showContinueReadingButton) {
+                    LibraryGridItemContinueReadingButton(manga.id, onClickContinueReading)
+                }
             }
             MangaGridComfortableText(
                 text = manga.title,

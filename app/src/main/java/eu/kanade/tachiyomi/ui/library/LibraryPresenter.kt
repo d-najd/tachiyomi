@@ -118,6 +118,8 @@ class LibraryPresenter(
 
     var activeCategory: Int by libraryPreferences.lastUsedCategory().asState()
 
+    val showContinueReadingButton by libraryPreferences.showContinueReadingButton().asState()
+
     val isDownloadOnly: Boolean by preferences.downloadedOnly().asState()
     val isIncognitoMode: Boolean by preferences.incognitoMode().asState()
 

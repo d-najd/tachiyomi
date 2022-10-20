@@ -49,6 +49,7 @@ fun LibraryContent(
     showUnreadBadges: Boolean,
     showLocalBadges: Boolean,
     showLanguageBadges: Boolean,
+    showContinueReadingButton: Boolean,
     isDownloadOnly: Boolean,
     isIncognitoMode: Boolean,
 ) {
@@ -117,6 +118,7 @@ fun LibraryContent(
                 showUnreadBadges = showUnreadBadges,
                 showLocalBadges = showLocalBadges,
                 showLanguageBadges = showLanguageBadges,
+                showContinueReadingButton = showContinueReadingButton,
                 onClickManga = onClickManga,
                 onLongClickManga = onLongClickManga,
                 onClickContinueReading = onClickContinueReading,

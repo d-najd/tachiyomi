@@ -81,6 +81,12 @@ class LibraryPreferences(
 
     // endregion
 
+    // region Other
+
+    fun showContinueReadingButton() = preferenceStore.getBoolean("display_continue_reading_button", false)
+
+    // endregion
+
     // region Chapter
 
     fun filterChapterByRead() = preferenceStore.getLong("default_chapter_filter_by_read", Manga.SHOW_ALL)

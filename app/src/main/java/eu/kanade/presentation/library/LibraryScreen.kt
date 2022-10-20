@@ -109,6 +109,7 @@ fun LibraryScreen(
                     showUnreadBadges = presenter.showUnreadBadges,
                     showLocalBadges = presenter.showLocalBadges,
                     showLanguageBadges = presenter.showLanguageBadges,
+                    showContinueReadingButton = presenter.showContinueReadingButton,
                     isIncognitoMode = presenter.isIncognitoMode,
                     isDownloadOnly = presenter.isDownloadOnly,
                 )
