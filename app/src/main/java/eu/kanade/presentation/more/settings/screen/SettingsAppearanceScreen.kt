@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.ui.model.ThemeMode
+import eu.kanade.domain.ui.model.setAppCompatDelegateThemeMode
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.util.collectAsState
 import eu.kanade.tachiyomi.R
@@ -53,6 +54,10 @@ class SettingsAppearanceScreen : SearchableSettings {
         val themeMode by themeModePref.collectAsState()
         val appThemePref = uiPreferences.appTheme()
         val amoledPref = uiPreferences.themeDarkAmoled()
+
+        LaunchedEffect(themeMode) {
+            setAppCompatDelegateThemeMode(themeMode)
+        }
 
         LaunchedEffect(Unit) {
             merge(appThemePref.changes(), amoledPref.changes())

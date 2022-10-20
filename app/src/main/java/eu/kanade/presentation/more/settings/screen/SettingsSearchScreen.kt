@@ -91,12 +91,15 @@ class SettingsSearchScreen : Screen {
                 Column {
                     TopAppBar(
                         navigationIcon = {
-                            IconButton(onClick = navigator::pop) {
-                                Icon(
-                                    imageVector = Icons.Default.ArrowBack,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                            val canPop = remember { navigator.canPop }
+                            if (canPop) {
+                                IconButton(onClick = navigator::pop) {
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowBack,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
                         },
                         title = {
@@ -182,9 +185,10 @@ private fun SearchResult(
                                 }
                             }
                             is Preference.PreferenceItem<*> -> sequenceOf(null to p)
-                            else -> emptySequence() // Ignore other prefs
                         }
                     }
+                    // Don't show info preference
+                    .filterNot { it.second is Preference.PreferenceItem.InfoPreference }
                     // Filter by search query
                     .filter { (_, p) ->
                         val inTitle = p.title.contains(searchKey, true)

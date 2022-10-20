@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,68 +27,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.presentation.more.settings.LocalPreferenceHighlighted
-import eu.kanade.presentation.util.secondaryItemAlpha
 import kotlinx.coroutines.delay
 
 @Composable
 internal fun BasePreferenceWidget(
     modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String? = null,
-    icon: ImageVector? = null,
-    onClick: (() -> Unit)? = null,
-    widget: @Composable (() -> Unit)? = null,
-) {
-    BasePreferenceWidget(
-        modifier = modifier,
-        title = title,
-        subcomponent = if (!subtitle.isNullOrBlank()) {
-            {
-                Text(
-                    text = subtitle,
-                    modifier = Modifier
-                        .padding(
-                            start = HorizontalPadding,
-                            top = 0.dp,
-                            end = HorizontalPadding,
-                        )
-                        .secondaryItemAlpha(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 10,
-                )
-            }
-        } else {
-            null
-        },
-        icon = icon,
-        onClick = onClick,
-        widget = widget,
-    )
-}
-
-@Composable
-internal fun BasePreferenceWidget(
-    modifier: Modifier = Modifier,
-    title: String,
+    title: String? = null,
     subcomponent: @Composable (ColumnScope.() -> Unit)? = null,
-    icon: ImageVector? = null,
-    onClick: (() -> Unit)? = null,
-    widget: @Composable (() -> Unit)? = null,
-) {
-    BasePreferenceWidgetImpl(modifier, title, subcomponent, icon, onClick, widget)
-}
-
-@Composable
-private fun BasePreferenceWidgetImpl(
-    modifier: Modifier = Modifier,
-    title: String,
-    subcomponent: @Composable (ColumnScope.() -> Unit)? = null,
-    icon: ImageVector? = null,
+    icon: @Composable (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
     widget: @Composable (() -> Unit)? = null,
 ) {
@@ -103,38 +52,33 @@ private fun BasePreferenceWidgetImpl(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (icon != null) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = HorizontalPadding, end = 0.dp),
+                Box(
+                    modifier = Modifier.padding(start = PrefsHorizontalPadding, end = 8.dp),
+                    content = { icon() },
                 )
             }
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = PrefsVerticalPadding),
             ) {
-                if (title.isNotBlank()) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = HorizontalPadding),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = title,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 2,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontSize = 20.sp,
-                        )
-                    }
+                if (!title.isNullOrBlank()) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = PrefsHorizontalPadding),
+                        text = title,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontSize = TitleFontSize,
+                    )
                 }
                 subcomponent?.invoke(this)
             }
             if (widget != null) {
-                Box(modifier = Modifier.padding(end = HorizontalPadding)) {
-                    widget()
-                }
+                Box(
+                    modifier = Modifier.padding(end = PrefsHorizontalPadding),
+                    content = { widget() },
+                )
             }
         }
     }
@@ -173,4 +117,6 @@ internal fun Modifier.highlightBackground(highlighted: Boolean): Modifier = comp
 }
 
 internal val TrailingWidgetBuffer = 16.dp
-internal val HorizontalPadding = 24.dp
+internal val PrefsHorizontalPadding = 16.dp
+internal val PrefsVerticalPadding = 16.dp
+internal val TitleFontSize = 16.sp

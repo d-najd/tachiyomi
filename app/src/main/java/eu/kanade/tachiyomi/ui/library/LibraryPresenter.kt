@@ -15,12 +15,10 @@ import eu.kanade.core.prefs.CheckboxState
 import eu.kanade.core.prefs.PreferenceMutableState
 import eu.kanade.core.util.asFlow
 import eu.kanade.core.util.asObservable
-import eu.kanade.data.DatabaseHandler
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.category.interactor.GetCategories
 import eu.kanade.domain.category.interactor.SetMangaCategories
 import eu.kanade.domain.category.model.Category
-import eu.kanade.domain.chapter.interactor.GetBookmarkedChaptersByMangaId
 import eu.kanade.domain.chapter.interactor.GetChapterByMangaId
 import eu.kanade.domain.chapter.interactor.SetReadStatus
 import eu.kanade.domain.chapter.model.Chapter
@@ -58,7 +56,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -84,12 +81,10 @@ typealias LibraryMap = Map<Long, List<LibraryItem>>
  */
 class LibraryPresenter(
     private val state: LibraryStateImpl = LibraryState() as LibraryStateImpl,
-    private val handler: DatabaseHandler = Injekt.get(),
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
     private val getNextChapter: GetNextChapter = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
-    private val getBookmarkedChaptersByMangaId: GetBookmarkedChaptersByMangaId = Injekt.get(),
     private val getChapterByMangaId: GetChapterByMangaId = Injekt.get(),
     private val setReadStatus: SetReadStatus = Injekt.get(),
     private val updateManga: UpdateManga = Injekt.get(),
@@ -225,14 +220,13 @@ class LibraryPresenter(
 
         val filterFnBookmarked: (LibraryItem) -> Boolean = bookmarked@{ item ->
             if (filterBookmarked == State.IGNORE.value) return@bookmarked true
-            return@bookmarked runBlocking {
-                val isBookmarked = getBookmarkedChaptersByMangaId.await(item.libraryManga.manga.id).isNotEmpty()
 
-                return@runBlocking if (filterBookmarked == State.INCLUDE.value) {
-                    isBookmarked
-                } else {
-                    !isBookmarked
-                }
+            val hasBookmarks = item.libraryManga.hasBookmarks
+
+            return@bookmarked if (filterBookmarked == State.INCLUDE.value) {
+                hasBookmarks
+            } else {
+                !hasBookmarks
             }
         }
 
@@ -291,37 +285,7 @@ class LibraryPresenter(
      * @param map the map to sort.
      */
     private fun applySort(categories: List<Category>, map: LibraryMap): LibraryMap {
-        val lastReadManga by lazy {
-            var counter = 0
-            // TODO: Make [applySort] a suspended function
-            runBlocking {
-                handler.awaitList {
-                    mangasQueries.getLastRead()
-                }.associate { it._id to counter++ }
-            }
-        }
-        val latestChapterManga by lazy {
-            var counter = 0
-            // TODO: Make [applySort] a suspended function
-            runBlocking {
-                handler.awaitList {
-                    mangasQueries.getLatestByChapterUploadDate()
-                }.associate { it._id to counter++ }
-            }
-        }
-        val chapterFetchDateManga by lazy {
-            var counter = 0
-            // TODO: Make [applySort] a suspended function
-            runBlocking {
-                handler.awaitList {
-                    mangasQueries.getLatestByChapterFetchDate()
-                }.associate { it._id to counter++ }
-            }
-        }
-
-        val sortModes = categories.associate { category ->
-            category.id to category.sort
-        }
+        val sortModes = categories.associate { it.id to it.sort }
 
         val locale = Locale.getDefault()
         val collator = Collator.getInstance(locale).apply {
@@ -334,9 +298,7 @@ class LibraryPresenter(
                     collator.compare(i1.libraryManga.manga.title.lowercase(locale), i2.libraryManga.manga.title.lowercase(locale))
                 }
                 LibrarySort.Type.LastRead -> {
-                    val manga1LastRead = lastReadManga[i1.libraryManga.manga.id] ?: 0
-                    val manga2LastRead = lastReadManga[i2.libraryManga.manga.id] ?: 0
-                    manga1LastRead.compareTo(manga2LastRead)
+                    i1.libraryManga.lastRead.compareTo(i2.libraryManga.lastRead)
                 }
                 LibrarySort.Type.LastUpdate -> {
                     i1.libraryManga.manga.lastUpdate.compareTo(i2.libraryManga.manga.lastUpdate)
@@ -352,16 +314,10 @@ class LibraryPresenter(
                     i1.libraryManga.totalChapters.compareTo(i2.libraryManga.totalChapters)
                 }
                 LibrarySort.Type.LatestChapter -> {
-                    val manga1latestChapter = latestChapterManga[i1.libraryManga.manga.id]
-                        ?: latestChapterManga.size
-                    val manga2latestChapter = latestChapterManga[i2.libraryManga.manga.id]
-                        ?: latestChapterManga.size
-                    manga1latestChapter.compareTo(manga2latestChapter)
+                    i1.libraryManga.latestUpload.compareTo(i2.libraryManga.latestUpload)
                 }
                 LibrarySort.Type.ChapterFetchDate -> {
-                    val manga1chapterFetchDate = chapterFetchDateManga[i1.libraryManga.manga.id] ?: 0
-                    val manga2chapterFetchDate = chapterFetchDateManga[i2.libraryManga.manga.id] ?: 0
-                    manga1chapterFetchDate.compareTo(manga2chapterFetchDate)
+                    i1.libraryManga.chapterFetchedAt.compareTo(i2.libraryManga.chapterFetchedAt)
                 }
                 LibrarySort.Type.DateAdded -> {
                     i1.libraryManga.manga.dateAdded.compareTo(i2.libraryManga.manga.dateAdded)
@@ -637,19 +593,14 @@ class LibraryPresenter(
         state.selection = emptyList()
     }
 
-    private fun removeSelected(mutableList: MutableList<LibraryManga>, manga: LibraryManga): Boolean {
-        if (selection.fastAny { it.manga.id == manga.manga.id }) {
-            return mutableList.remove(manga)
-        }
-        return false
-    }
-
     fun toggleSelection(manga: LibraryManga) {
-        val mutableList = state.selection.toMutableList()
-        if (!removeSelected(mutableList, manga)) {
-            mutableList.add(manga)
+        state.selection = selection.toMutableList().apply {
+            if (fastAny { it.id == manga.id }) {
+                removeAll { it.id == manga.id }
+            } else {
+                add(manga)
+            }
         }
-        state.selection = mutableList
     }
 
     /**
@@ -657,22 +608,22 @@ class LibraryPresenter(
      * same category as the given manga
      */
     fun toggleRangeSelection(manga: LibraryManga) {
-        val mutableList = state.selection.toMutableList()
-        if (!removeSelected(mutableList, manga) && mutableList.fastAny
-            { it.category == manga.category }
-        ) {
+        state.selection = selection.toMutableList().apply {
+            val lastSelected = lastOrNull()
+            if (lastSelected == null || lastSelected.category != manga.category) {
+                add(manga)
+                return@apply
+            }
             val items = (loadedManga[manga.category] ?: emptyList()).map { it.libraryManga }
-            val lastMangaIndex = items.indexOf(mutableList.findLast { it.category == manga.category })
+            val lastMangaIndex = items.indexOf(lastSelected)
             val curMangaIndex = items.indexOf(manga)
-            val newList = when (lastMangaIndex >= curMangaIndex + 1) {
+            val selectedIds = map { it.id }
+            val newSelections = when (lastMangaIndex >= curMangaIndex + 1) {
                 true -> items.subList(curMangaIndex, lastMangaIndex)
                 false -> items.subList(lastMangaIndex, curMangaIndex + 1)
-            }
-            mutableList.addAll(newList.filterNot { it in selection })
-        } else {
-            mutableList.add(manga)
+            }.filterNot { it.id in selectedIds }
+            addAll(newSelections)
         }
-        state.selection = mutableList
     }
 
     fun selectAll(index: Int) {
