@@ -41,6 +41,7 @@ import eu.kanade.presentation.library.components.LibraryToolbarTitle
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.data.database.models.toDomainManga
+import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.track.TrackManager
 import eu.kanade.tachiyomi.source.SourceManager
@@ -76,9 +77,6 @@ private data class Library(val categories: List<Category>, val mangaMap: Library
  */
 typealias LibraryMap = Map<Long, List<LibraryItem>>
 
-/**
- * Presenter of [LibraryController].
- */
 class LibraryPresenter(
     private val state: LibraryStateImpl = LibraryState() as LibraryStateImpl,
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
@@ -94,6 +92,7 @@ class LibraryPresenter(
     private val coverCache: CoverCache = Injekt.get(),
     private val sourceManager: SourceManager = Injekt.get(),
     private val downloadManager: DownloadManager = Injekt.get(),
+    private val downloadCache: DownloadCache = Injekt.get(),
     private val trackManager: TrackManager = Injekt.get(),
 ) : BasePresenter<LibraryController>(), LibraryState by state {
 
@@ -343,27 +342,36 @@ class LibraryPresenter(
      * @return an observable of the categories and its manga.
      */
     private fun getLibraryFlow(): Flow<Library> {
-        val categoriesFlow = getCategories.subscribe()
-        val libraryMangasFlow = getLibraryManga.subscribe()
-            .map { list ->
-                list.map { libraryManga ->
+        val libraryMangasFlow = combine(
+            getLibraryManga.subscribe(),
+            libraryPreferences.downloadBadge().changes(),
+            downloadCache.changes,
+        ) { libraryMangaList, downloadBadgePref, _ ->
+            libraryMangaList
+                .map { libraryManga ->
                     // Display mode based on user preference: take it from global library setting or category
                     LibraryItem(libraryManga).apply {
-                        downloadCount = downloadManager.getDownloadCount(libraryManga.manga).toLong()
+                        downloadCount = if (downloadBadgePref) {
+                            downloadManager.getDownloadCount(libraryManga.manga).toLong()
+                        } else {
+                            0
+                        }
                         unreadCount = libraryManga.unreadCount
                         isLocal = libraryManga.manga.isLocal()
                         sourceLanguage = sourceManager.getOrStub(libraryManga.manga.source).lang
                     }
-                }.groupBy { it.libraryManga.category }
-            }
-        return combine(categoriesFlow, libraryMangasFlow) { dbCategories, libraryManga ->
-            val categories = if (libraryManga.isNotEmpty() && libraryManga.containsKey(0).not()) {
-                dbCategories.filterNot { it.isSystemCategory }
+                }
+                .groupBy { it.libraryManga.category }
+        }
+
+        return combine(getCategories.subscribe(), libraryMangasFlow) { categories, libraryManga ->
+            val displayCategories = if (libraryManga.isNotEmpty() && libraryManga.containsKey(0).not()) {
+                categories.filterNot { it.isSystemCategory }
             } else {
-                dbCategories
+                categories
             }
 
-            state.categories = categories
+            state.categories = displayCategories
             Library(categories, libraryManga)
         }
     }
