@@ -90,7 +90,7 @@ fun CategoryScreen(
             is Dialog.Delete -> {
                 CategoryDeleteDialog(
                     onDismissRequest = onDismissRequest,
-                    onDelete = {  presenter.deleteCategory(dialog.category) },
+                    onDelete = { presenter.deleteCategory(dialog.category) },
                     category = dialog.category,
                 )
             }
