@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import eu.kanade.presentation.category.components.CategoryContent
 import eu.kanade.presentation.category.components.CategoryCreateDialog
+import eu.kanade.presentation.category.components.CategoryCustomUpdateDialog
 import eu.kanade.presentation.category.components.CategoryDeleteDialog
 import eu.kanade.presentation.category.components.CategoryFloatingActionButton
 import eu.kanade.presentation.category.components.CategoryRenameDialog
@@ -80,10 +81,16 @@ fun CategoryScreen(
                     category = dialog.category,
                 )
             }
+            is Dialog.CustomUpdate -> {
+                CategoryCustomUpdateDialog(
+                    onDismissRequest = onDismissRequest,
+                    onCustomUpdate = { presenter.onCustomUpdate(dialog.category, it) },
+                )
+            }
             is Dialog.Delete -> {
                 CategoryDeleteDialog(
                     onDismissRequest = onDismissRequest,
-                    onDelete = { presenter.deleteCategory(dialog.category) },
+                    onDelete = {  presenter.deleteCategory(dialog.category) },
                     category = dialog.category,
                 )
             }

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.ArrowDropUp
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Label
+import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,6 +31,7 @@ fun CategoryListItem(
     onMoveUp: (Category) -> Unit,
     onMoveDown: (Category) -> Unit,
     onRename: () -> Unit,
+    onCustomUpdate: () -> Unit,
     onDelete: () -> Unit,
 ) {
     ElevatedCard(
@@ -65,6 +67,9 @@ fun CategoryListItem(
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = onRename) {
                 Icon(imageVector = Icons.Outlined.Edit, contentDescription = "")
+            }
+            IconButton(onClick = onCustomUpdate) {
+                Icon(imageVector = Icons.Outlined.Update, contentDescription = "")
             }
             IconButton(onClick = onDelete) {
                 Icon(imageVector = Icons.Outlined.Delete, contentDescription = "")
