@@ -1,9 +1,6 @@
 package eu.kanade.tachiyomi.ui.category
 
 import android.os.Bundle
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import eu.kanade.domain.category.interactor.CreateCategoryWithName
 import eu.kanade.domain.category.interactor.DeleteCategory
 import eu.kanade.domain.category.interactor.GetCategories
@@ -12,16 +9,13 @@ import eu.kanade.domain.category.interactor.ReorderCategory
 import eu.kanade.domain.category.model.Category
 import eu.kanade.presentation.category.CategoryState
 import eu.kanade.presentation.category.CategoryStateImpl
-import eu.kanade.tachiyomi.extension.ExtensionUpdateJob
 import eu.kanade.tachiyomi.ui.base.presenter.BasePresenter
 import eu.kanade.tachiyomi.util.lang.launchIO
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.withContext
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
-import java.util.concurrent.TimeUnit
 
 class CategoryPresenter(
     private val state: CategoryStateImpl = CategoryState() as CategoryStateImpl,
@@ -93,10 +87,9 @@ class CategoryPresenter(
         }
     }
 
-    fun onCustomUpdate(category: Category, amount: Int){
+    fun onCustomUpdate(category: Category, amount: Int) {
         presenterScope.launchIO {
             val tag = "TestingBoi"
-
 
             /* TODO finish this
 
@@ -113,7 +106,6 @@ class CategoryPresenter(
             WorkManager.getInstance(view!!.applicationContext!!).enqueueUniquePeriodicWork(tag, ExistingPeriodicWorkPolicy.REPLACE, request)
 
              */
-
         }
     }
 

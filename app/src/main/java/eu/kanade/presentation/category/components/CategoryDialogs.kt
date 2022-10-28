@@ -144,7 +144,7 @@ fun CategoryCustomUpdateDialog(
             TextButton(onClick = {
                 onCustomUpdate(selectedOption)
                 onDismissRequest()
-            }) {
+            },) {
                 Text(text = stringResource(android.R.string.ok))
             }
         },
@@ -164,7 +164,7 @@ fun CategoryCustomUpdateDialog(
                             .fillMaxWidth()
                             .selectable(
                                 selected = (key == selectedOption),
-                                onClick = { onOptionSelected(key) }
+                                onClick = { onOptionSelected(key) },
                             ),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {

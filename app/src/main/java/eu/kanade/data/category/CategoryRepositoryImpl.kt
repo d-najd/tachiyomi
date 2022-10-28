@@ -40,6 +40,8 @@ class CategoryRepositoryImpl(
             categoriesQueries.insert(
                 name = category.name,
                 order = category.order,
+                updateInterval = category.updateInterval,
+                lastUpdated = category.lastUpdated,
                 flags = category.flags,
             )
         }
