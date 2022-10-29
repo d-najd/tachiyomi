@@ -3,6 +3,7 @@ package eu.kanade.domain.category.interactor
 import eu.kanade.domain.category.model.Category
 import eu.kanade.domain.category.model.anyWithName
 import eu.kanade.domain.category.repository.CategoryRepository
+import eu.kanade.domain.library.model.LibraryUpdateInterval
 import eu.kanade.domain.library.service.LibraryPreferences
 import eu.kanade.tachiyomi.util.lang.withNonCancellableContext
 import eu.kanade.tachiyomi.util.system.logcat
@@ -32,6 +33,8 @@ class CreateCategoryWithName(
             id = 0,
             name = name,
             order = nextOrder,
+            updateInterval = LibraryUpdateInterval.UPDATE_DEFAULT,
+            lastUpdate = -1,
             flags = initialFlags,
         )
 

@@ -10,8 +10,8 @@ enum class LibraryUpdateInterval(val perfValue: Int, @StringRes val strRes: Int)
     /**
      * Will use the default interval for library update
      */
-    UPDATE_DEFAULT(-1, R.string.update_default),
-    UPDATE_NEVER(0, R.string.update_never),
+    UPDATE_NEVER(-1, R.string.update_never),
+    UPDATE_DEFAULT(0, R.string.update_default),
     UPDATE_12_HOUR(12, R.string.update_12hour),
     UPDATE_24_HOUR(24, R.string.update_24hour),
     UPDATE_48_HOUR(48, R.string.update_48hour),

@@ -8,7 +8,7 @@ data class Category(
     val name: String,
     val order: Long,
     val updateInterval: LibraryUpdateInterval,
-    val lastUpdated: Long,
+    val lastUpdate: Long,
     val flags: Long,
 ) : Serializable {
 

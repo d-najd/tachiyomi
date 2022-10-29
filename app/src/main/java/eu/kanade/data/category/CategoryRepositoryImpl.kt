@@ -41,7 +41,7 @@ class CategoryRepositoryImpl(
                 name = category.name,
                 order = category.order,
                 updateInterval = category.updateInterval,
-                lastUpdated = category.lastUpdated,
+                lastUpdate = category.lastUpdate,
                 flags = category.flags,
             )
         }
@@ -65,6 +65,8 @@ class CategoryRepositoryImpl(
         categoriesQueries.update(
             name = update.name,
             order = update.order,
+            updateInterval = category.updateInterval,
+            lastUpdate = category.lastUpdate,
             flags = update.flags,
             categoryId = update.id,
         )
