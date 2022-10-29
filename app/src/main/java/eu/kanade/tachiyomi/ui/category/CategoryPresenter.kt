@@ -6,6 +6,7 @@ import eu.kanade.domain.category.interactor.DeleteCategory
 import eu.kanade.domain.category.interactor.GetCategories
 import eu.kanade.domain.category.interactor.RenameCategory
 import eu.kanade.domain.category.interactor.ReorderCategory
+import eu.kanade.domain.category.interactor.SetUpdateIntervalForCategory
 import eu.kanade.domain.category.model.Category
 import eu.kanade.presentation.category.CategoryState
 import eu.kanade.presentation.category.CategoryStateImpl
@@ -22,6 +23,7 @@ class CategoryPresenter(
     private val getCategories: GetCategories = Injekt.get(),
     private val createCategoryWithName: CreateCategoryWithName = Injekt.get(),
     private val renameCategory: RenameCategory = Injekt.get(),
+    private val setUpdateIntervalForCategory: SetUpdateIntervalForCategory = Injekt.get(),
     private val reorderCategory: ReorderCategory = Injekt.get(),
     private val deleteCategory: DeleteCategory = Injekt.get(),
 ) : BasePresenter<CategoryController>(), CategoryState by state {
@@ -89,7 +91,13 @@ class CategoryPresenter(
 
     fun onCustomUpdate(category: Category, amount: Int) {
         presenterScope.launchIO {
-            val tag = "TestingBoi"
+            when (setUpdateIntervalForCategory.await(category, amount.toLong())) {
+                is SetUpdateIntervalForCategory.Result.InternalError -> _events.send(Event.InternalError)
+                else -> {}
+            }
+
+            // category.updateInterval = amount.toLong();
+            // val tag = "TestingBoi"
 
             /* TODO finish this
 

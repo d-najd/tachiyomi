@@ -1,16 +1,15 @@
-import eu.kanade.domain.library.model.LibraryUpdateInterval;
 
 CREATE TABLE categories(
     _id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     sort INTEGER NOT NULL,
-    update_interval INTEGER AS LibraryUpdateInterval NOT NULL DEFAULT 0,
-    last_update INTEGER AS Long NOT NULL DEFAULT 0,
+    update_interval INTEGER NOT NULL DEFAULT -1,
+    last_update INTEGER AS Long NOT NULL DEFAULT -1,
     flags INTEGER NOT NULL
 );
 
 -- Insert system category
-INSERT OR IGNORE INTO categories(_id, name, sort, update_interval, last_update, flags) VALUES (0, "", -1, 0, 0, 0);
+INSERT OR IGNORE INTO categories(_id, name, sort, update_interval, last_update, flags) VALUES (0, "", -1, -1, -1, 0);
 -- Disallow deletion of default category
 CREATE TRIGGER IF NOT EXISTS system_category_delete_trigger BEFORE DELETE
 ON categories

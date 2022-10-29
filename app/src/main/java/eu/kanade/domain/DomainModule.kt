@@ -17,6 +17,7 @@ import eu.kanade.domain.category.interactor.ResetCategoryFlags
 import eu.kanade.domain.category.interactor.SetDisplayModeForCategory
 import eu.kanade.domain.category.interactor.SetMangaCategories
 import eu.kanade.domain.category.interactor.SetSortModeForCategory
+import eu.kanade.domain.category.interactor.SetUpdateIntervalForCategory
 import eu.kanade.domain.category.interactor.UpdateCategory
 import eu.kanade.domain.category.repository.CategoryRepository
 import eu.kanade.domain.chapter.interactor.GetChapter
@@ -83,6 +84,7 @@ class DomainModule : InjektModule {
         addFactory { SetSortModeForCategory(get(), get()) }
         addFactory { CreateCategoryWithName(get(), get()) }
         addFactory { RenameCategory(get()) }
+        addFactory { SetUpdateIntervalForCategory(get()) }
         addFactory { ReorderCategory(get()) }
         addFactory { UpdateCategory(get()) }
         addFactory { DeleteCategory(get()) }

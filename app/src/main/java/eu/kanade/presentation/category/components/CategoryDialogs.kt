@@ -128,8 +128,8 @@ fun CategoryCustomUpdateDialog(
     onCustomUpdate: (Int) -> Unit,
 ) {
     val entries = mapOf(
-        -1 to stringResource(R.string.update_never),
-        0 to stringResource(R.string.update_default),
+        -1 to stringResource(R.string.update_default),
+        0 to stringResource(R.string.update_never),
         12 to stringResource(R.string.update_12hour),
         24 to stringResource(R.string.update_24hour),
         48 to stringResource(R.string.update_48hour),

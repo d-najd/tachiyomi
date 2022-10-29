@@ -1,13 +1,12 @@
 package eu.kanade.domain.category.model
 
-import eu.kanade.domain.library.model.LibraryUpdateInterval
 import java.io.Serializable
 
 data class Category(
     val id: Long,
     val name: String,
     val order: Long,
-    val updateInterval: LibraryUpdateInterval,
+    val updateInterval: Long,
     val lastUpdate: Long,
     val flags: Long,
 ) : Serializable {
