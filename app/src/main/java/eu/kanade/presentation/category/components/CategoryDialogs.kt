@@ -123,28 +123,30 @@ fun CategoryRenameDialog(
 }
 
 @Composable
-fun CategoryChangeIntervalDialog(
+fun CategorySetUpdateIntervalDialog(
     onDismissRequest: () -> Unit,
-    onChangeInterval: (Int) -> Unit,
+    onSetUpdateInterval: (Int) -> Unit,
 ) {
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(-1) }
+
     val entries = mapOf(
-        -1 to stringResource(R.string.update_default),
-        0 to stringResource(R.string.update_never),
+        -1 to stringResource(R.string.label_default),
         12 to stringResource(R.string.update_12hour),
         24 to stringResource(R.string.update_24hour),
         48 to stringResource(R.string.update_48hour),
         72 to stringResource(R.string.update_72hour),
         168 to stringResource(R.string.update_weekly),
     )
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(entries.size) }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
-            TextButton(onClick = {
-                onChangeInterval(selectedOption)
-                onDismissRequest()
-            },) {
+            TextButton(
+                onClick = {
+                    onSetUpdateInterval(selectedOption)
+                    onDismissRequest()
+                },
+            ) {
                 Text(text = stringResource(android.R.string.ok))
             }
         },
@@ -153,11 +155,14 @@ fun CategoryChangeIntervalDialog(
                 Text(text = stringResource(android.R.string.cancel))
             }
         },
-        title = { Text(text = "// TODO CHANGE THIS Stub") },
+        title = { Text(text = stringResource(R.string.action_category_update_interval)) },
         text = {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
             ) {
+                Text(
+                    text = stringResource(R.string.action_category_update_interval_info),
+                )
                 entries.forEach { (key, value) ->
                     Row(
                         modifier = Modifier

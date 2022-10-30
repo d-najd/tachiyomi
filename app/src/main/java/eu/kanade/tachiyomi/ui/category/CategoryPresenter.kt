@@ -89,7 +89,7 @@ class CategoryPresenter(
         }
     }
 
-    fun onChangeInterval(category: Category, interval: Int) {
+    fun onSetUpdateInterval(category: Category, interval: Int) {
         presenterScope.launchIO {
             when (setUpdateIntervalForCategory.await(category, interval.toLong())) {
                 is SetUpdateIntervalForCategory.Result.InternalError -> _events.send(Event.InternalError)

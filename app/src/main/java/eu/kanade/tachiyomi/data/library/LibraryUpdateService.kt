@@ -286,22 +286,29 @@ class LibraryUpdateService(
 
             // Checking for categories which have set custom update interval
             // and if enough time has passed since the last update
-            val validTimeCategories = mutableListOf<Long>()
+            val validIntervalCategories = mutableListOf<Long>()
             for (category in categories) {
-                if (category.lastUpdate == -1L || category.updateInterval == -1L) {
-                    validTimeCategories.add(category.id)
+                if (category.lastUpdate == -1L) {
+                    validIntervalCategories.add(category.id)
+                } else if (category.updateInterval == -1L) {
+                    val validInterval = Calendar.getInstance()
+                    validInterval.time = Date(category.lastUpdate)
+                    validInterval.add(Calendar.HOUR, libraryPreferences.libraryUpdateInterval().get())
+                    if (Date().time >= validInterval.time.time) {
+                        validIntervalCategories.add(category.id)
+                    }
                 } else {
                     val validInterval = Calendar.getInstance()
                     validInterval.time = Date(category.lastUpdate)
                     validInterval.add(Calendar.HOUR, category.updateInterval.toInt())
                     if (Date().time >= validInterval.time.time) {
-                        validTimeCategories.add(category.id)
+                        validIntervalCategories.add(category.id)
                     }
                 }
             }
 
             includedManga
-                .filter { it.category in validTimeCategories }
+                .filter { it.category in validIntervalCategories }
                 .filterNot { it.manga.id in excludedMangaIds }
                 .distinctBy { it.manga.id }
         }
