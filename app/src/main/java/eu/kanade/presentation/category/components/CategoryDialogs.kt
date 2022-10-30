@@ -123,9 +123,9 @@ fun CategoryRenameDialog(
 }
 
 @Composable
-fun CategoryCustomUpdateDialog(
+fun CategoryChangeIntervalDialog(
     onDismissRequest: () -> Unit,
-    onCustomUpdate: (Int) -> Unit,
+    onChangeInterval: (Int) -> Unit,
 ) {
     val entries = mapOf(
         -1 to stringResource(R.string.update_default),
@@ -142,7 +142,7 @@ fun CategoryCustomUpdateDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             TextButton(onClick = {
-                onCustomUpdate(selectedOption)
+                onChangeInterval(selectedOption)
                 onDismissRequest()
             },) {
                 Text(text = stringResource(android.R.string.ok))

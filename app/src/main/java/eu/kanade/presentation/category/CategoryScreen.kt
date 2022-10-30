@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import eu.kanade.presentation.category.components.CategoryContent
 import eu.kanade.presentation.category.components.CategoryCreateDialog
-import eu.kanade.presentation.category.components.CategoryCustomUpdateDialog
+import eu.kanade.presentation.category.components.CategoryChangeIntervalDialog
 import eu.kanade.presentation.category.components.CategoryDeleteDialog
 import eu.kanade.presentation.category.components.CategoryFloatingActionButton
 import eu.kanade.presentation.category.components.CategoryRenameDialog
@@ -22,6 +22,7 @@ import eu.kanade.presentation.util.horizontalPadding
 import eu.kanade.presentation.util.plus
 import eu.kanade.presentation.util.topPaddingValues
 import eu.kanade.tachiyomi.R
+import eu.kanade.tachiyomi.data.library.LibraryUpdateJob
 import eu.kanade.tachiyomi.ui.category.CategoryPresenter
 import eu.kanade.tachiyomi.ui.category.CategoryPresenter.Dialog
 import eu.kanade.tachiyomi.util.system.toast
@@ -82,9 +83,11 @@ fun CategoryScreen(
                 )
             }
             is Dialog.CustomUpdate -> {
-                CategoryCustomUpdateDialog(
+                CategoryChangeIntervalDialog(
                     onDismissRequest = onDismissRequest,
-                    onCustomUpdate = { presenter.onCustomUpdate(dialog.category, it) },
+                    onChangeInterval = {
+                        presenter.onChangeInterval(dialog.category, it)
+                        LibraryUpdateJob.setupTask(context, it) },
                 )
             }
             is Dialog.Delete -> {

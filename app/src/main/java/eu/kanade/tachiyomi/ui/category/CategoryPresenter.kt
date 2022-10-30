@@ -89,31 +89,12 @@ class CategoryPresenter(
         }
     }
 
-    fun onCustomUpdate(category: Category, amount: Int) {
+    fun onChangeInterval(category: Category, interval: Int) {
         presenterScope.launchIO {
-            when (setUpdateIntervalForCategory.await(category, amount.toLong())) {
+            when (setUpdateIntervalForCategory.await(category, interval.toLong())) {
                 is SetUpdateIntervalForCategory.Result.InternalError -> _events.send(Event.InternalError)
                 else -> {}
             }
-
-            // category.updateInterval = amount.toLong();
-            // val tag = "TestingBoi"
-
-            /* TODO finish this
-
-            val request = PeriodicWorkRequestBuilder<ExtensionUpdateJob>( //note don't forget to change the extensionUpdateJob with something else
-                2,
-                TimeUnit.SECONDS,
-                3,
-                TimeUnit.HOURS,
-            )
-                .addTag(tag)
-                .build()
-
-            if(view?.applicationContext != null)
-            WorkManager.getInstance(view!!.applicationContext!!).enqueueUniquePeriodicWork(tag, ExistingPeriodicWorkPolicy.REPLACE, request)
-
-             */
         }
     }
 
