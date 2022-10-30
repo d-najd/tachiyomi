@@ -101,7 +101,7 @@ class CategoryPresenter(
     sealed class Dialog {
         object Create : Dialog()
         data class Rename(val category: Category) : Dialog()
-        data class CustomUpdate(val category: Category) : Dialog()
+        data class SetUpdateInterval(val category: Category) : Dialog()
         data class Delete(val category: Category) : Dialog()
     }
 

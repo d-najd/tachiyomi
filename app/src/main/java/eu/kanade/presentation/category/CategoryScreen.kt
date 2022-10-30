@@ -82,7 +82,7 @@ fun CategoryScreen(
                     category = dialog.category,
                 )
             }
-            is Dialog.CustomUpdate -> {
+            is Dialog.SetUpdateInterval -> {
                 CategorySetUpdateIntervalDialog(
                     onDismissRequest = onDismissRequest,
                     onSetUpdateInterval = {

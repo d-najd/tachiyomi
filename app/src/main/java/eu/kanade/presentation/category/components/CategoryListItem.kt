@@ -31,7 +31,7 @@ fun CategoryListItem(
     onMoveUp: (Category) -> Unit,
     onMoveDown: (Category) -> Unit,
     onRename: () -> Unit,
-    onCustomUpdate: () -> Unit,
+    onSetUpdateInterval: () -> Unit,
     onDelete: () -> Unit,
 ) {
     ElevatedCard(
@@ -68,7 +68,7 @@ fun CategoryListItem(
             IconButton(onClick = onRename) {
                 Icon(imageVector = Icons.Outlined.Edit, contentDescription = "")
             }
-            IconButton(onClick = onCustomUpdate) {
+            IconButton(onClick = onSetUpdateInterval) {
                 Icon(imageVector = Icons.Outlined.Update, contentDescription = "")
             }
             IconButton(onClick = onDelete) {

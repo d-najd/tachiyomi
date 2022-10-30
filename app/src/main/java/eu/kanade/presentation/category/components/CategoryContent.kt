@@ -38,7 +38,7 @@ fun CategoryContent(
                 onMoveUp = onMoveUp,
                 onMoveDown = onMoveDown,
                 onRename = { state.dialog = Dialog.Rename(category) },
-                onCustomUpdate = { state.dialog = Dialog.CustomUpdate(category) },
+                onSetUpdateInterval = { state.dialog = Dialog.SetUpdateInterval(category) },
                 onDelete = { state.dialog = Dialog.Delete(category) },
             )
         }
