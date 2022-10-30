@@ -7,13 +7,13 @@ import eu.kanade.tachiyomi.util.lang.withNonCancellableContext
 import eu.kanade.tachiyomi.util.system.logcat
 import logcat.LogPriority
 
-class SetUpdateIntervalForCategory(
+class SetLastUpdatedForCategory(
     private val categoryRepository: CategoryRepository,
 ) {
-    suspend fun await(categoryId: Long, interval: Long) = withNonCancellableContext {
+    suspend fun await(categoryId: Long, time: Long) = withNonCancellableContext {
         val update = CategoryUpdate(
             id = categoryId,
-            updateInterval = interval,
+            lastUpdate = time,
         )
 
         try {
@@ -25,7 +25,24 @@ class SetUpdateIntervalForCategory(
         }
     }
 
-    suspend fun await(category: Category, interval: Long) = await(category.id, interval)
+    suspend fun await(category: Category, time: Long) = await(category.id, time)
+
+    suspend fun await(categoriesIds: List<Long>, time: Long) {
+        val updates = categoriesIds.map {
+            CategoryUpdate(
+                id = it,
+                lastUpdate = time,
+            )
+        }
+
+        try {
+            categoryRepository.updatePartial(updates)
+            Result.Success
+        } catch (e: Exception) {
+            logcat(LogPriority.ERROR, e)
+            Result.InternalError(e)
+        }
+    }
 
     sealed class Result {
         object Success : Result()

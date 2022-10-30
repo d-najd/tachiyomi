@@ -8,6 +8,7 @@ import android.os.PowerManager
 import androidx.core.content.ContextCompat
 import eu.kanade.data.chapter.NoChaptersException
 import eu.kanade.domain.category.interactor.GetCategories
+import eu.kanade.domain.category.interactor.SetLastUpdatedForCategory
 import eu.kanade.domain.category.model.Category
 import eu.kanade.domain.chapter.interactor.GetChapterByMangaId
 import eu.kanade.domain.chapter.interactor.SyncChaptersWithSource
@@ -69,6 +70,7 @@ import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.io.File
 import java.util.Date
+import java.util.Calendar
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -91,6 +93,7 @@ class LibraryUpdateService(
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
     private val getManga: GetManga = Injekt.get(),
     private val updateManga: UpdateManga = Injekt.get(),
+    private val setLastUpdatedForCategory: SetLastUpdatedForCategory = Injekt.get(),
     private val getChapterByMangaId: GetChapterByMangaId = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
     private val syncChaptersWithSource: SyncChaptersWithSource = Injekt.get(),
@@ -237,6 +240,7 @@ class LibraryUpdateService(
             logcat(LogPriority.ERROR, exception)
             stopSelf(startId)
         }
+
         ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
         updateJob = ioScope?.launch(handler) {
             when (target) {
@@ -264,6 +268,8 @@ class LibraryUpdateService(
         val listToUpdate = if (categoryId != -1L) {
             libraryManga.filter { it.category == categoryId }
         } else {
+            val categories = runBlocking { getCategories.await() }
+
             val categoriesToUpdate = libraryPreferences.libraryUpdateCategories().get().map { it.toLong() }
             val includedManga = if (categoriesToUpdate.isNotEmpty()) {
                 libraryManga.filter { it.category in categoriesToUpdate }
@@ -278,13 +284,32 @@ class LibraryUpdateService(
                 emptyList()
             }
 
+            // Checking for categories which have set custom update interval
+            // and if enough time has passed since the last update
+            val validTimeCategories = mutableListOf<Long>()
+            for (category in categories) {
+                if (category.lastUpdate == -1L || category.updateInterval == -1L) {
+                    validTimeCategories.add(category.id)
+                } else {
+                    val validInterval = Calendar.getInstance()
+                    validInterval.time = Date(category.lastUpdate)
+                    validInterval.add(Calendar.HOUR, category.updateInterval.toInt())
+                    if (Date().time >= validInterval.time.time) {
+                        validTimeCategories.add(category.id)
+                    }
+                }
+            }
+
             includedManga
+                .filter { it.category in validTimeCategories }
                 .filterNot { it.manga.id in excludedMangaIds }
                 .distinctBy { it.manga.id }
         }
 
         mangaToUpdate = listToUpdate
             .sortedBy { it.manga.title }
+
+        runBlocking { setLastUpdatedForCategory.await(mangaToUpdate.map { it.category }, Date().time) }
 
         // Warn when excessively checking a single source
         val maxUpdatesFromSource = mangaToUpdate
