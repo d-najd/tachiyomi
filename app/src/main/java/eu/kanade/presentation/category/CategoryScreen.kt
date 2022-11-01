@@ -13,6 +13,7 @@ import eu.kanade.presentation.category.components.CategoryCreateDialog
 import eu.kanade.presentation.category.components.CategoryDeleteDialog
 import eu.kanade.presentation.category.components.CategoryFloatingActionButton
 import eu.kanade.presentation.category.components.CategoryRenameDialog
+import eu.kanade.presentation.category.components.CategorySetUpdateIntervalDialog
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.EmptyScreen
 import eu.kanade.presentation.components.LoadingScreen
@@ -21,6 +22,7 @@ import eu.kanade.presentation.util.horizontalPadding
 import eu.kanade.presentation.util.plus
 import eu.kanade.presentation.util.topPaddingValues
 import eu.kanade.tachiyomi.R
+import eu.kanade.tachiyomi.data.library.LibraryUpdateJob
 import eu.kanade.tachiyomi.ui.category.CategoryPresenter
 import eu.kanade.tachiyomi.ui.category.CategoryPresenter.Dialog
 import eu.kanade.tachiyomi.util.system.toast
@@ -77,6 +79,16 @@ fun CategoryScreen(
                 CategoryRenameDialog(
                     onDismissRequest = onDismissRequest,
                     onRename = { presenter.renameCategory(dialog.category, it) },
+                    category = dialog.category,
+                )
+            }
+            is Dialog.SetUpdateInterval -> {
+                CategorySetUpdateIntervalDialog(
+                    onDismissRequest = onDismissRequest,
+                    onSetUpdateInterval = {
+                        presenter.onSetUpdateInterval(dialog.category, it)
+                        LibraryUpdateJob.setupTask(context, it)
+                    },
                     category = dialog.category,
                 )
             }

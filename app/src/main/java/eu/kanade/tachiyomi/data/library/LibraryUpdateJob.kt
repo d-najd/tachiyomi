@@ -8,12 +8,14 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import eu.kanade.domain.category.interactor.GetCategories
 import eu.kanade.domain.library.service.LibraryPreferences
 import eu.kanade.tachiyomi.data.preference.DEVICE_BATTERY_NOT_LOW
 import eu.kanade.tachiyomi.data.preference.DEVICE_CHARGING
 import eu.kanade.tachiyomi.data.preference.DEVICE_NETWORK_NOT_METERED
 import eu.kanade.tachiyomi.data.preference.DEVICE_ONLY_ON_WIFI
 import eu.kanade.tachiyomi.util.system.isConnectedToWifi
+import kotlinx.coroutines.runBlocking
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import java.util.concurrent.TimeUnit
@@ -40,7 +42,11 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
 
         fun setupTask(context: Context, prefInterval: Int? = null) {
             val preferences = Injekt.get<LibraryPreferences>()
-            val interval = prefInterval ?: preferences.libraryUpdateInterval().get()
+            val categories = runBlocking { Injekt.get<GetCategories>().await() }
+            val lowestCategoryInterval = categories.filterNot { it.updateInterval <= 0L }.minByOrNull { it.updateInterval }?.updateInterval?.toInt() ?: -1
+            val defaultInterval = prefInterval ?: preferences.libraryUpdateInterval().get()
+            val interval = minOf(lowestCategoryInterval, if (defaultInterval > 0) defaultInterval else lowestCategoryInterval)
+
             if (interval > 0) {
                 val restrictions = preferences.libraryUpdateDeviceRestriction().get()
                 val constraints = Constraints.Builder()

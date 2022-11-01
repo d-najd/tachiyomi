@@ -32,6 +32,8 @@ class CreateCategoryWithName(
             id = 0,
             name = name,
             order = nextOrder,
+            updateInterval = -1,
+            lastUpdate = -1,
             flags = initialFlags,
         )
 

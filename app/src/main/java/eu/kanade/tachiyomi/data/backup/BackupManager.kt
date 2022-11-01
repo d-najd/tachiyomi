@@ -265,7 +265,7 @@ class BackupManager(
             if (!found) {
                 // Let the db assign the id
                 val id = handler.awaitOne {
-                    categoriesQueries.insert(category.name, category.order, category.flags)
+                    categoriesQueries.insert(category.name, category.order, category.updateInterval, category.lastUpdate, category.flags)
                     categoriesQueries.selectLastInsertedRowId()
                 }
                 category = category.copy(id = id)

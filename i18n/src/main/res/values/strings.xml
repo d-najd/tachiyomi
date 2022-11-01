@@ -75,6 +75,8 @@
     <string name="action_add_category">Add category</string>
     <string name="action_edit_categories">Edit categories</string>
     <string name="action_rename_category">Rename category</string>
+    <string name="action_category_update_interval">Category update interval</string>
+    <string name="action_category_update_interval_info">Global update will be ignored if update interval is set</string>
     <string name="action_move_category">Set categories</string>
     <string name="delete_category_confirmation">Do you wish to delete the category \"%s\"?</string>
     <string name="delete_category">Delete category</string>

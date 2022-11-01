@@ -6,6 +6,8 @@ data class Category(
     val id: Long,
     val name: String,
     val order: Long,
+    val updateInterval: Long,
+    val lastUpdate: Long,
     val flags: Long,
 ) : Serializable {
 
