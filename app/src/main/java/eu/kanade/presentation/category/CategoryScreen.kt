@@ -89,6 +89,7 @@ fun CategoryScreen(
                         presenter.onSetUpdateInterval(dialog.category, it)
                         LibraryUpdateJob.setupTask(context, it)
                     },
+                    category = dialog.category,
                 )
             }
             is Dialog.Delete -> {

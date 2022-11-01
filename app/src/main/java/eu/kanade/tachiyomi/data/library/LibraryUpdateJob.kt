@@ -43,7 +43,7 @@ class LibraryUpdateJob(private val context: Context, workerParams: WorkerParamet
         fun setupTask(context: Context, prefInterval: Int? = null) {
             val preferences = Injekt.get<LibraryPreferences>()
             val categories = runBlocking { Injekt.get<GetCategories>().await() }
-            val lowestCategoryInterval = categories.filterNot { it.updateInterval <= 0L }.minByOrNull { it.updateInterval }?.updateInterval?.toInt() ?: -1
+            val lowestCategoryInterval = categories.filterNot{ it.updateInterval <= 0L }.minByOrNull{ it.updateInterval }?.updateInterval?.toInt() ?: -1
             val defaultInterval = prefInterval ?: preferences.libraryUpdateInterval().get()
             val interval = minOf(lowestCategoryInterval, if (defaultInterval > 0) defaultInterval else lowestCategoryInterval)
 

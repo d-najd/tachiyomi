@@ -126,9 +126,9 @@ fun CategoryRenameDialog(
 fun CategorySetUpdateIntervalDialog(
     onDismissRequest: () -> Unit,
     onSetUpdateInterval: (Int) -> Unit,
+    category: Category,
 ) {
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(-1) }
-
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(category.updateInterval.toInt()) }
     val entries = mapOf(
         -1 to stringResource(R.string.label_default),
         12 to stringResource(R.string.update_12hour),
