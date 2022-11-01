@@ -2,7 +2,9 @@ package eu.kanade.presentation.category.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -21,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import eu.kanade.domain.category.model.Category
 import eu.kanade.presentation.util.horizontalPadding
 import eu.kanade.tachiyomi.R
@@ -163,6 +166,7 @@ fun CategorySetUpdateIntervalDialog(
                 Text(
                     text = stringResource(R.string.action_category_update_interval_info),
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 entries.forEach { (key, value) ->
                     Row(
                         modifier = Modifier
