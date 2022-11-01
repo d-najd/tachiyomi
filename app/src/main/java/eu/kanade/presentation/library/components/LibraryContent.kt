@@ -15,12 +15,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import com.google.accompanist.pager.rememberPagerState
 import eu.kanade.core.prefs.PreferenceMutableState
 import eu.kanade.domain.category.model.Category
 import eu.kanade.domain.library.model.LibraryDisplayMode
 import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.presentation.components.SwipeRefresh
+import eu.kanade.presentation.components.rememberPagerState
 import eu.kanade.presentation.library.LibraryState
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 import kotlinx.coroutines.delay
@@ -68,12 +68,13 @@ fun LibraryContent(
 
         if (isLibraryEmpty.not() && showPageTabs && categories.size > 1) {
             LibraryTabs(
-                state = pagerState,
                 categories = categories,
+                currentPageIndex = pagerState.currentPage,
                 showMangaCount = showMangaCount,
                 getNumberOfMangaForCategory = getNumberOfMangaForCategory,
                 isDownloadOnly = isDownloadOnly,
                 isIncognitoMode = isIncognitoMode,
+                onTabItemClick = { scope.launch { pagerState.animateScrollToPage(it) } },
             )
         }
 

@@ -27,8 +27,8 @@ android {
         applicationId = "eu.kanade.tachiyomi"
         minSdk = AndroidConfig.minSdk
         targetSdk = AndroidConfig.targetSdk
-        versionCode = 89
-        versionName = "0.13.6"
+        versionCode = 92
+        versionName = "0.14.2"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
@@ -113,7 +113,6 @@ android {
             "META-INF/README.md",
             "META-INF/NOTICE",
             "META-INF/*.kotlin_module",
-            "META-INF/*.version",
         ))
     }
 
@@ -141,12 +140,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 
     sqldelight {
@@ -163,6 +162,7 @@ dependencies {
     implementation(project(":source-api"))
 
     // Compose
+    implementation(platform(compose.bom))
     implementation(compose.activity)
     implementation(compose.foundation)
     implementation(compose.material3.core)
@@ -175,8 +175,6 @@ dependencies {
     implementation(compose.accompanist.webview)
     implementation(compose.accompanist.swiperefresh)
     implementation(compose.accompanist.flowlayout)
-    implementation(compose.accompanist.pager.core)
-    implementation(compose.accompanist.pager.indicators)
     implementation(compose.accompanist.permissions)
 
     implementation(androidx.paging.runtime)
@@ -189,6 +187,8 @@ dependencies {
     implementation(libs.sqldelight.android.paging)
 
     implementation(kotlinx.reflect)
+
+    implementation(platform(kotlinx.coroutines.bom))
     implementation(kotlinx.bundles.coroutines)
 
     // AndroidX libraries
@@ -297,6 +297,11 @@ androidComponents {
             variantBuilder.enable = variantBuilder.productFlavors.containsAll(listOf("default" to "dev"))
         }
     }
+    onVariants(selector().withFlavor("default" to "standard")) {
+        // Only excluding in standard flavor because this breaks
+        // Layout Inspector's Compose tree
+        it.packaging.resources.excludes.add("META-INF/*.version")
+    }
 }
 
 tasks {
@@ -328,6 +333,19 @@ tasks {
             "-opt-in=kotlinx.coroutines.InternalCoroutinesApi",
             "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
         )
+
+        if (project.findProperty("tachiyomi.enableComposeCompilerMetrics") == "true") {
+            kotlinOptions.freeCompilerArgs += listOf(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" +
+                    project.buildDir.absolutePath + "/compose_metrics"
+            )
+            kotlinOptions.freeCompilerArgs += listOf(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" +
+                    project.buildDir.absolutePath + "/compose_metrics"
+            )
+        }
     }
 
     preBuild {

@@ -29,12 +29,13 @@ import eu.kanade.tachiyomi.util.lang.launchNonCancellable
 import eu.kanade.tachiyomi.util.lang.withUIContext
 import eu.kanade.tachiyomi.util.system.logcat
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import logcat.LogPriority
@@ -87,7 +88,7 @@ class UpdatesPresenter(
                 getUpdates.subscribe(calendar).distinctUntilChanged(),
                 downloadCache.changes,
             ) { updates, _ -> updates }
-                .debounce(500) // Avoid crashes due to LazyColumn rendering
+                .onStart { delay(500) } // Defer to avoid crashing on initial render
                 .catch {
                     logcat(LogPriority.ERROR, it)
                     _events.send(Event.InternalError)

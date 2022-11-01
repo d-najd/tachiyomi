@@ -36,7 +36,7 @@ import eu.kanade.domain.extension.interactor.GetExtensionSources
 import eu.kanade.domain.extension.interactor.GetExtensionsByType
 import eu.kanade.domain.history.interactor.DeleteAllHistory
 import eu.kanade.domain.history.interactor.GetHistory
-import eu.kanade.domain.history.interactor.GetNextChapter
+import eu.kanade.domain.history.interactor.GetNextUnreadChapters
 import eu.kanade.domain.history.interactor.RemoveHistoryById
 import eu.kanade.domain.history.interactor.RemoveHistoryByMangaId
 import eu.kanade.domain.history.interactor.UpsertHistory
@@ -46,7 +46,7 @@ import eu.kanade.domain.manga.interactor.GetFavorites
 import eu.kanade.domain.manga.interactor.GetLibraryManga
 import eu.kanade.domain.manga.interactor.GetManga
 import eu.kanade.domain.manga.interactor.GetMangaWithChapters
-import eu.kanade.domain.manga.interactor.InsertManga
+import eu.kanade.domain.manga.interactor.NetworkToLocalManga
 import eu.kanade.domain.manga.interactor.ResetViewerFlags
 import eu.kanade.domain.manga.interactor.SetMangaChapterFlags
 import eu.kanade.domain.manga.interactor.SetMangaViewerFlags
@@ -65,6 +65,7 @@ import eu.kanade.domain.source.repository.SourceDataRepository
 import eu.kanade.domain.source.repository.SourceRepository
 import eu.kanade.domain.track.interactor.DeleteTrack
 import eu.kanade.domain.track.interactor.GetTracks
+import eu.kanade.domain.track.interactor.GetTracksPerManga
 import eu.kanade.domain.track.interactor.InsertTrack
 import eu.kanade.domain.track.repository.TrackRepository
 import eu.kanade.domain.updates.interactor.GetUpdates
@@ -97,17 +98,18 @@ class DomainModule : InjektModule {
         addFactory { GetLibraryManga(get()) }
         addFactory { GetMangaWithChapters(get(), get()) }
         addFactory { GetManga(get()) }
-        addFactory { GetNextChapter(get()) }
+        addFactory { GetNextUnreadChapters(get(), get(), get()) }
         addFactory { ResetViewerFlags(get()) }
         addFactory { SetMangaChapterFlags(get()) }
         addFactory { SetMangaDefaultChapterFlags(get(), get(), get()) }
         addFactory { SetMangaViewerFlags(get()) }
-        addFactory { InsertManga(get()) }
+        addFactory { NetworkToLocalManga(get()) }
         addFactory { UpdateManga(get()) }
         addFactory { SetMangaCategories(get()) }
 
         addSingletonFactory<TrackRepository> { TrackRepositoryImpl(get()) }
         addFactory { DeleteTrack(get()) }
+        addFactory { GetTracksPerManga(get()) }
         addFactory { GetTracks(get()) }
         addFactory { InsertTrack(get()) }
 
