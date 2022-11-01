@@ -7,8 +7,7 @@ import eu.kanade.domain.manga.model.isLocal
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.download.model.Download
 
-
-private fun List<Chapter>.applyFilters(manga: Manga, downloadManager: DownloadManager): Sequence<Chapter> {
+private fun List<Chapter>.applyFilters(manga: Manga, downloadManager: DownloadManager): List<Chapter> {
     val isLocalManga = manga.isLocal()
     val unreadFilter = manga.unreadFilter
     val downloadedFilter = manga.downloadedFilter
@@ -37,8 +36,10 @@ private fun List<Chapter>.applyFilters(manga: Manga, downloadManager: DownloadMa
             }
             when (downloadedFilter) {
                 TriStateFilter.DISABLED -> true
-                TriStateFilter.ENABLED_IS -> downloadState == Download.State.DOWNLOADED  || isLocalManga
+                TriStateFilter.ENABLED_IS -> downloadState == Download.State.DOWNLOADED || isLocalManga
                 TriStateFilter.ENABLED_NOT -> downloadState != Download.State.DOWNLOADED && !isLocalManga
             }
-        }.sortedWith { (chapter1), (chapter2) -> getChapterSort(manga).invoke(ch) }
+        }
+        .sortedWith(getChapterSort(manga))
+        .toList()
 }

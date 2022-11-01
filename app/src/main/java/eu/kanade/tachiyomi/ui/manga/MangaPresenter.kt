@@ -585,11 +585,17 @@ class MangaPresenter(
      */
     suspend fun getNextUnreadChapter(): DomainChapter? {
         val successState = successState ?: return null
-        getChapters
-
-        getChapterByMangaId.await(successState.manga.id )
-
+        return successState.processedChapters.map { it.chapter }.let { chapters ->
+            if (successState.manga.sortDescending()) {
+                chapters.findLast { !it.read }
+            } else {
+                chapters.find { !it.read }
+            }
+        }
+        /*
+        val successState = successState ?: return null
         return getNextChapter.await(successState.manga.id)
+         */
     }
 
     fun getUnreadChapters(): List<DomainChapter> {
@@ -1141,7 +1147,6 @@ sealed class MangaScreenState {
                         TriStateFilter.ENABLED_NOT -> !it.isDownloaded && !isLocalManga
                     }
                 }
-                getChapterSort(manga).invoke(chapte)
                 .sortedWith { (chapter1), (chapter2) -> getChapterSort(manga).invoke(chapter1, chapter2) }
         }
     }
