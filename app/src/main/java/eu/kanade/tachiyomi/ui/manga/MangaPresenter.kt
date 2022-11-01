@@ -10,6 +10,7 @@ import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.category.interactor.GetCategories
 import eu.kanade.domain.category.interactor.SetMangaCategories
 import eu.kanade.domain.category.model.Category
+import eu.kanade.domain.chapter.interactor.GetChapterByMangaId
 import eu.kanade.domain.chapter.interactor.SetMangaDefaultChapterFlags
 import eu.kanade.domain.chapter.interactor.SetReadStatus
 import eu.kanade.domain.chapter.interactor.SyncChaptersWithSource
@@ -101,6 +102,7 @@ class MangaPresenter(
     private val updateManga: UpdateManga = Injekt.get(),
     private val syncChaptersWithSource: SyncChaptersWithSource = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
+    private val getChapterByMangaId: GetChapterByMangaId = Injekt.get(),
     private val deleteTrack: DeleteTrack = Injekt.get(),
     private val getNextChapter: GetNextChapter = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
@@ -583,6 +585,10 @@ class MangaPresenter(
      */
     suspend fun getNextUnreadChapter(): DomainChapter? {
         val successState = successState ?: return null
+        getChapters
+
+        getChapterByMangaId.await(successState.manga.id )
+
         return getNextChapter.await(successState.manga.id)
     }
 
@@ -1135,6 +1141,7 @@ sealed class MangaScreenState {
                         TriStateFilter.ENABLED_NOT -> !it.isDownloaded && !isLocalManga
                     }
                 }
+                getChapterSort(manga).invoke(chapte)
                 .sortedWith { (chapter1), (chapter2) -> getChapterSort(manga).invoke(chapter1, chapter2) }
         }
     }
