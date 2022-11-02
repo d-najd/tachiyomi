@@ -31,6 +31,7 @@ import eu.kanade.domain.manga.interactor.UpdateManga
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.MangaUpdate
 import eu.kanade.domain.manga.model.isLocal
+import eu.kanade.domain.track.interactor.GetTracksPerManga
 import eu.kanade.presentation.category.visualName
 import eu.kanade.presentation.library.LibraryState
 import eu.kanade.presentation.library.LibraryStateImpl
@@ -78,9 +79,8 @@ typealias LibraryMap = Map<Long, List<LibraryItem>>
 class LibraryPresenter(
     private val state: LibraryStateImpl = LibraryState() as LibraryStateImpl,
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
-    private val getTracks: GetTracks = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
-    private val getChapterByMangaId: GetChapterByMangaId = Injekt.get(),
+    private val getTracksPerManga: GetTracksPerManga = Injekt.get(),
     private val getMangaWithChapters: GetMangaWithChapters = Injekt.get(),
     private val getNextUnreadChapters: GetNextUnreadChapters = Injekt.get(),
     private val setReadStatus: SetReadStatus = Injekt.get(),

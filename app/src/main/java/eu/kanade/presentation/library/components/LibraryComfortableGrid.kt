@@ -67,8 +67,10 @@ fun LibraryComfortableGrid(
                         item = libraryItem,
                     )
                 },
+                showContinueReadingButton = showContinueReadingButton,
                 onLongClick = { onLongClick(libraryItem.libraryManga) },
                 onClick = { onClick(libraryItem.libraryManga) },
+                onClickContinueReading = { onClickContinueReading(libraryItem.libraryManga.id) },
             )
         }
     }

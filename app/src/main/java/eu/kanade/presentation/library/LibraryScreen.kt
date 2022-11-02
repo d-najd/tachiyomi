@@ -105,6 +105,7 @@ fun LibraryScreen(
             showMangaCount = presenter.mangaCountVisibility,
             onChangeCurrentPage = { presenter.activeCategory = it },
             onMangaClicked = onMangaClicked,
+            onContinueReadingClicked = onContinueReadingClicked,
             onToggleSelection = { presenter.toggleSelection(it) },
             onToggleRangeSelection = {
                 presenter.toggleRangeSelection(it)
@@ -120,6 +121,7 @@ fun LibraryScreen(
             showUnreadBadges = presenter.showUnreadBadges,
             showLocalBadges = presenter.showLocalBadges,
             showLanguageBadges = presenter.showLanguageBadges,
+            showContinueReadingButton = presenter.showContinueReadingButton,
             isIncognitoMode = presenter.isIncognitoMode,
             isDownloadOnly = presenter.isDownloadOnly,
         )
