@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.util.fastAll
 import eu.kanade.domain.category.model.Category
+import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.domain.library.model.display
 import eu.kanade.domain.manga.model.isLocal
 import eu.kanade.presentation.components.EmptyScreen
@@ -29,7 +30,7 @@ import eu.kanade.tachiyomi.widget.TachiyomiBottomNavigationView
 fun LibraryScreen(
     presenter: LibraryPresenter,
     onMangaClicked: (Long) -> Unit,
-    onContinueReadingClicked: (Long) -> Unit,
+    onContinueReadingClicked: (LibraryManga) -> Unit,
     onGlobalSearchClicked: () -> Unit,
     onChangeCategoryClicked: () -> Unit,
     onMarkAsReadClicked: () -> Unit,

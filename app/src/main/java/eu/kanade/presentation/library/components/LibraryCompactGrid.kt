@@ -25,7 +25,7 @@ fun LibraryCompactGrid(
     selection: List<LibraryManga>,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickContinueReading: (Long) -> Unit,
+    onClickContinueReading: (LibraryManga) -> Unit,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
@@ -71,7 +71,7 @@ fun LibraryCompactGrid(
                 showContinueReadingButton = showContinueReadingButton,
                 onLongClick = { onLongClick(libraryItem.libraryManga) },
                 onClick = { onClick(libraryItem.libraryManga) },
-                onClickContinueReading = { onClickContinueReading(libraryItem.libraryManga.id) },
+                onClickContinueReading = { onClickContinueReading(libraryItem.libraryManga) },
             )
         }
     }

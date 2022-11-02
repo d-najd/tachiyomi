@@ -37,7 +37,7 @@ fun LibraryContent(
     showMangaCount: Boolean,
     onChangeCurrentPage: (Int) -> Unit,
     onMangaClicked: (Long) -> Unit,
-    onContinueReadingClicked: (Long) -> Unit,
+    onContinueReadingClicked: (LibraryManga) -> Unit,
     onToggleSelection: (LibraryManga) -> Unit,
     onToggleRangeSelection: (LibraryManga) -> Unit,
     onRefresh: (Category?) -> Boolean,
@@ -90,8 +90,8 @@ fun LibraryContent(
         val onLongClickManga = { manga: LibraryManga ->
             onToggleRangeSelection(manga)
         }
-        val onClickContinueReading = { mangaId: Long ->
-            onContinueReadingClicked(mangaId)
+        val onClickContinueReading = { manga: LibraryManga ->
+            onContinueReadingClicked(manga)
         }
 
         SwipeRefresh(

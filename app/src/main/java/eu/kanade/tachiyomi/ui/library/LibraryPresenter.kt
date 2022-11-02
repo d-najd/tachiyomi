@@ -395,9 +395,8 @@ class LibraryPresenter(
             .reduce { set1, set2 -> set1.intersect(set2) }
     }
 
-    suspend fun getNextUnreadChapter(mangaId: Long): Chapter? {
-        val manga = getMangaWithChapters.awaitManga(mangaId)
-        return getMangaWithChapters.awaitChapters(mangaId).getNextUnread(manga, downloadManager)
+    suspend fun getNextUnreadChapter(manga: Manga): Chapter? {
+        return getMangaWithChapters.awaitChapters(manga.id).getNextUnread(manga, downloadManager)
     }
 
     /**

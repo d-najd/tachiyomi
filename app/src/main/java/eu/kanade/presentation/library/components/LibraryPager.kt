@@ -35,7 +35,7 @@ fun LibraryPager(
     showContinueReadingButton: Boolean,
     onClickManga: (LibraryManga) -> Unit,
     onLongClickManga: (LibraryManga) -> Unit,
-    onClickContinueReading: (Long) -> Unit,
+    onClickContinueReading: (LibraryManga) -> Unit,
 ) {
     HorizontalPager(
         count = pageCount,

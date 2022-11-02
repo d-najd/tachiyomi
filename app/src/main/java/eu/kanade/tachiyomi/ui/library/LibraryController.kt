@@ -10,6 +10,7 @@ import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
 import eu.kanade.core.prefs.CheckboxState
 import eu.kanade.domain.chapter.model.Chapter
+import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.isLocal
 import eu.kanade.domain.manga.model.toDbManga
@@ -199,9 +200,9 @@ class LibraryController(
         router.pushController(MangaController(mangaId))
     }
 
-    private fun continueReading(mangaId: Long) {
+    private fun continueReading(libraryManga: LibraryManga) {
         viewScope.launchIO {
-            val chapter = presenter.getNextUnreadChapter(mangaId)
+            val chapter = presenter.getNextUnreadChapter(libraryManga.manga)
             if (chapter != null) openChapter(chapter)
         }
     }
