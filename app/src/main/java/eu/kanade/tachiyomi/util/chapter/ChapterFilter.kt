@@ -6,21 +6,25 @@ import eu.kanade.domain.manga.model.TriStateFilter
 import eu.kanade.domain.manga.model.isLocal
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.download.model.Download
+import eu.kanade.tachiyomi.ui.manga.ChapterItem
 
-private fun List<Chapter>.applyFilters(manga: Manga, downloadManager: DownloadManager): List<Chapter> {
+/**
+ * Applies the view filters to the list of chapters obtained from the database.
+ * @return an observable of the list of chapters filtered and sorted.
+ */
+fun List<Chapter>.applyFilters(manga: Manga, downloadManager: DownloadManager): List<Chapter> {
     val isLocalManga = manga.isLocal()
     val unreadFilter = manga.unreadFilter
     val downloadedFilter = manga.downloadedFilter
     val bookmarkedFilter = manga.bookmarkedFilter
 
-    return asSequence()
-        .filter { chapter ->
-            when (unreadFilter) {
-                TriStateFilter.DISABLED -> true
-                TriStateFilter.ENABLED_IS -> !chapter.read
-                TriStateFilter.ENABLED_NOT -> chapter.read
-            }
+    return filter { chapter ->
+        when (unreadFilter) {
+            TriStateFilter.DISABLED -> true
+            TriStateFilter.ENABLED_IS -> !chapter.read
+            TriStateFilter.ENABLED_NOT -> chapter.read
         }
+    }
         .filter { chapter ->
             when (bookmarkedFilter) {
                 TriStateFilter.DISABLED -> true
@@ -41,5 +45,38 @@ private fun List<Chapter>.applyFilters(manga: Manga, downloadManager: DownloadMa
             }
         }
         .sortedWith(getChapterSort(manga))
-        .toList()
+}
+
+/**
+ * Applies the view filters to the list of chapters obtained from the database.
+ * @return an observable of the list of chapters filtered and sorted.
+ */
+fun List<ChapterItem>.applyFilters(manga: Manga): Sequence<ChapterItem> {
+    val isLocalManga = manga.isLocal()
+    val unreadFilter = manga.unreadFilter
+    val downloadedFilter = manga.downloadedFilter
+    val bookmarkedFilter = manga.bookmarkedFilter
+    return asSequence()
+        .filter { (chapter) ->
+            when (unreadFilter) {
+                TriStateFilter.DISABLED -> true
+                TriStateFilter.ENABLED_IS -> !chapter.read
+                TriStateFilter.ENABLED_NOT -> chapter.read
+            }
+        }
+        .filter { (chapter) ->
+            when (bookmarkedFilter) {
+                TriStateFilter.DISABLED -> true
+                TriStateFilter.ENABLED_IS -> chapter.bookmark
+                TriStateFilter.ENABLED_NOT -> !chapter.bookmark
+            }
+        }
+        .filter {
+            when (downloadedFilter) {
+                TriStateFilter.DISABLED -> true
+                TriStateFilter.ENABLED_IS -> it.isDownloaded || isLocalManga
+                TriStateFilter.ENABLED_NOT -> !it.isDownloaded && !isLocalManga
+            }
+        }
+        .sortedWith { (chapter1), (chapter2) -> getChapterSort(manga).invoke(chapter1, chapter2) }
 }

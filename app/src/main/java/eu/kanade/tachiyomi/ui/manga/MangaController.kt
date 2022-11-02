@@ -52,7 +52,6 @@ import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.ui.recent.history.HistoryController
 import eu.kanade.tachiyomi.ui.recent.updates.UpdatesController
 import eu.kanade.tachiyomi.ui.webview.WebViewActivity
-import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.system.logcat
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.launch
@@ -344,10 +343,8 @@ class MangaController : FullComposeController<MangaPresenter> {
     // Chapters list - start
 
     private fun continueReading() {
-        viewScope.launchIO {
-            val chapter = presenter.getNextUnreadChapter()
-            if (chapter != null) openChapter(chapter)
-        }
+        val chapter = presenter.getNextUnreadChapter()
+        if (chapter != null) openChapter(chapter)
     }
 
     private fun openChapter(chapter: DomainChapter) {

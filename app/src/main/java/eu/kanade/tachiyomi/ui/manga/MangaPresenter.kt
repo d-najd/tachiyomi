@@ -25,8 +25,6 @@ import eu.kanade.domain.manga.interactor.GetDuplicateLibraryManga
 import eu.kanade.domain.manga.interactor.GetMangaWithChapters
 import eu.kanade.domain.manga.interactor.SetMangaChapterFlags
 import eu.kanade.domain.manga.interactor.UpdateManga
-import eu.kanade.domain.manga.model.TriStateFilter
-import eu.kanade.domain.manga.model.isLocal
 import eu.kanade.domain.manga.model.toDbManga
 import eu.kanade.domain.track.interactor.DeleteTrack
 import eu.kanade.domain.track.interactor.GetTracks
@@ -45,7 +43,9 @@ import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceManager
 import eu.kanade.tachiyomi.ui.base.presenter.BasePresenter
 import eu.kanade.tachiyomi.ui.manga.track.TrackItem
+import eu.kanade.tachiyomi.util.chapter.applyFilters
 import eu.kanade.tachiyomi.util.chapter.getChapterSort
+import eu.kanade.tachiyomi.util.chapter.getNextUnread
 import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.lang.launchNonCancellable
 import eu.kanade.tachiyomi.util.lang.toRelativeString
@@ -102,9 +102,7 @@ class MangaPresenter(
     private val updateManga: UpdateManga = Injekt.get(),
     private val syncChaptersWithSource: SyncChaptersWithSource = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
-    private val getChapterByMangaId: GetChapterByMangaId = Injekt.get(),
     private val deleteTrack: DeleteTrack = Injekt.get(),
-    private val getNextChapter: GetNextChapter = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
     private val setMangaCategories: SetMangaCategories = Injekt.get(),
     private val insertTrack: InsertTrack = Injekt.get(),
@@ -583,19 +581,9 @@ class MangaPresenter(
     /**
      * Returns the next unread chapter or null if everything is read.
      */
-    suspend fun getNextUnreadChapter(): DomainChapter? {
+    fun getNextUnreadChapter(): DomainChapter? {
         val successState = successState ?: return null
-        return successState.processedChapters.map { it.chapter }.let { chapters ->
-            if (successState.manga.sortDescending()) {
-                chapters.findLast { !it.read }
-            } else {
-                chapters.find { !it.read }
-            }
-        }
-        /*
-        val successState = successState ?: return null
-        return getNextChapter.await(successState.manga.id)
-         */
+        return successState.chapters.getNextUnread(successState.manga)
     }
 
     fun getUnreadChapters(): List<DomainChapter> {
@@ -1115,40 +1103,6 @@ sealed class MangaScreenState {
 
         val processedChapters: Sequence<ChapterItem>
             get() = chapters.applyFilters(manga)
-
-        /**
-         * Applies the view filters to the list of chapters obtained from the database.
-         * @return an observable of the list of chapters filtered and sorted.
-         */
-        private fun List<ChapterItem>.applyFilters(manga: DomainManga): Sequence<ChapterItem> {
-            val isLocalManga = manga.isLocal()
-            val unreadFilter = manga.unreadFilter
-            val downloadedFilter = manga.downloadedFilter
-            val bookmarkedFilter = manga.bookmarkedFilter
-            return asSequence()
-                .filter { (chapter) ->
-                    when (unreadFilter) {
-                        TriStateFilter.DISABLED -> true
-                        TriStateFilter.ENABLED_IS -> !chapter.read
-                        TriStateFilter.ENABLED_NOT -> chapter.read
-                    }
-                }
-                .filter { (chapter) ->
-                    when (bookmarkedFilter) {
-                        TriStateFilter.DISABLED -> true
-                        TriStateFilter.ENABLED_IS -> chapter.bookmark
-                        TriStateFilter.ENABLED_NOT -> !chapter.bookmark
-                    }
-                }
-                .filter {
-                    when (downloadedFilter) {
-                        TriStateFilter.DISABLED -> true
-                        TriStateFilter.ENABLED_IS -> it.isDownloaded || isLocalManga
-                        TriStateFilter.ENABLED_NOT -> !it.isDownloaded && !isLocalManga
-                    }
-                }
-                .sortedWith { (chapter1), (chapter2) -> getChapterSort(manga).invoke(chapter1, chapter2) }
-        }
     }
 }
 

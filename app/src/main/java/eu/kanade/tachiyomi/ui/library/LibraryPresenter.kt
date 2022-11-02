@@ -29,6 +29,7 @@ import eu.kanade.domain.library.model.LibrarySort
 import eu.kanade.domain.library.model.sort
 import eu.kanade.domain.library.service.LibraryPreferences
 import eu.kanade.domain.manga.interactor.GetLibraryManga
+import eu.kanade.domain.manga.interactor.GetMangaWithChapters
 import eu.kanade.domain.manga.interactor.UpdateManga
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.MangaUpdate
@@ -48,6 +49,8 @@ import eu.kanade.tachiyomi.source.SourceManager
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.ui.base.presenter.BasePresenter
+import eu.kanade.tachiyomi.util.chapter.applyFilters
+import eu.kanade.tachiyomi.util.chapter.getNextUnread
 import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.lang.launchNonCancellable
 import eu.kanade.tachiyomi.util.removeCovers
@@ -80,10 +83,10 @@ typealias LibraryMap = Map<Long, List<LibraryItem>>
 class LibraryPresenter(
     private val state: LibraryStateImpl = LibraryState() as LibraryStateImpl,
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
-    private val getNextChapter: GetNextChapter = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
     private val getChapterByMangaId: GetChapterByMangaId = Injekt.get(),
+    private val getMangaWithChapters: GetMangaWithChapters = Injekt.get(),
     private val setReadStatus: SetReadStatus = Injekt.get(),
     private val updateManga: UpdateManga = Injekt.get(),
     private val setMangaCategories: SetMangaCategories = Injekt.get(),
@@ -441,7 +444,8 @@ class LibraryPresenter(
     }
 
     suspend fun getNextUnreadChapter(mangaId: Long): Chapter? {
-        return getNextChapter.await(mangaId)
+        val manga = getMangaWithChapters.awaitManga(mangaId)
+        return getMangaWithChapters.awaitChapters(mangaId).getNextUnread(manga, downloadManager)
     }
 
     /**
