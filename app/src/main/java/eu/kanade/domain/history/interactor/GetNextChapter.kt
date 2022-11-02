@@ -11,10 +11,6 @@ class GetNextChapter(
         return repository.getNextChapter(mangaId, chapterId)
     }
 
-    suspend fun await(mangaId: Long): Chapter? {
-        return repository.getNextChapter(mangaId)
-    }
-
     suspend fun await(): Chapter? {
         val history = repository.getLastHistory() ?: return null
         return repository.getNextChapter(history.mangaId, history.chapterId)

@@ -13,8 +13,6 @@ interface HistoryRepository {
 
     suspend fun getNextChapter(mangaId: Long, chapterId: Long): Chapter?
 
-    suspend fun getNextChapter(mangaId: Long): Chapter?
-
     suspend fun resetHistory(historyId: Long)
 
     suspend fun resetHistoryByMangaId(mangaId: Long)
