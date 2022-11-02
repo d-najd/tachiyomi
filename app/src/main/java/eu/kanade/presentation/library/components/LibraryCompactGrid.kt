@@ -19,13 +19,11 @@ fun LibraryCompactGrid(
     showUnreadBadges: Boolean,
     showLocalBadges: Boolean,
     showLanguageBadges: Boolean,
-    showContinueReadingButton: Boolean,
     columns: Int,
     contentPadding: PaddingValues,
     selection: List<LibraryManga>,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickContinueReading: (Long) -> Unit,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
 ) {
@@ -73,80 +71,4 @@ fun LibraryCompactGrid(
             )
         }
     }
-}
-
-@Composable
-fun LibraryCompactGridItem(
-    item: LibraryItem,
-    showDownloadBadge: Boolean,
-    showUnreadBadge: Boolean,
-    showLocalBadge: Boolean,
-    showLanguageBadge: Boolean,
-    isSelected: Boolean,
-    onClick: (LibraryManga) -> Unit,
-    onLongClick: (LibraryManga) -> Unit,
-) {
-    val libraryManga = item.libraryManga
-    val manga = libraryManga.manga
-    LibraryGridCover(
-        modifier = Modifier
-            .selectedOutline(isSelected)
-            .combinedClickable(
-                onClick = {
-                    onClick(libraryManga)
-                },
-                onLongClick = {
-                    onLongClick(libraryManga)
-                },
-            ),
-        mangaCover = eu.kanade.domain.manga.model.MangaCover(
-            manga.id,
-            manga.source,
-            manga.favorite,
-            manga.thumbnailUrl,
-            manga.coverLastModified,
-        ),
-        item = item,
-        showDownloadBadge = showDownloadBadge,
-        showUnreadBadge = showUnreadBadge,
-        showLocalBadge = showLocalBadge,
-        showLanguageBadge = showLanguageBadge,
-    ) {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp))
-                .background(
-                    Brush.verticalGradient(
-                        0f to Color.Transparent,
-                        1f to Color(0xAA000000),
-                    ),
-                )
-                .fillMaxHeight(0.33f)
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-        )
-        MangaGridCompactText(manga.title)
-    }
-}
-
-@Composable
-fun BoxScope.MangaGridCompactText(
-    text: String,
-) {
-    Text(
-        text = text,
-        modifier = Modifier
-            .padding(8.dp)
-            .align(Alignment.BottomStart),
-        color = Color.White,
-        fontSize = 12.sp,
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis,
-        style = MaterialTheme.typography.titleSmall.copy(
-            shadow = Shadow(
-                color = Color.Black,
-                blurRadius = 4f,
-            ),
-        ),
-    )
 }
