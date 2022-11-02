@@ -21,7 +21,6 @@ import eu.kanade.domain.chapter.interactor.SetReadStatus
 import eu.kanade.domain.chapter.model.Chapter
 import eu.kanade.domain.chapter.model.toDbChapter
 import eu.kanade.domain.history.interactor.GetNextUnreadChapters
-import eu.kanade.domain.history.interactor.GetNextChapter
 import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.domain.library.model.LibrarySort
 import eu.kanade.domain.library.model.sort
@@ -31,7 +30,6 @@ import eu.kanade.domain.manga.interactor.UpdateManga
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.MangaUpdate
 import eu.kanade.domain.manga.model.isLocal
-import eu.kanade.domain.track.interactor.GetTracksPerManga
 import eu.kanade.presentation.category.visualName
 import eu.kanade.presentation.library.LibraryState
 import eu.kanade.presentation.library.LibraryStateImpl
