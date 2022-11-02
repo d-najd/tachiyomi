@@ -10,11 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
 import eu.kanade.core.prefs.PreferenceMutableState
 import eu.kanade.domain.library.model.LibraryDisplayMode
 import eu.kanade.domain.library.model.LibraryManga
+import eu.kanade.presentation.components.HorizontalPager
+import eu.kanade.presentation.components.PagerState
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 
 @Composable
@@ -74,9 +74,10 @@ fun LibraryPager(
                     onGlobalSearchClicked = onGlobalSearchClicked,
                 )
             }
-            LibraryDisplayMode.CompactGrid -> {
+            LibraryDisplayMode.CompactGrid, LibraryDisplayMode.CoverOnlyGrid -> {
                 LibraryCompactGrid(
                     items = library,
+                    showTitle = displayMode is LibraryDisplayMode.CompactGrid,
                     showDownloadBadges = showDownloadBadges,
                     showUnreadBadges = showUnreadBadges,
                     showLocalBadges = showLocalBadges,
@@ -94,24 +95,6 @@ fun LibraryPager(
             }
             LibraryDisplayMode.ComfortableGrid -> {
                 LibraryComfortableGrid(
-                    items = library,
-                    showDownloadBadges = showDownloadBadges,
-                    showUnreadBadges = showUnreadBadges,
-                    showLocalBadges = showLocalBadges,
-                    showLanguageBadges = showLanguageBadges,
-                    showContinueReadingButton = showContinueReadingButton,
-                    columns = columns,
-                    contentPadding = contentPadding,
-                    selection = selectedManga,
-                    onClick = onClickManga,
-                    onClickContinueReading = onClickContinueReading,
-                    onLongClick = onLongClickManga,
-                    searchQuery = searchQuery,
-                    onGlobalSearchClicked = onGlobalSearchClicked,
-                )
-            }
-            LibraryDisplayMode.CoverOnlyGrid -> {
-                LibraryCoverOnlyGrid(
                     items = library,
                     showDownloadBadges = showDownloadBadges,
                     showUnreadBadges = showUnreadBadges,

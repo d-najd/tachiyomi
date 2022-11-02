@@ -15,6 +15,7 @@ import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.system.LocaleHelper
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import rx.Observable
 import uy.kohesive.injekt.Injekt
@@ -114,10 +116,12 @@ class ExtensionsPresenter(
                 }
 
                 items
-            }.collectLatest {
-                state.isLoading = false
-                state.items = it
             }
+                .onStart { delay(500) } // Defer to avoid crashing on initial render
+                .collectLatest {
+                    state.isLoading = false
+                    state.items = it
+                }
         }
 
         presenterScope.launchIO { findAvailableExtensions() }

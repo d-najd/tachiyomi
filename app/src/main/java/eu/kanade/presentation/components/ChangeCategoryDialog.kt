@@ -68,7 +68,7 @@ fun ChangeCategoryDialog(
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 TextButton(onClick = onDismissRequest) {
-                    Text(text = stringResource(android.R.string.cancel))
+                    Text(text = stringResource(R.string.action_cancel))
                 }
                 TextButton(
                     onClick = {
@@ -93,10 +93,12 @@ fun ChangeCategoryDialog(
                 selection.forEach { checkbox ->
                     val onChange: (CheckboxState<Category>) -> Unit = {
                         val index = selection.indexOf(it)
-                        val mutableList = selection.toMutableList()
-                        mutableList.removeAt(index)
-                        mutableList.add(index, it.next())
-                        selection = mutableList.toList()
+                        if (index != -1) {
+                            val mutableList = selection.toMutableList()
+                            mutableList.removeAt(index)
+                            mutableList.add(index, it.next())
+                            selection = mutableList.toList()
+                        }
                     }
                     Row(
                         modifier = Modifier

@@ -1,35 +1,20 @@
 package eu.kanade.presentation.library.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastAny
 import eu.kanade.domain.library.model.LibraryManga
+import eu.kanade.domain.manga.model.MangaCover
+import eu.kanade.presentation.components.MangaCompactGridItem
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 
 @Composable
 fun LibraryCompactGrid(
     items: List<LibraryItem>,
+    showTitle: Boolean,
     showDownloadBadges: Boolean,
     showUnreadBadges: Boolean,
     showLocalBadges: Boolean,
@@ -55,17 +40,36 @@ fun LibraryCompactGrid(
             items = items,
             contentType = { "library_compact_grid_item" },
         ) { libraryItem ->
-            LibraryCompactGridItem(
-                item = libraryItem,
-                showDownloadBadge = showDownloadBadges,
-                showUnreadBadge = showUnreadBadges,
-                showLocalBadge = showLocalBadges,
-                showLanguageBadge = showLanguageBadges,
-                showContinueReadingButton = showContinueReadingButton,
+            val manga = libraryItem.libraryManga.manga
+            MangaCompactGridItem(
                 isSelected = selection.fastAny { it.id == libraryItem.libraryManga.id },
-                onClick = onClick,
-                onLongClick = onLongClick,
-                onClickContinueReading = onClickContinueReading,
+                title = manga.title.takeIf { showTitle },
+                coverData = MangaCover(
+                    mangaId = manga.id,
+                    sourceId = manga.source,
+                    isMangaFavorite = manga.favorite,
+                    url = manga.thumbnailUrl,
+                    lastModified = manga.coverLastModified,
+                ),
+                coverBadgeStart = {
+                    DownloadsBadge(
+                        enabled = showDownloadBadges,
+                        item = libraryItem,
+                    )
+                    UnreadBadge(
+                        enabled = showUnreadBadges,
+                        item = libraryItem,
+                    )
+                },
+                coverBadgeEnd = {
+                    LanguageBadge(
+                        showLanguage = showLanguageBadges,
+                        showLocal = showLocalBadges,
+                        item = libraryItem,
+                    )
+                },
+                onLongClick = { onLongClick(libraryItem.libraryManga) },
+                onClick = { onClick(libraryItem.libraryManga) },
             )
         }
     }
@@ -78,11 +82,9 @@ fun LibraryCompactGridItem(
     showUnreadBadge: Boolean,
     showLocalBadge: Boolean,
     showLanguageBadge: Boolean,
-    showContinueReadingButton: Boolean,
     isSelected: Boolean,
     onClick: (LibraryManga) -> Unit,
     onLongClick: (LibraryManga) -> Unit,
-    onClickContinueReading: (Long) -> Unit,
 ) {
     val libraryManga = item.libraryManga
     val manga = libraryManga.manga
@@ -123,28 +125,18 @@ fun LibraryCompactGridItem(
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter),
         )
-        MangaGridCompactText(manga.title, showContinueReadingButton)
-        if (showContinueReadingButton) {
-            LibraryGridItemContinueReadingButton(manga.id, onClickContinueReading)
-        }
+        MangaGridCompactText(manga.title)
     }
 }
 
 @Composable
 fun BoxScope.MangaGridCompactText(
     text: String,
-    showContinueReadingButton: Boolean,
 ) {
-    val endPadding = if (showContinueReadingButton) 38.dp else 8.dp
     Text(
         text = text,
         modifier = Modifier
-            .padding(
-                start = 8.dp,
-                top = 8.dp,
-                bottom = 8.dp,
-                end = endPadding,
-            )
+            .padding(8.dp)
             .align(Alignment.BottomStart),
         color = Color.White,
         fontSize = 12.sp,

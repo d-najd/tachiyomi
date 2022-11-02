@@ -13,12 +13,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import eu.kanade.domain.ui.UiPreferences
+import eu.kanade.domain.ui.model.TabletUiMode
 import eu.kanade.domain.ui.model.ThemeMode
 import eu.kanade.domain.ui.model.setAppCompatDelegateThemeMode
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.util.collectAsState
 import eu.kanade.tachiyomi.R
-import eu.kanade.tachiyomi.util.system.isTablet
+import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.merge
@@ -40,7 +41,7 @@ class SettingsAppearanceScreen : SearchableSettings {
 
         return listOf(
             getThemeGroup(context = context, uiPreferences = uiPreferences),
-            getNavigationGroup(context = context, uiPreferences = uiPreferences),
+            getDisplayGroup(context = context, uiPreferences = uiPreferences),
             getTimestampGroup(uiPreferences = uiPreferences),
         )
     }
@@ -71,7 +72,6 @@ class SettingsAppearanceScreen : SearchableSettings {
                 Preference.PreferenceItem.ListPreference(
                     pref = themeModePref,
                     title = stringResource(R.string.pref_theme_mode),
-                    subtitle = "%s",
                     entries = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         mapOf(
                             ThemeMode.SYSTEM to stringResource(R.string.theme_system),
@@ -99,23 +99,21 @@ class SettingsAppearanceScreen : SearchableSettings {
     }
 
     @Composable
-    private fun getNavigationGroup(
+    private fun getDisplayGroup(
         context: Context,
         uiPreferences: UiPreferences,
     ): Preference.PreferenceGroup {
         return Preference.PreferenceGroup(
-            title = stringResource(R.string.pref_category_navigation),
-            enabled = remember(context) { context.isTablet() },
+            title = stringResource(R.string.pref_category_display),
             preferenceItems = listOf(
                 Preference.PreferenceItem.ListPreference(
-                    pref = uiPreferences.sideNavIconAlignment(),
-                    title = stringResource(R.string.pref_side_nav_icon_alignment),
-                    subtitle = "%s",
-                    entries = mapOf(
-                        0 to stringResource(R.string.alignment_top),
-                        1 to stringResource(R.string.alignment_center),
-                        2 to stringResource(R.string.alignment_bottom),
-                    ),
+                    pref = uiPreferences.tabletUiMode(),
+                    title = stringResource(R.string.pref_tablet_ui_mode),
+                    entries = TabletUiMode.values().associateWith { stringResource(it.titleResId) },
+                    onValueChanged = {
+                        context.toast(R.string.requires_app_restart)
+                        true
+                    },
                 ),
             ),
         )
@@ -130,7 +128,6 @@ class SettingsAppearanceScreen : SearchableSettings {
                 Preference.PreferenceItem.ListPreference(
                     pref = uiPreferences.relativeTime(),
                     title = stringResource(R.string.pref_relative_format),
-                    subtitle = "%s",
                     entries = mapOf(
                         0 to stringResource(R.string.off),
                         2 to stringResource(R.string.pref_relative_time_short),
@@ -140,7 +137,6 @@ class SettingsAppearanceScreen : SearchableSettings {
                 Preference.PreferenceItem.ListPreference(
                     pref = uiPreferences.dateFormat(),
                     title = stringResource(R.string.pref_date_format),
-                    subtitle = "%s",
                     entries = DateFormats
                         .associateWith {
                             val formattedDate = UiPreferences.dateFormat(it).format(now)

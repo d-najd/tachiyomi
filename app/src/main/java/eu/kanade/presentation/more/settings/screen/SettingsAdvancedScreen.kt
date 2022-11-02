@@ -27,8 +27,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.library.service.LibraryPreferences
 import eu.kanade.domain.manga.repository.MangaRepository
-import eu.kanade.domain.ui.UiPreferences
-import eu.kanade.domain.ui.model.TabletUiMode
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.util.collectAsState
 import eu.kanade.tachiyomi.R
@@ -53,14 +51,16 @@ import eu.kanade.tachiyomi.util.CrashLogUtil
 import eu.kanade.tachiyomi.util.lang.launchNonCancellable
 import eu.kanade.tachiyomi.util.lang.withUIContext
 import eu.kanade.tachiyomi.util.system.DeviceUtil
-import eu.kanade.tachiyomi.util.system.isDevFlavor
 import eu.kanade.tachiyomi.util.system.isPackageInstalled
+import eu.kanade.tachiyomi.util.system.isPreviewBuildType
+import eu.kanade.tachiyomi.util.system.isReleaseBuildType
 import eu.kanade.tachiyomi.util.system.logcat
 import eu.kanade.tachiyomi.util.system.powerManager
 import eu.kanade.tachiyomi.util.system.setDefaultSettings
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.launch
 import logcat.LogPriority
+import okhttp3.Headers
 import rikka.sui.Sui
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -84,7 +84,7 @@ class SettingsAdvancedScreen : SearchableSettings {
                 pref = basePreferences.acraEnabled(),
                 title = stringResource(R.string.pref_enable_acra),
                 subtitle = stringResource(R.string.pref_acra_summary),
-                enabled = !isDevFlavor,
+                enabled = isPreviewBuildType || isReleaseBuildType,
             ),
             Preference.PreferenceItem.TextPreference(
                 title = stringResource(R.string.pref_dump_crash_logs),
@@ -109,7 +109,6 @@ class SettingsAdvancedScreen : SearchableSettings {
             getNetworkGroup(networkPreferences = networkPreferences),
             getLibraryGroup(),
             getExtensionsGroup(basePreferences = basePreferences),
-            getDisplayGroup(),
         )
     }
 
@@ -267,6 +266,13 @@ class SettingsAdvancedScreen : SearchableSettings {
                             context.toast(R.string.error_user_agent_string_blank)
                             return@EditTextPreference false
                         }
+                        try {
+                            // OkHttp checks for valid values internally
+                            Headers.Builder().add("User-Agent", it)
+                        } catch (_: IllegalArgumentException) {
+                            context.toast(R.string.error_user_agent_string_invalid)
+                            return@EditTextPreference false
+                        }
                         context.toast(R.string.requires_app_restart)
                         true
                     },
@@ -339,7 +345,7 @@ class SettingsAdvancedScreen : SearchableSettings {
                 text = { Text(text = stringResource(R.string.ext_installer_shizuku_unavailable_dialog)) },
                 dismissButton = {
                     TextButton(onClick = dismiss) {
-                        Text(text = stringResource(android.R.string.cancel))
+                        Text(text = stringResource(R.string.action_cancel))
                     }
                 },
                 confirmButton = {
@@ -377,26 +383,6 @@ class SettingsAdvancedScreen : SearchableSettings {
                         } else {
                             true
                         }
-                    },
-                ),
-            ),
-        )
-    }
-
-    @Composable
-    private fun getDisplayGroup(): Preference.PreferenceGroup {
-        val context = LocalContext.current
-        val uiPreferences = remember { Injekt.get<UiPreferences>() }
-        return Preference.PreferenceGroup(
-            title = stringResource(R.string.pref_category_display),
-            preferenceItems = listOf(
-                Preference.PreferenceItem.ListPreference(
-                    pref = uiPreferences.tabletUiMode(),
-                    title = stringResource(R.string.pref_tablet_ui_mode),
-                    entries = TabletUiMode.values().associateWith { stringResource(it.titleResId) },
-                    onValueChanged = {
-                        context.toast(R.string.requires_app_restart)
-                        true
                     },
                 ),
             ),
