@@ -348,10 +348,8 @@ class MangaController : FullComposeController<MangaPresenter> {
     // Chapters list - start
 
     private fun continueReading() {
-        viewScope.launchIO {
-            val chapter = presenter.getNextUnreadChapter()
-            if (chapter != null) openChapter(chapter)
-        }
+        val chapter = presenter.getNextUnreadChapter()
+        if (chapter != null) openChapter(chapter)
     }
 
     private fun openChapter(chapter: DomainChapter) {
