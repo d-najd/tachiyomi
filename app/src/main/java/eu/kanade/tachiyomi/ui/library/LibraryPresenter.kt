@@ -17,6 +17,7 @@ import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.category.interactor.GetCategories
 import eu.kanade.domain.category.interactor.SetMangaCategories
 import eu.kanade.domain.category.model.Category
+import eu.kanade.domain.chapter.interactor.GetChapterByMangaId
 import eu.kanade.domain.chapter.interactor.SetReadStatus
 import eu.kanade.domain.chapter.model.Chapter
 import eu.kanade.domain.chapter.model.toDbChapter
@@ -26,7 +27,6 @@ import eu.kanade.domain.library.model.LibrarySort
 import eu.kanade.domain.library.model.sort
 import eu.kanade.domain.library.service.LibraryPreferences
 import eu.kanade.domain.manga.interactor.GetLibraryManga
-import eu.kanade.domain.manga.interactor.GetMangaWithChapters
 import eu.kanade.domain.manga.interactor.UpdateManga
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.MangaUpdate
@@ -81,7 +81,7 @@ class LibraryPresenter(
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
     private val getTracksPerManga: GetTracksPerManga = Injekt.get(),
-    private val getMangaWithChapters: GetMangaWithChapters = Injekt.get(),
+    private val getChaptersByMangaId: GetChapterByMangaId = Injekt.get(),
     private val getNextUnreadChapters: GetNextUnreadChapters = Injekt.get(),
     private val setReadStatus: SetReadStatus = Injekt.get(),
     private val updateManga: UpdateManga = Injekt.get(),
@@ -396,7 +396,7 @@ class LibraryPresenter(
     }
 
     suspend fun getNextUnreadChapter(manga: Manga): Chapter? {
-        return getMangaWithChapters.awaitChapters(manga.id).getNextUnread(manga, downloadManager)
+        return getChaptersByMangaId.await(manga.id).getNextUnread(manga, downloadManager)
     }
 
     /**
