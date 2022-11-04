@@ -630,6 +630,8 @@ private fun LazyListScope.sharedChapterItems(
         val haptic = LocalHapticFeedback.current
         MangaChapterListItem(
             title = chapterItem.chapterTitleString,
+            test = chapterItem,
+            tests = chapters,
             date = chapterItem.dateUploadString,
             readProgress = chapterItem.readProgressString,
             scanlator = chapterItem.chapter.scanlator.takeIf { !it.isNullOrBlank() },
