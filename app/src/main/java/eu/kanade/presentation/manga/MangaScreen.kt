@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DismissState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
@@ -102,6 +103,10 @@ fun MangaScreen(
     onMarkPreviousAsReadClicked: (Chapter) -> Unit,
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
+    // For swipeable actions
+    onSwipedToBookmark: (DismissState, Chapter) -> Unit,
+    onSwipedToMarkAsRead: (DismissState, Chapter) -> Unit,
+
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
     onAllChapterSelected: (Boolean) -> Unit,
@@ -131,6 +136,8 @@ fun MangaScreen(
             onMultiMarkAsReadClicked = onMultiMarkAsReadClicked,
             onMarkPreviousAsReadClicked = onMarkPreviousAsReadClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
+            onSwipedToBookmark = onSwipedToBookmark,
+            onSwipedToMarkAsRead = onSwipedToMarkAsRead,
             onChapterSelected = onChapterSelected,
             onAllChapterSelected = onAllChapterSelected,
             onInvertSelection = onInvertSelection,
@@ -159,6 +166,8 @@ fun MangaScreen(
             onMultiMarkAsReadClicked = onMultiMarkAsReadClicked,
             onMarkPreviousAsReadClicked = onMarkPreviousAsReadClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
+            onSwipedToBookmark = onSwipedToBookmark,
+            onSwipedToMarkAsRead = onSwipedToMarkAsRead,
             onChapterSelected = onChapterSelected,
             onAllChapterSelected = onAllChapterSelected,
             onInvertSelection = onInvertSelection,
@@ -196,6 +205,10 @@ private fun MangaScreenSmallImpl(
     onMultiMarkAsReadClicked: (List<Chapter>, markAsRead: Boolean) -> Unit,
     onMarkPreviousAsReadClicked: (Chapter) -> Unit,
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
+
+    // For swipeable actions
+    onSwipedToBookmark: (DismissState, Chapter) -> Unit,
+    onSwipedToMarkAsRead: (DismissState, Chapter) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -365,6 +378,8 @@ private fun MangaScreenSmallImpl(
                         onChapterClicked = onChapterClicked,
                         onDownloadChapter = onDownloadChapter,
                         onChapterSelected = onChapterSelected,
+                        onSwipedToBookmark = onSwipedToBookmark,
+                        onSwipedToMarkAsRead = onSwipedToMarkAsRead,
                     )
                 }
             }
@@ -402,6 +417,10 @@ fun MangaScreenLargeImpl(
     onMultiMarkAsReadClicked: (List<Chapter>, markAsRead: Boolean) -> Unit,
     onMarkPreviousAsReadClicked: (Chapter) -> Unit,
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
+
+    // For swipeable actions
+    onSwipedToBookmark: (DismissState, Chapter) -> Unit,
+    onSwipedToMarkAsRead: (DismissState, Chapter) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -565,6 +584,8 @@ fun MangaScreenLargeImpl(
                                 onChapterClicked = onChapterClicked,
                                 onDownloadChapter = onDownloadChapter,
                                 onChapterSelected = onChapterSelected,
+                                onSwipedToBookmark = onSwipedToBookmark,
+                                onSwipedToMarkAsRead = onSwipedToMarkAsRead,
                             )
                         }
                     }
@@ -621,6 +642,8 @@ private fun LazyListScope.sharedChapterItems(
     onChapterClicked: (Chapter) -> Unit,
     onDownloadChapter: ((List<ChapterItem>, ChapterDownloadAction) -> Unit)?,
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
+    onSwipedToBookmark: (DismissState, Chapter) -> Unit,
+    onSwipedToMarkAsRead: (DismissState, Chapter) -> Unit,
 ) {
     items(
         items = chapters,
@@ -630,8 +653,6 @@ private fun LazyListScope.sharedChapterItems(
         val haptic = LocalHapticFeedback.current
         MangaChapterListItem(
             title = chapterItem.chapterTitleString,
-            test = chapterItem,
-            tests = chapters,
             date = chapterItem.dateUploadString,
             readProgress = chapterItem.readProgressString,
             scanlator = chapterItem.chapter.scanlator.takeIf { !it.isNullOrBlank() },
@@ -641,6 +662,8 @@ private fun LazyListScope.sharedChapterItems(
             downloadIndicatorEnabled = chapters.fastAll { !it.selected },
             downloadStateProvider = { chapterItem.downloadState },
             downloadProgressProvider = { chapterItem.downloadProgress },
+            onSwipeToBookmark = { onSwipedToBookmark(it, chapterItem.chapter) },
+            onSwipeToMarkAsRead = { onSwipedToMarkAsRead(it, chapterItem.chapter) },
             onLongClick = {
                 onChapterSelected(chapterItem, !chapterItem.selected, true, true)
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)

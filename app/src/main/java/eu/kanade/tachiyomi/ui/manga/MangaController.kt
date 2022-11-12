@@ -140,6 +140,8 @@ class MangaController : FullComposeController<MangaPresenter> {
             onMultiMarkAsReadClicked = presenter::markChaptersRead,
             onMarkPreviousAsReadClicked = presenter::markPreviousChapterRead,
             onMultiDeleteClicked = presenter::showDeleteChapterDialog,
+            onSwipedToBookmark = presenter::swipeToBookmark,
+            onSwipedToMarkAsRead = presenter::swipeToMarkAsRead,
             onChapterSelected = presenter::toggleSelection,
             onAllChapterSelected = presenter::toggleAllSelection,
             onInvertSelection = presenter::invertSelection,

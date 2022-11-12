@@ -1,5 +1,10 @@
 package eu.kanade.presentation.manga.components
 
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -14,8 +19,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
+import androidx.compose.material.FixedThreshold
 import androidx.compose.material.SwipeToDismiss
-import androidx.compose.material.SwipeableState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Delete
@@ -25,9 +30,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,14 +52,14 @@ import eu.kanade.presentation.util.SecondaryItemAlpha
 import eu.kanade.presentation.util.selectedBackground
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.download.model.Download
-import eu.kanade.tachiyomi.ui.manga.ChapterItem
+import eu.kanade.tachiyomi.util.lang.launchUI
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun MangaChapterListItem(
     modifier: Modifier = Modifier,
     title: String,
-    test: ChapterItem,
-    tests: List<ChapterItem>,
     date: String?,
     readProgress: String?,
     scanlator: String?,
@@ -65,61 +72,33 @@ fun MangaChapterListItem(
     onLongClick: () -> Unit,
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
+    onSwipeToBookmark: (DismissState) -> Unit,
+    onSwipeToMarkAsRead: (DismissState) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+
     val state = rememberDismissState(
-        confirmStateChange = {
-            //ObjectAnimator.ofFloat( , View.TRANSLATION_X, 1f, 3f)
-            //    .setDuration(300)
-
-            if (it == DismissValue.DismissedToStart) {
-                it == DismissValue.Default
-                tests.toMutableList().remove(test)
-                /*
-                fadeIn(
-                    animationSpec = tween(
-                        durationMillis = 200,
-                        delayMillis = 100,
-                    ),
-                )
-
-     */
-                // items.remove(item)
-            }
-            if (it == DismissValue.DismissedToStart) {
-            }
-            true
-        },
+        DismissValue.Default,
     )
+
+    if (state.isDismissed(DismissDirection.StartToEnd)) {
+        scope.launchUI {
+            state.snapTo(DismissValue.Default)
+            onSwipeToMarkAsRead(state)
+        }
+    }
+
+    if (state.isDismissed(DismissDirection.EndToStart)) {
+        scope.launchUI {
+            state.snapTo(DismissValue.Default)
+            onSwipeToBookmark(state)
+        }
+    }
 
     SwipeToDismiss(
         state = state,
-        background = {
-            val color = when (state.dismissDirection) {
-                DismissDirection.StartToEnd -> Color.LightGray
-                DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
-                else -> Color.Transparent
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color)
-                    .padding(8.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                )
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.align(Alignment.CenterStart),
-                )
-            }
-        },
+        dismissThresholds = { FixedThreshold(64.dp) },
+        background = { MangaChapterListItemBackground(state = state) },
         dismissContent = {
             MangaChapterListItemContent(
                 modifier = modifier,
@@ -129,6 +108,7 @@ fun MangaChapterListItem(
                 scanlator = scanlator,
                 read = read,
                 bookmark = bookmark,
+                state = state,
                 selected = selected,
                 downloadIndicatorEnabled = downloadIndicatorEnabled,
                 downloadStateProvider = downloadStateProvider,
@@ -152,6 +132,7 @@ private fun MangaChapterListItemContent(
     read: Boolean,
     bookmark: Boolean,
     selected: Boolean,
+    state: DismissState,
     downloadIndicatorEnabled: Boolean,
     downloadStateProvider: () -> Download.State,
     downloadProgressProvider: () -> Int,
@@ -159,6 +140,40 @@ private fun MangaChapterListItemContent(
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
 ) {
+    var highlightFlag by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        if (state.currentValue == DismissValue.Default) {
+            highlightFlag = true
+            delay(2.seconds)
+            highlightFlag = false
+        }
+    }
+
+    val test by animateFloatAsState(
+        targetValue = if (highlightFlag) {
+            1f
+        } else {
+            0f
+        },
+        animationSpec = if (highlightFlag) {
+            tween(2000)
+        } else {
+            tween(2000)
+        },
+    )
+    val transitionState = remember {
+        MutableTransitionState(state.currentValue).apply {
+            targetState = DismissValue.Default
+        }
+    }
+    val transition = updateTransition(transitionState, "cardTransition")
+
+    val offsetTransition by transition.animateFloat(
+        label = "cardOffsetTransition",
+        transitionSpec = { tween(durationMillis = 3000) },
+        targetValueByState = { if (it == DismissValue.Default) 1f else 0f },
+    )
     Row(
         modifier = modifier
             .selectedBackground(selected)
@@ -166,6 +181,7 @@ private fun MangaChapterListItemContent(
                 onClick = onClick,
                 onLongClick = onLongClick,
             )
+            .alpha(test)
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
     ) {
@@ -176,7 +192,8 @@ private fun MangaChapterListItemContent(
                 MaterialTheme.colorScheme.onSurface
             }
             val textAlpha = remember(read) { if (read) ReadItemAlpha else 1f }
-            val textSubtitleAlpha = remember(read) { if (read) ReadItemAlpha else SecondaryItemAlpha }
+            val textSubtitleAlpha =
+                remember(read) { if (read) ReadItemAlpha else SecondaryItemAlpha }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 var textHeight by remember { mutableStateOf(0) }
@@ -244,5 +261,33 @@ private fun MangaChapterListItemContent(
                 onClick = onDownloadClick,
             )
         }
+    }
+}
+
+@Composable
+private fun MangaChapterListItemBackground(state: DismissState) {
+    val color = when (state.dismissDirection) {
+        DismissDirection.StartToEnd -> Color.LightGray
+        DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
+        else -> Color.Transparent
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(8.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.align(Alignment.CenterEnd),
+        )
+        Icon(
+            imageVector = Icons.Default.Delete,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.align(Alignment.CenterStart),
+        )
     }
 }
