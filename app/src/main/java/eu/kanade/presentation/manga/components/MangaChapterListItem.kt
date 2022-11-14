@@ -1,10 +1,7 @@
 package eu.kanade.presentation.manga.components
 
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -23,7 +20,7 @@ import androidx.compose.material.FixedThreshold
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MarkChatRead
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,8 +50,6 @@ import eu.kanade.presentation.util.selectedBackground
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.download.model.Download
 import eu.kanade.tachiyomi.util.lang.launchUI
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun MangaChapterListItem(
@@ -77,9 +72,7 @@ fun MangaChapterListItem(
 ) {
     val scope = rememberCoroutineScope()
 
-    val state = rememberDismissState(
-        DismissValue.Default,
-    )
+    val state = rememberDismissState(DismissValue.Default)
 
     if (state.isDismissed(DismissDirection.StartToEnd)) {
         scope.launchUI {
@@ -140,40 +133,22 @@ private fun MangaChapterListItemContent(
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
 ) {
-    var highlightFlag by remember { mutableStateOf(true) }
+    var appearAlpha by remember { mutableStateOf(1f) }
 
-    LaunchedEffect(Unit) {
-        if (state.currentValue == DismissValue.Default) {
-            highlightFlag = true
-            delay(2.seconds)
-            highlightFlag = false
+    LaunchedEffect(state.dismissDirection) {
+        when (state.dismissDirection) {
+            DismissDirection.StartToEnd -> {
+                //if(DismissValue != DismissValue.Default)
+                animate(0f, 1f, animationSpec = tween(1500)) { value, _ -> appearAlpha = value }
+            }
+            DismissDirection.EndToStart -> {
+                animate(0f, 1f, animationSpec = tween(1500)) { value, _ -> appearAlpha = value }
+            }
+            else -> {
+            }
         }
     }
 
-    val test by animateFloatAsState(
-        targetValue = if (highlightFlag) {
-            1f
-        } else {
-            0f
-        },
-        animationSpec = if (highlightFlag) {
-            tween(2000)
-        } else {
-            tween(2000)
-        },
-    )
-    val transitionState = remember {
-        MutableTransitionState(state.currentValue).apply {
-            targetState = DismissValue.Default
-        }
-    }
-    val transition = updateTransition(transitionState, "cardTransition")
-
-    val offsetTransition by transition.animateFloat(
-        label = "cardOffsetTransition",
-        transitionSpec = { tween(durationMillis = 3000) },
-        targetValueByState = { if (it == DismissValue.Default) 1f else 0f },
-    )
     Row(
         modifier = modifier
             .selectedBackground(selected)
@@ -181,7 +156,7 @@ private fun MangaChapterListItemContent(
                 onClick = onClick,
                 onLongClick = onLongClick,
             )
-            .alpha(test)
+            .alpha(appearAlpha)
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
     ) {
@@ -266,10 +241,23 @@ private fun MangaChapterListItemContent(
 
 @Composable
 private fun MangaChapterListItemBackground(state: DismissState) {
+    var lastDismissed by remember { mutableStateOf(1) }
     val color = when (state.dismissDirection) {
-        DismissDirection.StartToEnd -> Color.LightGray
-        DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
-        else -> Color.Transparent
+        DismissDirection.StartToEnd -> {
+            lastDismissed = 0
+            Color.LightGray
+        }
+        DismissDirection.EndToStart -> {
+            lastDismissed = 1
+            MaterialTheme.colorScheme.primary
+        }
+        else -> {
+            when (lastDismissed) {
+                0 -> Color.LightGray
+                1 -> MaterialTheme.colorScheme.primary
+                else -> Color.Red
+            }
+        }
     }
     Box(
         modifier = Modifier
@@ -277,17 +265,24 @@ private fun MangaChapterListItemBackground(state: DismissState) {
             .background(color)
             .padding(8.dp),
     ) {
-        Icon(
-            imageVector = Icons.Default.Delete,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.align(Alignment.CenterEnd),
-        )
-        Icon(
-            imageVector = Icons.Default.Delete,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.align(Alignment.CenterStart),
-        )
+        when (state.dismissDirection) {
+            DismissDirection.StartToEnd -> {
+                Icon(
+                    imageVector = Icons.Default.Bookmark,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.align(Alignment.CenterStart),
+                )
+            }
+            DismissDirection.EndToStart -> {
+                Icon(
+                    imageVector = Icons.Default.MarkChatRead,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                )
+            }
+            else -> {}
+        }
     }
 }
