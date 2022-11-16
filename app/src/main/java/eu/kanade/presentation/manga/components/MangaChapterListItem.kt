@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Card
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissState
 import androidx.compose.material.DismissValue
@@ -75,15 +74,15 @@ fun MangaChapterListItem(
 
     if (state.isDismissed(DismissDirection.StartToEnd)) {
         scope.launchUI {
-            onSwipeToMarkAsRead()
             state.reset()
+            onSwipeToMarkAsRead()
         }
     }
 
     if (state.isDismissed(DismissDirection.EndToStart)) {
         scope.launchUI {
-            onSwipeToBookmark()
             state.reset()
+            onSwipeToBookmark()
         }
     }
 
@@ -130,7 +129,7 @@ private fun MangaChapterListItemContent(
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
 ) {
-    Card(
+    Row(
         modifier = modifier
             .selectedBackground(selected)
             .clip(MaterialTheme.shapes.medium)
@@ -141,86 +140,81 @@ private fun MangaChapterListItemContent(
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
     ) {
-        Row(
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.background),
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                val textColor = if (bookmark && !read) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                }
-                val textAlpha = remember(read) { if (read) ReadItemAlpha else 1f }
-                val textSubtitleAlpha =
-                    remember(read) { if (read) ReadItemAlpha else SecondaryItemAlpha }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    var textHeight by remember { mutableStateOf(0) }
-                    if (bookmark) {
-                        Icon(
-                            imageVector = Icons.Filled.Bookmark,
-                            contentDescription = stringResource(R.string.action_filter_bookmarked),
-                            modifier = Modifier
-                                .sizeIn(maxHeight = with(LocalDensity.current) { textHeight.toDp() - 2.dp }),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                        Spacer(modifier = Modifier.width(2.dp))
-                    }
-                    Text(
-                        text = title,
-                        color = textColor,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        onTextLayout = { textHeight = it.size.height },
-                        modifier = Modifier.alpha(textAlpha),
-                    )
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                Row(modifier = Modifier.alpha(textSubtitleAlpha)) {
-                    ProvideTextStyle(
-                        value = MaterialTheme.typography.bodyMedium
-                            .copy(color = textColor, fontSize = 12.sp),
-                    ) {
-                        if (date != null) {
-                            Text(
-                                text = date,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            if (readProgress != null || scanlator != null) DotSeparatorText()
-                        }
-                        if (readProgress != null) {
-                            Text(
-                                text = readProgress,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.alpha(ReadItemAlpha),
-                            )
-                            if (scanlator != null) DotSeparatorText()
-                        }
-                        if (scanlator != null) {
-                            Text(
-                                text = scanlator,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
-                }
+        Column(modifier = Modifier.weight(1f)) {
+            val textColor = if (bookmark && !read) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
             }
+            val textAlpha = remember(read) { if (read) ReadItemAlpha else 1f }
+            val textSubtitleAlpha =
+                remember(read) { if (read) ReadItemAlpha else SecondaryItemAlpha }
 
-            // Download view
-            if (onDownloadClick != null) {
-                ChapterDownloadIndicator(
-                    enabled = downloadIndicatorEnabled,
-                    modifier = Modifier.padding(start = 4.dp),
-                    downloadStateProvider = downloadStateProvider,
-                    downloadProgressProvider = downloadProgressProvider,
-                    onClick = onDownloadClick,
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                var textHeight by remember { mutableStateOf(0) }
+                if (bookmark) {
+                    Icon(
+                        imageVector = Icons.Filled.Bookmark,
+                        contentDescription = stringResource(R.string.action_filter_bookmarked),
+                        modifier = Modifier
+                            .sizeIn(maxHeight = with(LocalDensity.current) { textHeight.toDp() - 2.dp }),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                }
+                Text(
+                    text = title,
+                    color = textColor,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    onTextLayout = { textHeight = it.size.height },
+                    modifier = Modifier.alpha(textAlpha),
                 )
             }
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(modifier = Modifier.alpha(textSubtitleAlpha)) {
+                ProvideTextStyle(
+                    value = MaterialTheme.typography.bodyMedium
+                        .copy(color = textColor, fontSize = 12.sp),
+                ) {
+                    if (date != null) {
+                        Text(
+                            text = date,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        if (readProgress != null || scanlator != null) DotSeparatorText()
+                    }
+                    if (readProgress != null) {
+                        Text(
+                            text = readProgress,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.alpha(ReadItemAlpha),
+                        )
+                        if (scanlator != null) DotSeparatorText()
+                    }
+                    if (scanlator != null) {
+                        Text(
+                            text = scanlator,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+            }
+        }
+
+        // Download view
+        if (onDownloadClick != null) {
+            ChapterDownloadIndicator(
+                enabled = downloadIndicatorEnabled,
+                modifier = Modifier.padding(start = 4.dp),
+                downloadStateProvider = downloadStateProvider,
+                downloadProgressProvider = downloadProgressProvider,
+                onClick = onDownloadClick,
+            )
         }
     }
 }

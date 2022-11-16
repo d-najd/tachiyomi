@@ -9,9 +9,10 @@ import androidx.compose.ui.platform.LocalContext
 import com.bluelinelabs.conductor.ControllerChangeHandler
 import com.bluelinelabs.conductor.ControllerChangeType
 import eu.kanade.core.prefs.CheckboxState
+import eu.kanade.domain.chapter.model.Chapter
+import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.domain.manga.model.Manga
 import eu.kanade.domain.manga.model.isLocal
-import eu.kanade.domain.manga.model.toDbManga
 import eu.kanade.presentation.components.ChangeCategoryDialog
 import eu.kanade.presentation.components.DeleteLibraryMangaDialog
 import eu.kanade.presentation.library.LibraryScreen
@@ -26,8 +27,10 @@ import eu.kanade.tachiyomi.ui.browse.source.globalsearch.GlobalSearchController
 import eu.kanade.tachiyomi.ui.category.CategoryController
 import eu.kanade.tachiyomi.ui.main.MainActivity
 import eu.kanade.tachiyomi.ui.manga.MangaController
+import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.lang.launchUI
+import eu.kanade.tachiyomi.util.lang.withUIContext
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.coroutines.cancel
 
@@ -50,6 +53,7 @@ class LibraryController(
         LibraryScreen(
             presenter = presenter,
             onMangaClicked = ::openManga,
+            onContinueReadingClicked = ::continueReading,
             onGlobalSearchClicked = {
                 router.pushController(GlobalSearchController(presenter.searchQuery))
             },
@@ -98,7 +102,7 @@ class LibraryController(
                     containsLocalManga = dialog.manga.any(Manga::isLocal),
                     onDismissRequest = onDismissRequest,
                     onConfirm = { deleteManga, deleteChapter ->
-                        presenter.removeMangas(dialog.manga.map { it.toDbManga() }, deleteManga, deleteChapter)
+                        presenter.removeMangas(dialog.manga, deleteManga, deleteChapter)
                         presenter.clearSelection()
                     },
                 )
@@ -190,10 +194,25 @@ class LibraryController(
     }
 
     private fun openManga(mangaId: Long) {
-        // Notify the presenter a manga is being opened.
         presenter.onOpenManga()
-
         router.pushController(MangaController(mangaId))
+    }
+
+    private fun continueReading(libraryManga: LibraryManga) {
+        viewScope.launchIO {
+            val chapter = presenter.getNextUnreadChapter(libraryManga.manga)
+            if (chapter != null) {
+                openChapter(chapter)
+            } else {
+                withUIContext { activity?.toast(R.string.no_next_chapter) }
+            }
+        }
+    }
+
+    private fun openChapter(chapter: Chapter) {
+        activity?.run {
+            startActivity(ReaderActivity.newIntent(this, chapter.mangaId, chapter.id))
+        }
     }
 
     /**

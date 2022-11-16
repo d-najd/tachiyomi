@@ -17,9 +17,10 @@ import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.category.interactor.GetCategories
 import eu.kanade.domain.category.interactor.SetMangaCategories
 import eu.kanade.domain.category.model.Category
+import eu.kanade.domain.chapter.interactor.GetChapterByMangaId
 import eu.kanade.domain.chapter.interactor.SetReadStatus
-import eu.kanade.domain.chapter.model.toDbChapter
-import eu.kanade.domain.history.interactor.GetNextUnreadChapters
+import eu.kanade.domain.chapter.model.Chapter
+import eu.kanade.domain.history.interactor.GetNextChapters
 import eu.kanade.domain.library.model.LibraryManga
 import eu.kanade.domain.library.model.LibrarySort
 import eu.kanade.domain.library.model.sort
@@ -36,7 +37,6 @@ import eu.kanade.presentation.library.LibraryStateImpl
 import eu.kanade.presentation.library.components.LibraryToolbarTitle
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.cache.CoverCache
-import eu.kanade.tachiyomi.data.database.models.toDomainManga
 import eu.kanade.tachiyomi.data.download.DownloadCache
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.track.TrackManager
@@ -44,6 +44,7 @@ import eu.kanade.tachiyomi.source.SourceManager
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.HttpSource
 import eu.kanade.tachiyomi.ui.base.presenter.BasePresenter
+import eu.kanade.tachiyomi.util.chapter.getNextUnread
 import eu.kanade.tachiyomi.util.lang.launchIO
 import eu.kanade.tachiyomi.util.lang.launchNonCancellable
 import eu.kanade.tachiyomi.util.lang.withIOContext
@@ -61,7 +62,6 @@ import uy.kohesive.injekt.api.get
 import java.text.Collator
 import java.util.Collections
 import java.util.Locale
-import eu.kanade.tachiyomi.data.database.models.Manga as DbManga
 
 /**
  * Class containing library information.
@@ -76,9 +76,10 @@ typealias LibraryMap = Map<Long, List<LibraryItem>>
 class LibraryPresenter(
     private val state: LibraryStateImpl = LibraryState() as LibraryStateImpl,
     private val getLibraryManga: GetLibraryManga = Injekt.get(),
-    private val getTracksPerManga: GetTracksPerManga = Injekt.get(),
     private val getCategories: GetCategories = Injekt.get(),
-    private val getNextUnreadChapters: GetNextUnreadChapters = Injekt.get(),
+    private val getTracksPerManga: GetTracksPerManga = Injekt.get(),
+    private val getNextChapters: GetNextChapters = Injekt.get(),
+    private val getChaptersByMangaId: GetChapterByMangaId = Injekt.get(),
     private val setReadStatus: SetReadStatus = Injekt.get(),
     private val updateManga: UpdateManga = Injekt.get(),
     private val setMangaCategories: SetMangaCategories = Injekt.get(),
@@ -104,6 +105,8 @@ class LibraryPresenter(
     val showLanguageBadges by libraryPreferences.languageBadge().asState()
 
     var activeCategory: Int by libraryPreferences.lastUsedCategory().asState()
+
+    val showContinueReadingButton by libraryPreferences.showContinueReadingButton().asState()
 
     val isDownloadOnly: Boolean by preferences.downloadedOnly().asState()
     val isIncognitoMode: Boolean by preferences.incognitoMode().asState()
@@ -389,6 +392,10 @@ class LibraryPresenter(
             .reduce { set1, set2 -> set1.intersect(set2) }
     }
 
+    suspend fun getNextUnreadChapter(manga: Manga): Chapter? {
+        return getChaptersByMangaId.await(manga.id).getNextUnread(manga, downloadManager)
+    }
+
     /**
      * Returns the mix (non-common) categories for the given list of manga.
      *
@@ -410,7 +417,7 @@ class LibraryPresenter(
     fun downloadUnreadChapters(mangas: List<Manga>, amount: Int?) {
         presenterScope.launchNonCancellable {
             mangas.forEach { manga ->
-                val chapters = getNextUnreadChapters.await(manga.id)
+                val chapters = getNextChapters.await(manga.id)
                     .filterNot { chapter ->
                         downloadManager.queue.any { chapter.id == it.chapter.id } ||
                             downloadManager.isChapterDownloaded(
@@ -422,7 +429,7 @@ class LibraryPresenter(
                     }
                     .let { if (amount != null) it.take(amount) else it }
 
-                downloadManager.downloadChapters(manga, chapters.map { it.toDbChapter() })
+                downloadManager.downloadChapters(manga, chapters)
             }
         }
     }
@@ -450,7 +457,7 @@ class LibraryPresenter(
      * @param deleteFromLibrary whether to delete manga from library.
      * @param deleteChapters whether to delete downloaded chapters.
      */
-    fun removeMangas(mangaList: List<DbManga>, deleteFromLibrary: Boolean, deleteChapters: Boolean) {
+    fun removeMangas(mangaList: List<Manga>, deleteFromLibrary: Boolean, deleteChapters: Boolean) {
         presenterScope.launchNonCancellable {
             val mangaToDelete = mangaList.distinctBy { it.id }
 
@@ -459,7 +466,7 @@ class LibraryPresenter(
                     it.removeCovers(coverCache)
                     MangaUpdate(
                         favorite = false,
-                        id = it.id!!,
+                        id = it.id,
                     )
                 }
                 updateManga.awaitAll(toDelete)
@@ -469,7 +476,7 @@ class LibraryPresenter(
                 mangaToDelete.forEach { manga ->
                     val source = sourceManager.get(manga.source) as? HttpSource
                     if (source != null) {
-                        downloadManager.deleteManga(manga.toDomainManga()!!, source)
+                        downloadManager.deleteManga(manga, source)
                     }
                 }
             }
@@ -540,14 +547,7 @@ class LibraryPresenter(
             loadedManga[categoryId] ?: emptyList()
         }
         return remember(unfiltered, searchQuery) {
-            val query = searchQuery
-            if (query.isNullOrBlank().not()) {
-                unfiltered.filter {
-                    it.filter(query!!)
-                }
-            } else {
-                unfiltered
-            }
+            if (searchQuery.isNullOrBlank()) unfiltered else unfiltered.filter { it.filter(searchQuery!!) }
         }
     }
 
@@ -576,7 +576,9 @@ class LibraryPresenter(
                 add(manga)
                 return@apply
             }
-            val items = loadedManga[manga.category].orEmpty().fastMap { it.libraryManga }
+            val items = loadedManga[manga.category].orEmpty().apply {
+                if (searchQuery.isNullOrBlank()) toList() else filter { it.filter(searchQuery!!) }
+            }.fastMap { it.libraryManga }
             val lastMangaIndex = items.indexOf(lastSelected)
             val curMangaIndex = items.indexOf(manga)
             val selectedIds = fastMap { it.id }
@@ -590,8 +592,10 @@ class LibraryPresenter(
 
     fun selectAll(index: Int) {
         state.selection = state.selection.toMutableList().apply {
-            val categoryId = categories[index].id
-            val items = loadedManga[categoryId].orEmpty().fastMap { it.libraryManga }
+            val categoryId = categories.getOrNull(index)?.id ?: -1
+            val items = loadedManga[categoryId].orEmpty().apply {
+                if (searchQuery.isNullOrBlank()) toList() else filter { it.filter(searchQuery!!) }
+            }.fastMap { it.libraryManga }
             val selectedIds = fastMap { it.id }
             val newSelections = items.filterNot { it.id in selectedIds }
             addAll(newSelections)
@@ -601,7 +605,9 @@ class LibraryPresenter(
     fun invertSelection(index: Int) {
         state.selection = selection.toMutableList().apply {
             val categoryId = categories[index].id
-            val items = loadedManga[categoryId].orEmpty().fastMap { it.libraryManga }
+            val items = loadedManga[categoryId].orEmpty().apply {
+                if (searchQuery.isNullOrBlank()) toList() else filter { it.filter(searchQuery!!) }
+            }.fastMap { it.libraryManga }
             val selectedIds = fastMap { it.id }
             val (toRemove, toAdd) = items.partition { it.id in selectedIds }
             val toRemoveIds = toRemove.fastMap { it.id }

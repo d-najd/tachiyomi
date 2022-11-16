@@ -11,7 +11,7 @@ import eu.kanade.domain.chapter.interactor.UpdateChapter
 import eu.kanade.domain.chapter.model.ChapterUpdate
 import eu.kanade.domain.chapter.model.toDbChapter
 import eu.kanade.domain.download.service.DownloadPreferences
-import eu.kanade.domain.history.interactor.GetNextUnreadChapters
+import eu.kanade.domain.history.interactor.GetNextChapters
 import eu.kanade.domain.history.interactor.UpsertHistory
 import eu.kanade.domain.history.model.HistoryUpdate
 import eu.kanade.domain.manga.interactor.GetManga
@@ -23,6 +23,7 @@ import eu.kanade.domain.track.interactor.InsertTrack
 import eu.kanade.domain.track.model.toDbTrack
 import eu.kanade.domain.track.service.TrackPreferences
 import eu.kanade.tachiyomi.data.database.models.Manga
+import eu.kanade.tachiyomi.data.database.models.toDomainChapter
 import eu.kanade.tachiyomi.data.database.models.toDomainManga
 import eu.kanade.tachiyomi.data.download.DownloadManager
 import eu.kanade.tachiyomi.data.download.DownloadProvider
@@ -88,7 +89,7 @@ class ReaderPresenter(
     private val delayedTrackingStore: DelayedTrackingStore = Injekt.get(),
     private val getManga: GetManga = Injekt.get(),
     private val getChapterByMangaId: GetChapterByMangaId = Injekt.get(),
-    private val getNextUnreadChapters: GetNextUnreadChapters = Injekt.get(),
+    private val getNextChapters: GetNextChapters = Injekt.get(),
     private val getTracks: GetTracks = Injekt.get(),
     private val insertTrack: InsertTrack = Injekt.get(),
     private val upsertHistory: UpsertHistory = Injekt.get(),
@@ -475,11 +476,11 @@ class ReaderPresenter(
             )
             if (!isNextChapterDownloaded) return@launchIO
 
-            val chaptersToDownload = getNextUnreadChapters.await(manga.id!!, nextChapter.id!!)
+            val chaptersToDownload = getNextChapters.await(manga.id!!, nextChapter.id!!)
                 .take(amount)
             downloadManager.downloadChapters(
                 manga.toDomainManga()!!,
-                chaptersToDownload.map { it.toDbChapter() },
+                chaptersToDownload,
             )
         }
     }
@@ -489,7 +490,7 @@ class ReaderPresenter(
      * if setting is enabled and [currentChapter] is queued for download
      */
     private fun deleteChapterFromDownloadQueue(currentChapter: ReaderChapter): Download? {
-        return downloadManager.getChapterDownloadOrNull(currentChapter.chapter)?.apply {
+        return downloadManager.getChapterDownloadOrNull(currentChapter.chapter.toDomainChapter()!!)?.apply {
             downloadManager.deletePendingDownload(this)
         }
     }
@@ -874,7 +875,7 @@ class ReaderPresenter(
         val manga = manga ?: return
 
         presenterScope.launchNonCancellable {
-            downloadManager.enqueueDeleteChapters(listOf(chapter.chapter), manga.toDomainManga()!!)
+            downloadManager.enqueueDeleteChapters(listOf(chapter.chapter.toDomainChapter()!!), manga.toDomainManga()!!)
         }
     }
 

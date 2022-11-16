@@ -144,6 +144,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -163,12 +165,15 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":source-api"))
 
+    coreLibraryDesugaring(libs.desugar)
+
     // Compose
     implementation(platform(compose.bom))
     implementation(compose.activity)
     implementation(compose.foundation)
     implementation(compose.material3.core)
     implementation(compose.material3.adapter)
+    implementation(compose.material.core)
     implementation(compose.material.icons)
     implementation(compose.animation)
     implementation(compose.animation.graphics)
@@ -265,8 +270,8 @@ dependencies {
     implementation(libs.markwon)
     implementation(libs.aboutLibraries.compose)
     implementation(libs.cascade)
-    implementation(libs.numberpicker)
     implementation(libs.bundles.voyager)
+    implementation(libs.wheelpicker)
 
     // Conductor
     implementation(libs.bundles.conductor)

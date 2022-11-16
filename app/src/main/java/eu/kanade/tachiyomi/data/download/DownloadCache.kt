@@ -3,9 +3,10 @@ package eu.kanade.tachiyomi.data.download
 import android.content.Context
 import androidx.core.net.toUri
 import com.hippo.unifile.UniFile
+import eu.kanade.core.util.mapNotNullKeys
+import eu.kanade.domain.chapter.model.Chapter
 import eu.kanade.domain.download.service.DownloadPreferences
 import eu.kanade.domain.manga.model.Manga
-import eu.kanade.tachiyomi.data.database.models.Chapter
 import eu.kanade.tachiyomi.extension.ExtensionManager
 import eu.kanade.tachiyomi.source.Source
 import eu.kanade.tachiyomi.source.SourceManager
@@ -68,9 +69,7 @@ class DownloadCache(
         downloadPreferences.downloadsDirectory().changes()
             .onEach {
                 rootDownloadsDir = RootDirectory(getDirectoryFromPreference())
-
-                // Invalidate cache
-                lastRenew = 0L
+                invalidateCache()
             }
             .launchIn(scope)
     }
@@ -215,14 +214,14 @@ class DownloadCache(
     }
 
     @Synchronized
-    fun removeSourceIfEmpty(source: Source) {
-        val sourceDir = provider.findSourceDir(source)
-        if (sourceDir?.listFiles()?.isEmpty() == true) {
-            sourceDir.delete()
-            rootDownloadsDir.sourceDirs -= source.id
-        }
+    fun removeSource(source: Source) {
+        rootDownloadsDir.sourceDirs -= source.id
 
         notifyChanges()
+    }
+
+    fun invalidateCache() {
+        lastRenew = 0L
     }
 
     /**
@@ -281,10 +280,17 @@ class DownloadCache(
 
                             mangaDirs.values.forEach { mangaDir ->
                                 val chapterDirs = mangaDir.dir.listFiles().orEmpty()
-                                    .mapNotNull { chapterDir ->
-                                        chapterDir.name
-                                            ?.replace(".cbz", "")
-                                            ?.takeUnless { it.endsWith(Downloader.TMP_DIR_SUFFIX) }
+                                    .mapNotNull {
+                                        when {
+                                            // Ignore incomplete downloads
+                                            it.name?.endsWith(Downloader.TMP_DIR_SUFFIX) == true -> null
+                                            // Folder of images
+                                            it.isDirectory -> it.name
+                                            // CBZ files
+                                            it.isFile && it.name?.endsWith(".cbz") == true -> it.name!!.replace(".cbz", "")
+                                            // Anything else is irrelevant
+                                            else -> null
+                                        }
                                     }
                                     .toMutableSet()
 
@@ -310,15 +316,6 @@ class DownloadCache(
         scope.launchNonCancellable {
             _changes.send(Unit)
         }
-    }
-
-    /**
-     * Returns a new map containing only the key entries of [transform] that are not null.
-     */
-    private inline fun <K, V, R> Map<out K, V>.mapNotNullKeys(transform: (Map.Entry<K?, V>) -> R?): ConcurrentHashMap<R, V> {
-        val mutableMap = ConcurrentHashMap<R, V>()
-        forEach { element -> transform(element)?.let { mutableMap[it] = element.value } }
-        return mutableMap
     }
 }
 
