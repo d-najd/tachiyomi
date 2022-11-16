@@ -3,7 +3,6 @@ package eu.kanade.tachiyomi.ui.manga
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
-import androidx.compose.material.DismissState
 import androidx.compose.runtime.Immutable
 import eu.kanade.core.prefs.CheckboxState
 import eu.kanade.core.prefs.mapAsCheckboxState
@@ -636,7 +635,7 @@ class MangaPresenter(
         toggleAllSelection(false)
     }
 
-    fun swipeToMarkAsRead(dismissState: DismissState, chapter: DomainChapter) {
+    fun swipeToMarkAsRead(chapter: DomainChapter) {
         presenterScope.launchIO {
             setReadStatus.await(
                 read = !chapter.read,
@@ -645,7 +644,7 @@ class MangaPresenter(
         }
     }
 
-    fun swipeToBookmark(dismissState: DismissState, chapter: DomainChapter) {
+    fun swipeToBookmark(chapter: DomainChapter) {
         presenterScope.launchIO {
             ChapterUpdate(id = chapter.id, bookmark = !chapter.bookmark).let {
                 updateChapter.await(it)
