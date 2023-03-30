@@ -1,20 +1,27 @@
 package eu.kanade.presentation.manga.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,97 +61,145 @@ fun MangaChapterListItem(
 ) {
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
-
-    Row(
-        modifier = modifier
-            .selectedBackground(selected)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick,
-            )
-            .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
-    ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                verticalAlignment = Alignment.CenterVertically,
+    val dismissState = rememberDismissState()
+    SwipeToDismiss(
+        state = dismissState,
+        background = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        when (dismissState.dismissDirection) {
+                            DismissDirection.StartToEnd -> Color.Gray
+                            DismissDirection.EndToStart -> Color(0xFF00AA00)
+                            else -> Color.Unspecified
+                        },
+                    ),
             ) {
-                var textHeight by remember { mutableStateOf(0) }
-                if (!read) {
-                    Icon(
-                        imageVector = Icons.Filled.Circle,
-                        contentDescription = stringResource(R.string.unread),
-                        modifier = Modifier
-                            .height(8.dp)
-                            .padding(end = 4.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                if (bookmark) {
-                    Icon(
-                        imageVector = Icons.Filled.Bookmark,
-                        contentDescription = stringResource(R.string.action_filter_bookmarked),
-                        modifier = Modifier
-                            .sizeIn(maxHeight = with(LocalDensity.current) { textHeight.toDp() - 2.dp }),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = LocalContentColor.current.copy(alpha = textAlpha),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    onTextLayout = { textHeight = it.size.height },
+                Icon(
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .align(Alignment.CenterStart)
+                        .alpha(
+                            if (dismissState.dismissDirection == DismissDirection.StartToEnd) {
+                                1f
+                            } else {
+                                0f
+                            },
+                        ),
+                    imageVector = Icons.Default.Bookmark,
+                    contentDescription = null,
+                )
+                Icon(
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .align(Alignment.CenterEnd)
+                        .alpha(
+                            if (dismissState.dismissDirection == DismissDirection.EndToStart) {
+                                1f
+                            } else {
+                                0f
+                            },
+                        ),
+                    imageVector = Icons.Default.Visibility,
+                    contentDescription = null,
                 )
             }
-
-            Row {
-                ProvideTextStyle(
-                    value = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 12.sp,
-                        color = LocalContentColor.current.copy(alpha = textSubtitleAlpha),
-                    ),
+        },
+        dismissContent = {
+            Row(
+                modifier = modifier
+                    .selectedBackground(selected)
+                    .background(MaterialTheme.colorScheme.background)
+                    .combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    )
+                    .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    if (date != null) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        var textHeight by remember { mutableStateOf(0) }
+                        if (!read) {
+                            Icon(
+                                imageVector = Icons.Filled.Circle,
+                                contentDescription = stringResource(R.string.unread),
+                                modifier = Modifier
+                                    .height(8.dp)
+                                    .padding(end = 4.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                        if (bookmark) {
+                            Icon(
+                                imageVector = Icons.Filled.Bookmark,
+                                contentDescription = stringResource(R.string.action_filter_bookmarked),
+                                modifier = Modifier
+                                    .sizeIn(maxHeight = with(LocalDensity.current) { textHeight.toDp() - 2.dp }),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                         Text(
-                            text = date,
+                            text = title,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = LocalContentColor.current.copy(alpha = textAlpha),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
+                            onTextLayout = { textHeight = it.size.height },
                         )
-                        if (readProgress != null || scanlator != null) DotSeparatorText()
                     }
-                    if (readProgress != null) {
-                        Text(
-                            text = readProgress,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.alpha(ReadItemAlpha),
-                        )
-                        if (scanlator != null) DotSeparatorText()
-                    }
-                    if (scanlator != null) {
-                        Text(
-                            text = scanlator,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+
+                    Row {
+                        ProvideTextStyle(
+                            value = MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = 12.sp,
+                                color = LocalContentColor.current.copy(alpha = textSubtitleAlpha),
+                            ),
+                        ) {
+                            if (date != null) {
+                                Text(
+                                    text = date,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                if (readProgress != null || scanlator != null) DotSeparatorText()
+                            }
+                            if (readProgress != null) {
+                                Text(
+                                    text = readProgress,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.alpha(ReadItemAlpha),
+                                )
+                                if (scanlator != null) DotSeparatorText()
+                            }
+                            if (scanlator != null) {
+                                Text(
+                                    text = scanlator,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        if (onDownloadClick != null) {
-            ChapterDownloadIndicator(
-                enabled = downloadIndicatorEnabled,
-                modifier = Modifier.padding(start = 4.dp),
-                downloadStateProvider = downloadStateProvider,
-                downloadProgressProvider = downloadProgressProvider,
-                onClick = onDownloadClick,
-            )
-        }
-    }
+                if (onDownloadClick != null) {
+                    ChapterDownloadIndicator(
+                        enabled = downloadIndicatorEnabled,
+                        modifier = Modifier.padding(start = 4.dp),
+                        downloadStateProvider = downloadStateProvider,
+                        downloadProgressProvider = downloadProgressProvider,
+                        onClick = onDownloadClick,
+                    )
+                }
+            }
+        },
+    )
 }
