@@ -125,6 +125,8 @@ class MangaScreen(
             onMultiMarkAsReadClicked = screenModel::markChaptersRead,
             onMarkPreviousAsReadClicked = screenModel::markPreviousChapterRead,
             onMultiDeleteClicked = screenModel::showDeleteChapterDialog,
+            onSwipeToBookmark = { chapter, bookmark -> screenModel.markChaptersRead(listOf(chapter), bookmark) },
+            onSwipeToMarkAsRead = { chapter, markAsRead -> screenModel.bookmarkChapters(listOf(chapter), markAsRead) },
             onChapterSelected = screenModel::toggleSelection,
             onAllChapterSelected = screenModel::toggleAllSelection,
             onInvertSelection = screenModel::invertSelection,

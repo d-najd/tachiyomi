@@ -117,6 +117,10 @@ fun MangaScreen(
     onMarkPreviousAsReadClicked: (Chapter) -> Unit,
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
+    // For swipe actions
+    onSwipeToBookmark: (Chapter, bookmarked: Boolean) -> Unit,
+    onSwipeToMarkAsRead: (Chapter, markAsRead: Boolean) -> Unit,
+
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
     onAllChapterSelected: (Boolean) -> Unit,
@@ -157,6 +161,8 @@ fun MangaScreen(
             onMultiMarkAsReadClicked = onMultiMarkAsReadClicked,
             onMarkPreviousAsReadClicked = onMarkPreviousAsReadClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
+            onSwipeToBookmark = onSwipeToBookmark,
+            onSwipeToMarkAsRead = onSwipeToMarkAsRead,
             onChapterSelected = onChapterSelected,
             onAllChapterSelected = onAllChapterSelected,
             onInvertSelection = onInvertSelection,
@@ -189,6 +195,8 @@ fun MangaScreen(
             onMultiMarkAsReadClicked = onMultiMarkAsReadClicked,
             onMarkPreviousAsReadClicked = onMarkPreviousAsReadClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
+            onSwipeToBookmark = onSwipeToBookmark,
+            onSwipeToMarkAsRead = onSwipeToMarkAsRead,
             onChapterSelected = onChapterSelected,
             onAllChapterSelected = onAllChapterSelected,
             onInvertSelection = onInvertSelection,
@@ -233,6 +241,10 @@ private fun MangaScreenSmallImpl(
     onMultiMarkAsReadClicked: (List<Chapter>, markAsRead: Boolean) -> Unit,
     onMarkPreviousAsReadClicked: (Chapter) -> Unit,
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
+
+    // For swipe actions
+    onSwipeToBookmark: (Chapter, bookmarked: Boolean) -> Unit,
+    onSwipeToMarkAsRead: (Chapter, markAsRead: Boolean) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -407,6 +419,8 @@ private fun MangaScreenSmallImpl(
                         onChapterClicked = onChapterClicked,
                         onDownloadChapter = onDownloadChapter,
                         onChapterSelected = onChapterSelected,
+                        onSwipeToBookmark = onSwipeToBookmark,
+                        onSwipeToMarkAsRead = onSwipeToMarkAsRead,
                     )
                 }
             }
@@ -451,6 +465,10 @@ fun MangaScreenLargeImpl(
     onMultiMarkAsReadClicked: (List<Chapter>, markAsRead: Boolean) -> Unit,
     onMarkPreviousAsReadClicked: (Chapter) -> Unit,
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
+
+    // For swipe actions
+    onSwipeToBookmark: (Chapter, bookmarked: Boolean) -> Unit,
+    onSwipeToMarkAsRead: (Chapter, markAsRead: Boolean) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -619,6 +637,8 @@ fun MangaScreenLargeImpl(
                                 onChapterClicked = onChapterClicked,
                                 onDownloadChapter = onDownloadChapter,
                                 onChapterSelected = onChapterSelected,
+                                onSwipeToBookmark = onSwipeToBookmark,
+                                onSwipeToMarkAsRead = onSwipeToMarkAsRead,
                             )
                         }
                     }
@@ -678,6 +698,8 @@ private fun LazyListScope.sharedChapterItems(
     onChapterClicked: (Chapter) -> Unit,
     onDownloadChapter: ((List<ChapterItem>, ChapterDownloadAction) -> Unit)?,
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
+    onSwipeToBookmark: (Chapter, bookmarked: Boolean) -> Unit,
+    onSwipeToMarkAsRead: (Chapter, markAsRead: Boolean) -> Unit,
 ) {
     items(
         items = chapters,
@@ -736,6 +758,12 @@ private fun LazyListScope.sharedChapterItems(
                 { onDownloadChapter(listOf(chapterItem), it) }
             } else {
                 null
+            },
+            onSwipeToBookmark = {
+                onSwipeToBookmark(chapterItem.chapter, !chapterItem.chapter.bookmark)
+            },
+            onSwipeToMarkAsRead = {
+                onSwipeToMarkAsRead(chapterItem.chapter, !chapterItem.chapter.read)
             },
         )
     }

@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +26,7 @@ import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,10 +63,41 @@ fun MangaChapterListItem(
     onLongClick: () -> Unit,
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
+    onSwipeToBookmark: () -> Unit,
+    onSwipeToMarkAsRead: () -> Unit,
 ) {
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
+
+    var previousBookmarkState: Boolean? by remember { mutableStateOf(null) }
+    var previousReadState: Boolean? by remember { mutableStateOf(null) }
     val dismissState = rememberDismissState()
+    val context = LocalContext.current
+    LaunchedEffect(dismissState.currentValue) {
+        when (dismissState.currentValue) {
+            DismissValue.DismissedToEnd -> {
+                previousBookmarkState = bookmark
+                onSwipeToBookmark()
+            }
+            DismissValue.DismissedToStart -> {
+                previousReadState = read
+                onSwipeToMarkAsRead()
+            }
+            DismissValue.Default -> { }
+        }
+    }
+    if (previousBookmarkState != null && previousBookmarkState == bookmark) {
+        LaunchedEffect(Unit) {
+            dismissState.reset()
+            previousBookmarkState = null
+        }
+    }
+    if (previousReadState != null && previousReadState == read) {
+        LaunchedEffect(Unit) {
+            dismissState.reset()
+            previousReadState = null
+        }
+    }
     SwipeToDismiss(
         state = dismissState,
         background = {
@@ -70,9 +106,9 @@ fun MangaChapterListItem(
                     .fillMaxSize()
                     .background(
                         when (dismissState.dismissDirection) {
-                            DismissDirection.StartToEnd -> Color.Gray
-                            DismissDirection.EndToStart -> Color(0xFF00AA00)
-                            else -> Color.Unspecified
+                            DismissDirection.StartToEnd -> Color.LightGray
+                            DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
+                            null -> Color.Unspecified
                         },
                     ),
             ) {
@@ -87,7 +123,11 @@ fun MangaChapterListItem(
                                 0f
                             },
                         ),
-                    imageVector = Icons.Default.Bookmark,
+                    imageVector = if (!bookmark) {
+                        Icons.Default.Bookmark
+                    } else {
+                        Icons.Default.BookmarkRemove
+                    },
                     contentDescription = null,
                 )
                 Icon(
@@ -101,7 +141,11 @@ fun MangaChapterListItem(
                                 0f
                             },
                         ),
-                    imageVector = Icons.Default.Visibility,
+                    imageVector = if (!read) {
+                        Icons.Default.Visibility
+                    } else {
+                        Icons.Default.VisibilityOff
+                    },
                     contentDescription = null,
                 )
             }
