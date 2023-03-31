@@ -641,6 +641,23 @@ class MangaInfoScreenModel(
         toggleAllSelection(false)
     }
 
+    fun swipeToMarkAsRead(chapter: Chapter) {
+        coroutineScope.launchIO {
+            setReadStatus.await(
+                read = !chapter.read,
+                chapters = arrayOf(chapter),
+            )
+        }
+    }
+
+    fun swipeToBookmark(chapter: Chapter) {
+        coroutineScope.launchIO {
+            ChapterUpdate(id = chapter.id, bookmark = !chapter.bookmark).let {
+                updateChapter.await(it)
+            }
+        }
+    }
+
     /**
      * Downloads the given list of chapters with the manager.
      * @param chapters the list of chapters to download.

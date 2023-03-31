@@ -69,23 +69,26 @@ fun MangaChapterListItem(
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
 
-    var previousBookmarkState: Boolean? by remember { mutableStateOf(null) }
-    var previousReadState: Boolean? by remember { mutableStateOf(null) }
+    // var previousBookmarkState: Boolean? by remember { mutableStateOf(null) }
+    // var previousReadState: Boolean? by remember { mutableStateOf(null) }
     val dismissState = rememberDismissState()
     val context = LocalContext.current
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
-            DismissValue.DismissedToEnd -> {
-                previousBookmarkState = bookmark
-                onSwipeToBookmark()
-            }
             DismissValue.DismissedToStart -> {
-                previousReadState = read
+                // previousBookmarkState = bookmark
+                onSwipeToBookmark()
+                dismissState.reset()
+            }
+            DismissValue.DismissedToEnd -> {
+                // previousReadState = read
                 onSwipeToMarkAsRead()
+                dismissState.reset()
             }
             DismissValue.Default -> { }
         }
     }
+    /*
     if (previousBookmarkState != null && previousBookmarkState == bookmark) {
         LaunchedEffect(Unit) {
             dismissState.reset()
@@ -98,6 +101,7 @@ fun MangaChapterListItem(
             previousReadState = null
         }
     }
+     */
     SwipeToDismiss(
         state = dismissState,
         background = {
