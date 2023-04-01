@@ -1,5 +1,7 @@
 package eu.kanade.presentation.manga.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -69,39 +71,30 @@ fun MangaChapterListItem(
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
 
-    // var previousBookmarkState: Boolean? by remember { mutableStateOf(null) }
-    // var previousReadState: Boolean? by remember { mutableStateOf(null) }
     val dismissState = rememberDismissState()
-    val context = LocalContext.current
+    var lastDismissDirection: DismissDirection? by remember { mutableStateOf(null) }
+    val dismissContentAlpha by animateFloatAsState(
+        targetValue = if (lastDismissDirection != null) 1f else 0f,
+        animationSpec = tween(durationMillis = if (lastDismissDirection != null) 500 else 0),
+        finishedListener = {
+            lastDismissDirection = null
+        },
+    )
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
-            DismissValue.DismissedToStart -> {
-                // previousBookmarkState = bookmark
-                onSwipeToBookmark()
-                dismissState.reset()
-            }
             DismissValue.DismissedToEnd -> {
-                // previousReadState = read
+                onSwipeToBookmark()
+                dismissState.snapTo(DismissValue.Default)
+                lastDismissDirection = DismissDirection.StartToEnd
+            }
+            DismissValue.DismissedToStart -> {
                 onSwipeToMarkAsRead()
-                dismissState.reset()
+                dismissState.snapTo(DismissValue.Default)
+                lastDismissDirection = DismissDirection.EndToStart
             }
             DismissValue.Default -> { }
         }
     }
-    /*
-    if (previousBookmarkState != null && previousBookmarkState == bookmark) {
-        LaunchedEffect(Unit) {
-            dismissState.reset()
-            previousBookmarkState = null
-        }
-    }
-    if (previousReadState != null && previousReadState == read) {
-        LaunchedEffect(Unit) {
-            dismissState.reset()
-            previousReadState = null
-        }
-    }
-     */
     SwipeToDismiss(
         state = dismissState,
         background = {
@@ -112,7 +105,11 @@ fun MangaChapterListItem(
                         when (dismissState.dismissDirection) {
                             DismissDirection.StartToEnd -> Color.LightGray
                             DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
-                            null -> Color.Unspecified
+                            null -> when (lastDismissDirection) {
+                                DismissDirection.StartToEnd -> Color.LightGray
+                                DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
+                                else -> Color.Unspecified
+                            }
                         },
                     ),
             ) {
@@ -132,6 +129,7 @@ fun MangaChapterListItem(
                     } else {
                         Icons.Default.BookmarkRemove
                     },
+                    tint = contentColorFor(backgroundColor = Color.LightGray),
                     contentDescription = null,
                 )
                 Icon(
@@ -150,6 +148,7 @@ fun MangaChapterListItem(
                     } else {
                         Icons.Default.VisibilityOff
                     },
+                    tint = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary),
                     contentDescription = null,
                 )
             }
@@ -158,7 +157,14 @@ fun MangaChapterListItem(
             Row(
                 modifier = modifier
                     .selectedBackground(selected)
-                    .background(MaterialTheme.colorScheme.background)
+                    .background(
+                        MaterialTheme.colorScheme.background.copy(
+                            if (lastDismissDirection != null) dismissContentAlpha else 1f,
+                        ),
+                    )
+                    .alpha(
+                        if (lastDismissDirection != null) dismissContentAlpha else 1f,
+                    )
                     .combinedClickable(
                         onClick = onClick,
                         onLongClick = onLongClick,
