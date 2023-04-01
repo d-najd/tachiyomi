@@ -1,5 +1,6 @@
 package eu.kanade.presentation.manga.components
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -12,12 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Card
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Icon
@@ -73,13 +76,14 @@ fun MangaChapterListItem(
 
     val dismissState = rememberDismissState()
     var lastDismissDirection: DismissDirection? by remember { mutableStateOf(null) }
-    val dismissContentAlpha by animateFloatAsState(
+    val dismissContentAlphaAnimated by animateFloatAsState(
         targetValue = if (lastDismissDirection != null) 1f else 0f,
         animationSpec = tween(durationMillis = if (lastDismissDirection != null) 500 else 0),
         finishedListener = {
             lastDismissDirection = null
         },
     )
+    val dismissContentAlpha = if (lastDismissDirection != null) dismissContentAlphaAnimated else 1f
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
@@ -154,104 +158,104 @@ fun MangaChapterListItem(
             }
         },
         dismissContent = {
-            Row(
-                modifier = modifier
-                    .selectedBackground(selected)
-                    .background(
-                        MaterialTheme.colorScheme.background.copy(
-                            if (lastDismissDirection != null) dismissContentAlpha else 1f,
-                        ),
-                    )
-                    .alpha(
-                        if (lastDismissDirection != null) dismissContentAlpha else 1f,
-                    )
-                    .combinedClickable(
-                        onClick = onClick,
-                        onLongClick = onLongClick,
-                    )
-                    .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
+            Card(
+                shape = RoundedCornerShape(4.dp),
             ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                Row(
+                    modifier = modifier
+                        .selectedBackground(selected)
+                        .background(
+                            MaterialTheme.colorScheme.background.copy(dismissContentAlpha),
+                        )
+                        .alpha(dismissContentAlpha)
+                        .combinedClickable(
+                            onClick = onClick,
+                            onLongClick = onLongClick,
+                        )
+                        .padding(start = 16.dp, top = 12.dp, end = 8.dp, bottom = 12.dp),
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        var textHeight by remember { mutableStateOf(0) }
-                        if (!read) {
-                            Icon(
-                                imageVector = Icons.Filled.Circle,
-                                contentDescription = stringResource(R.string.unread),
-                                modifier = Modifier
-                                    .height(8.dp)
-                                    .padding(end = 4.dp),
-                                tint = MaterialTheme.colorScheme.primary,
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            var textHeight by remember { mutableStateOf(0) }
+                            if (!read) {
+                                Icon(
+                                    imageVector = Icons.Filled.Circle,
+                                    contentDescription = stringResource(R.string.unread),
+                                    modifier = Modifier
+                                        .height(8.dp)
+                                        .padding(end = 4.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                            if (bookmark) {
+                                Icon(
+                                    imageVector = Icons.Filled.Bookmark,
+                                    contentDescription = stringResource(R.string.action_filter_bookmarked),
+                                    modifier = Modifier
+                                        .sizeIn(maxHeight = with(LocalDensity.current) { textHeight.toDp() - 2.dp }),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = LocalContentColor.current.copy(alpha = textAlpha),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                onTextLayout = { textHeight = it.size.height },
                             )
                         }
-                        if (bookmark) {
-                            Icon(
-                                imageVector = Icons.Filled.Bookmark,
-                                contentDescription = stringResource(R.string.action_filter_bookmarked),
-                                modifier = Modifier
-                                    .sizeIn(maxHeight = with(LocalDensity.current) { textHeight.toDp() - 2.dp }),
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
+
+                        Row {
+                            ProvideTextStyle(
+                                value = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = 12.sp,
+                                    color = LocalContentColor.current.copy(alpha = textSubtitleAlpha),
+                                ),
+                            ) {
+                                if (date != null) {
+                                    Text(
+                                        text = date,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    if (readProgress != null || scanlator != null) DotSeparatorText()
+                                }
+                                if (readProgress != null) {
+                                    Text(
+                                        text = readProgress,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.alpha(ReadItemAlpha),
+                                    )
+                                    if (scanlator != null) DotSeparatorText()
+                                }
+                                if (scanlator != null) {
+                                    Text(
+                                        text = scanlator,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                            }
                         }
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = LocalContentColor.current.copy(alpha = textAlpha),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            onTextLayout = { textHeight = it.size.height },
+                    }
+
+                    if (onDownloadClick != null) {
+                        ChapterDownloadIndicator(
+                            enabled = downloadIndicatorEnabled,
+                            modifier = Modifier.padding(start = 4.dp),
+                            downloadStateProvider = downloadStateProvider,
+                            downloadProgressProvider = downloadProgressProvider,
+                            onClick = onDownloadClick,
                         )
                     }
-
-                    Row {
-                        ProvideTextStyle(
-                            value = MaterialTheme.typography.bodyMedium.copy(
-                                fontSize = 12.sp,
-                                color = LocalContentColor.current.copy(alpha = textSubtitleAlpha),
-                            ),
-                        ) {
-                            if (date != null) {
-                                Text(
-                                    text = date,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                                if (readProgress != null || scanlator != null) DotSeparatorText()
-                            }
-                            if (readProgress != null) {
-                                Text(
-                                    text = readProgress,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.alpha(ReadItemAlpha),
-                                )
-                                if (scanlator != null) DotSeparatorText()
-                            }
-                            if (scanlator != null) {
-                                Text(
-                                    text = scanlator,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                if (onDownloadClick != null) {
-                    ChapterDownloadIndicator(
-                        enabled = downloadIndicatorEnabled,
-                        modifier = Modifier.padding(start = 4.dp),
-                        downloadStateProvider = downloadStateProvider,
-                        downloadProgressProvider = downloadProgressProvider,
-                        onClick = onDownloadClick,
-                    )
                 }
             }
         },
