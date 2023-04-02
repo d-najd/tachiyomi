@@ -1,5 +1,6 @@
 package eu.kanade.presentation.manga.components
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -83,7 +84,6 @@ fun MangaChapterListItem(
             lastDismissDirection = null
         },
     )
-    val dismissContentAlpha = if (lastDismissDirection != null) animateDismissContentAlpha else 1f
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
@@ -154,14 +154,20 @@ fun MangaChapterListItem(
             }
         },
         dismissContent = {
+            val animateDismissContentShape by animateDpAsState(
+                targetValue = if (dismissState.dismissDirection != null) 6.dp else 0.dp,
+                animationSpec = tween(300),
+            )
+            val dismissContentAlpha = if (lastDismissDirection != null) animateDismissContentAlpha else 1f
             Card(
+                modifier = modifier,
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = Color.Transparent,
                 ),
-                shape = RoundedCornerShape(4.dp),
+                shape = RoundedCornerShape(animateDismissContentShape),
             ) {
                 Row(
-                    modifier = modifier
+                    modifier = Modifier
                         .selectedBackground(selected)
                         .background(
                             MaterialTheme.colorScheme.background.copy(dismissContentAlpha),
