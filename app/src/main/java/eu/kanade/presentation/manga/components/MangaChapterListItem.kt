@@ -1,6 +1,5 @@
 package eu.kanade.presentation.manga.components
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -21,6 +20,7 @@ import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Icon
@@ -76,14 +76,14 @@ fun MangaChapterListItem(
 
     val dismissState = rememberDismissState()
     var lastDismissDirection: DismissDirection? by remember { mutableStateOf(null) }
-    val dismissContentAlphaAnimated by animateFloatAsState(
+    val animateDismissContentAlpha by animateFloatAsState(
         targetValue = if (lastDismissDirection != null) 1f else 0f,
         animationSpec = tween(durationMillis = if (lastDismissDirection != null) 500 else 0),
         finishedListener = {
             lastDismissDirection = null
         },
     )
-    val dismissContentAlpha = if (lastDismissDirection != null) dismissContentAlphaAnimated else 1f
+    val dismissContentAlpha = if (lastDismissDirection != null) animateDismissContentAlpha else 1f
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
@@ -102,20 +102,16 @@ fun MangaChapterListItem(
     SwipeToDismiss(
         state = dismissState,
         background = {
+            var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
+            backgroundColor = when (dismissState.dismissDirection) {
+                DismissDirection.StartToEnd -> Color.LightGray
+                DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
+                null -> backgroundColor
+            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        when (dismissState.dismissDirection) {
-                            DismissDirection.StartToEnd -> Color.LightGray
-                            DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
-                            null -> when (lastDismissDirection) {
-                                DismissDirection.StartToEnd -> Color.LightGray
-                                DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
-                                else -> Color.Unspecified
-                            }
-                        },
-                    ),
+                    .background(backgroundColor),
             ) {
                 Icon(
                     modifier = Modifier
@@ -159,6 +155,9 @@ fun MangaChapterListItem(
         },
         dismissContent = {
             Card(
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = Color.Transparent,
+                ),
                 shape = RoundedCornerShape(4.dp),
             ) {
                 Row(
