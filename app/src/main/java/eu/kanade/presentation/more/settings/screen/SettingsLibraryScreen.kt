@@ -282,18 +282,18 @@ object SettingsLibraryScreen : SearchableSettings {
                     pref = chapterSwipeRightActionPref,
                     title = stringResource(R.string.pref_chapter_swipe_right),
                     entries = mapOf(
-                        LibraryPreferences.ChapterSwipeActions.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
-                        LibraryPreferences.ChapterSwipeActions.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
-                        LibraryPreferences.ChapterSwipeActions.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
+                        LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
+                        LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
+                        LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
                     ),
                 ),
                 Preference.PreferenceItem.ListPreference(
                     pref = chapterSwipeLeftActionPref,
                     title = stringResource(R.string.pref_chapter_swipe_left),
                     entries = mapOf(
-                        LibraryPreferences.ChapterSwipeActions.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
-                        LibraryPreferences.ChapterSwipeActions.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
-                        LibraryPreferences.ChapterSwipeActions.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
+                        LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
+                        LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
+                        LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
                     ),
                 ),
                 Preference.PreferenceItem.ListPreference(

@@ -120,15 +120,15 @@ class LibraryPreferences(
 
     // region Swipe Actions
 
-    fun swipeRightAction() = preferenceStore.getEnum("pref_chapter_swipe_right_action", ChapterSwipeActions.Bookmark)
+    fun swipeRightAction() = preferenceStore.getEnum("pref_chapter_swipe_right_action", ChapterSwipeAction.Bookmark)
 
-    fun swipeLeftAction() = preferenceStore.getEnum("pref_chapter_swipe_left_action", ChapterSwipeActions.MarkAsRead)
+    fun swipeLeftAction() = preferenceStore.getEnum("pref_chapter_swipe_left_action", ChapterSwipeAction.MarkAsRead)
 
     fun swipeThreshold() = preferenceStore.getInt("pref_chapter_swipe_threshold_percent", 20)
 
     // endregion
 
-    enum class ChapterSwipeActions {
+    enum class ChapterSwipeAction {
         MarkAsRead,
         Bookmark,
         Download,

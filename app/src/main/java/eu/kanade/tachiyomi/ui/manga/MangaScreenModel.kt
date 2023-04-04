@@ -121,6 +121,10 @@ class MangaInfoScreenModel(
     private val filteredChapters: Sequence<ChapterItem>?
         get() = successState?.processedChapters
 
+    val chapterSwipeLeftAction = libraryPreferences.swipeLeftAction().get()
+    val chapterSwipeRightAction = libraryPreferences.swipeRightAction().get()
+    val chapterSwipeThreshold = libraryPreferences.swipeThreshold().get()
+
     val relativeTime by uiPreferences.relativeTime().asState(coroutineScope)
     val dateFormat by mutableStateOf(UiPreferences.dateFormat(uiPreferences.dateFormat().get()))
     private val skipFiltered by readerPreferences.skipFiltered().asState(coroutineScope)
