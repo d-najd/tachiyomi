@@ -118,6 +118,22 @@ class LibraryPreferences(
 
     // endregion
 
+    // region Swipe Actions
+
+    fun swipeRightAction() = preferenceStore.getEnum("pref_chapter_swipe_right_action", ChapterSwipeActions.Bookmark)
+
+    fun swipeLeftAction() = preferenceStore.getEnum("pref_chapter_swipe_left_action", ChapterSwipeActions.MarkAsRead)
+
+    fun swipeThreshold() = preferenceStore.getInt("pref_chapter_swipe_threshold_percent", 20)
+
+    // endregion
+
+    enum class ChapterSwipeActions {
+        MarkAsRead,
+        Bookmark,
+        Download,
+    }
+
     companion object {
         const val DEVICE_ONLY_ON_WIFI = "wifi"
         const val DEVICE_NETWORK_NOT_METERED = "network_not_metered"

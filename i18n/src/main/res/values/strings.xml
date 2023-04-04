@@ -167,7 +167,7 @@
 
     <string name="pref_general_summary">App language, notifications</string>
     <string name="pref_appearance_summary">Theme, date &amp; time format</string>
-    <string name="pref_library_summary">Categories, global update</string>
+    <string name="pref_library_summary">Categories, global update, swipe actions</string>
     <string name="pref_reader_summary">Reading mode, display, navigation</string>
     <string name="pref_downloads_summary">Automatic download, download ahead</string>
     <string name="pref_tracking_summary">One-way progress sync, enhanced sync</string>
@@ -272,6 +272,22 @@
     <string name="none">None</string>
     <string name="include">Include: %s</string>
     <string name="exclude">Exclude: %s</string>
+
+    <string name="pref_chapter_swipe">Swipe actions</string>
+    <string name="pref_chapter_swipe_right">Right swipe</string>
+    <string name="pref_chapter_swipe_left">Left swipe</string>
+    <string name="pref_chapter_swipe_action_bookmark">Bookmark</string>
+    <string name="pref_chapter_swipe_action_mark_read">Mark as read</string>
+    <string name="pref_chapter_swipe_action_download_chapter">Download chapter</string>
+    <string name="pref_chapter_swipe_threshold">Swipe threshold</string>
+    <string name="pref_chapter_swipe_threshold_5">5%</string>
+    <string name="pref_chapter_swipe_threshold_10">10%</string>
+    <string name="pref_chapter_swipe_threshold_15">15%</string>
+    <string name="pref_chapter_swipe_threshold_20">20%</string>
+    <string name="pref_chapter_swipe_threshold_25">25%</string>
+    <string name="pref_chapter_swipe_threshold_30">30%</string>
+    <string name="pref_chapter_swipe_threshold_40">40%</string>
+    <string name="pref_chapter_swipe_threshold_50">50%</string>
 
       <!-- Extension section -->
     <string name="multi_lang">Multi</string>
