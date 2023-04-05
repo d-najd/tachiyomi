@@ -2,6 +2,7 @@ package eu.kanade.tachiyomi.ui.manga
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -30,6 +31,7 @@ import eu.kanade.presentation.manga.EditCoverAction
 import eu.kanade.presentation.manga.MangaScreen
 import eu.kanade.presentation.manga.components.DeleteChaptersDialog
 import eu.kanade.presentation.manga.components.MangaCoverDialog
+import eu.kanade.presentation.manga.components.UndoSwipeOnChapterDialog
 import eu.kanade.presentation.util.AssistContentScreen
 import eu.kanade.presentation.util.Screen
 import eu.kanade.presentation.util.isTabletUi
@@ -53,6 +55,7 @@ import logcat.LogPriority
 import tachiyomi.core.util.lang.withIOContext
 import tachiyomi.core.util.system.logcat
 import tachiyomi.domain.chapter.model.Chapter
+import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.manga.model.Manga
 import tachiyomi.presentation.core.screens.LoadingScreen
 
@@ -101,8 +104,6 @@ class MangaScreen(
             dateRelativeTime = screenModel.relativeTime,
             dateFormat = screenModel.dateFormat,
             isTabletUi = isTabletUi(),
-            chapterSwipeLeftAction = screenModel.chapterSwipeLeftAction,
-            chapterSwipeRightAction = screenModel.chapterSwipeRightAction,
             chapterSwipeThreshold = screenModel.chapterSwipeThreshold,
             onBackClicked = navigator::pop,
             onChapterClicked = { openChapter(context, it) },
@@ -128,8 +129,7 @@ class MangaScreen(
             onMultiMarkAsReadClicked = screenModel::markChaptersRead,
             onMarkPreviousAsReadClicked = screenModel::markPreviousChapterRead,
             onMultiDeleteClicked = screenModel::showDeleteChapterDialog,
-            onChapterSwipeRight = screenModel::swipeChapterRight,
-            onChapterSwipeLeft = screenModel::swipeChapterLeft,
+            onChapterSwipe = screenModel::showUndoSwipeOnChapterDialog,
             onChapterSelected = screenModel::toggleSelection,
             onAllChapterSelected = screenModel::toggleAllSelection,
             onInvertSelection = screenModel::invertSelection,
@@ -145,6 +145,36 @@ class MangaScreen(
                     onEditCategories = { navigator.push(CategoryScreen()) },
                     onConfirm = { include, _ ->
                         screenModel.moveMangaToCategoriesAndAddToLibrary(dialog.manga, include)
+                    },
+                )
+            }
+            is MangaInfoScreenModel.Dialog.UndoSwipeOnChapter -> {
+                UndoSwipeOnChapterDialog(
+                    title = "TEST",
+                    onDismissRequest = onDismissRequest,
+                    onSwipeAction = {
+                        when (dialog.action) {
+                            LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
+                                screenModel.markChaptersRead(listOf(dialog.chapter), !dialog.chapter.read)
+                            }
+                            LibraryPreferences.ChapterSwipeAction.Bookmark -> {
+                                screenModel.bookmarkChapters(listOf(dialog.chapter), !dialog.chapter.bookmark)
+                            }
+                            LibraryPreferences.ChapterSwipeAction.Download -> {
+                            }
+                        }
+                    },
+                    onUndoAction = {
+                        when (dialog.action) {
+                            LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
+                                screenModel.markChaptersRead(listOf(dialog.chapter), !dialog.chapter.read)
+                            }
+                            LibraryPreferences.ChapterSwipeAction.Bookmark -> {
+                                screenModel.bookmarkChapters(listOf(dialog.chapter), dialog.chapter.bookmark)
+                            }
+                            LibraryPreferences.ChapterSwipeAction.Download -> {
+                            }
+                        }
                     },
                 )
             }

@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.download.model.Download
-import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.presentation.core.components.material.ReadItemAlpha
 import tachiyomi.presentation.core.components.material.SecondaryItemAlpha
 import tachiyomi.presentation.core.util.selectedBackground
@@ -68,14 +67,11 @@ fun MangaChapterListItem(
     downloadIndicatorEnabled: Boolean,
     downloadStateProvider: () -> Download.State,
     downloadProgressProvider: () -> Int,
-    chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeThreshold: Float,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
-    onChapterSwipeRight: () -> Unit,
-    onChapterSwipeLeft: () -> Unit,
+    onChapterSwipe: (DismissDirection) -> Unit,
 ) {
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
@@ -92,14 +88,16 @@ fun MangaChapterListItem(
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
-                onChapterSwipeRight()
+                val dismissDirection = DismissDirection.StartToEnd
+                onChapterSwipe(dismissDirection)
                 dismissState.snapTo(DismissValue.Default)
-                lastDismissDirection = DismissDirection.StartToEnd
+                lastDismissDirection = dismissDirection
             }
             DismissValue.DismissedToStart -> {
-                onChapterSwipeLeft()
+                val dismissDirection = DismissDirection.EndToStart
+                onChapterSwipe(dismissDirection)
                 dismissState.snapTo(DismissValue.Default)
-                lastDismissDirection = DismissDirection.EndToStart
+                lastDismissDirection = dismissDirection
             }
             DismissValue.Default -> { }
         }

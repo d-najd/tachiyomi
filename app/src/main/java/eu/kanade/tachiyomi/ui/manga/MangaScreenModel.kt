@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.ui.manga
 
 import android.content.Context
+import androidx.compose.material.DismissDirection
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Immutable
@@ -121,8 +122,6 @@ class MangaInfoScreenModel(
     private val filteredChapters: Sequence<ChapterItem>?
         get() = successState?.processedChapters
 
-    val chapterSwipeLeftAction = libraryPreferences.swipeLeftAction().get()
-    val chapterSwipeRightAction = libraryPreferences.swipeRightAction().get()
     val chapterSwipeThreshold = libraryPreferences.swipeThreshold().get()
 
     val relativeTime by uiPreferences.relativeTime().asState(coroutineScope)
@@ -645,23 +644,6 @@ class MangaInfoScreenModel(
         toggleAllSelection(false)
     }
 
-    fun swipeChapterLeft(chapter: Chapter) {
-        coroutineScope.launchIO {
-            setReadStatus.await(
-                read = !chapter.read,
-                chapters = arrayOf(chapter),
-            )
-        }
-    }
-
-    fun swipeChapterRight(chapter: Chapter) {
-        coroutineScope.launchIO {
-            ChapterUpdate(id = chapter.id, bookmark = !chapter.bookmark).let {
-                updateChapter.await(it)
-            }
-        }
-    }
-
     /**
      * Downloads the given list of chapters with the manager.
      * @param chapters the list of chapters to download.
@@ -920,6 +902,7 @@ class MangaInfoScreenModel(
 
     sealed class Dialog {
         data class ChangeCategory(val manga: Manga, val initialSelection: List<CheckboxState<Category>>) : Dialog()
+        data class UndoSwipeOnChapter(val chapter: Chapter, val action: LibraryPreferences.ChapterSwipeAction) : Dialog()
         data class DeleteChapters(val chapters: List<Chapter>) : Dialog()
         data class DuplicateManga(val manga: Manga, val duplicate: Manga) : Dialog()
         object SettingsSheet : Dialog()
@@ -941,6 +924,20 @@ class MangaInfoScreenModel(
             when (state) {
                 MangaScreenState.Loading -> state
                 is MangaScreenState.Success -> state.copy(dialog = Dialog.DeleteChapters(chapters))
+            }
+        }
+    }
+
+    fun showUndoSwipeOnChapterDialog(chapter: Chapter, dismissDirection: DismissDirection) {
+        val swipeAction = if (dismissDirection == DismissDirection.StartToEnd) {
+            libraryPreferences.swipeRightAction().get()
+        } else {
+            libraryPreferences.swipeLeftAction().get()
+        }
+        mutableState.update { state ->
+            when (state) {
+                MangaScreenState.Loading -> state
+                is MangaScreenState.Success -> state.copy(dialog = Dialog.UndoSwipeOnChapter(chapter, swipeAction))
             }
         }
     }

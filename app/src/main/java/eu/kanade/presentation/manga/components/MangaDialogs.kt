@@ -37,3 +37,30 @@ fun DeleteChaptersDialog(
         },
     )
 }
+
+@Composable
+fun UndoSwipeOnChapterDialog(
+    title: String,
+    onDismissRequest: () -> Unit,
+    onSwipeAction: () -> Unit,
+    onUndoAction: () -> Unit,
+) {
+    onSwipeAction()
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(text = title)
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    // onDismissRequest()
+                    onUndoAction()
+                },
+            ) {
+                Text(text = stringResource(R.string.action_undo))
+            }
+        },
+    )
+}

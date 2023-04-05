@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DismissDirection
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
@@ -66,7 +67,6 @@ import eu.kanade.tachiyomi.util.lang.toRelativeString
 import eu.kanade.tachiyomi.util.system.copyToClipboard
 import tachiyomi.domain.chapter.model.Chapter
 import tachiyomi.domain.chapter.service.countMissingChapters
-import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.manga.model.Manga
 import tachiyomi.domain.source.model.StubSource
 import tachiyomi.presentation.core.components.LazyColumn
@@ -87,8 +87,6 @@ fun MangaScreen(
     dateRelativeTime: Int,
     dateFormat: DateFormat,
     isTabletUi: Boolean,
-    chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeThreshold: Float,
     onBackClicked: () -> Unit,
     onChapterClicked: (Chapter) -> Unit,
@@ -121,9 +119,8 @@ fun MangaScreen(
     onMarkPreviousAsReadClicked: (Chapter) -> Unit,
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
-    // For swipe actions
-    onChapterSwipeRight: (Chapter) -> Unit,
-    onChapterSwipeLeft: (Chapter) -> Unit,
+    // For chapter swipe
+    onChapterSwipe: (Chapter, DismissDirection) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -143,8 +140,6 @@ fun MangaScreen(
             snackbarHostState = snackbarHostState,
             dateRelativeTime = dateRelativeTime,
             dateFormat = dateFormat,
-            chapterSwipeLeftAction = chapterSwipeLeftAction,
-            chapterSwipeRightAction = chapterSwipeRightAction,
             chapterSwipeThreshold = chapterSwipeThreshold,
             onBackClicked = onBackClicked,
             onChapterClicked = onChapterClicked,
@@ -168,8 +163,7 @@ fun MangaScreen(
             onMultiMarkAsReadClicked = onMultiMarkAsReadClicked,
             onMarkPreviousAsReadClicked = onMarkPreviousAsReadClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
-            onChapterSwipeRight = onChapterSwipeRight,
-            onChapterSwipeLeft = onChapterSwipeLeft,
+            onChapterSwipe = onChapterSwipe,
             onChapterSelected = onChapterSelected,
             onAllChapterSelected = onAllChapterSelected,
             onInvertSelection = onInvertSelection,
@@ -180,8 +174,6 @@ fun MangaScreen(
             snackbarHostState = snackbarHostState,
             dateRelativeTime = dateRelativeTime,
             dateFormat = dateFormat,
-            chapterSwipeLeftAction = chapterSwipeLeftAction,
-            chapterSwipeRightAction = chapterSwipeRightAction,
             chapterSwipeThreshold = chapterSwipeThreshold,
             onBackClicked = onBackClicked,
             onChapterClicked = onChapterClicked,
@@ -205,8 +197,7 @@ fun MangaScreen(
             onMultiMarkAsReadClicked = onMultiMarkAsReadClicked,
             onMarkPreviousAsReadClicked = onMarkPreviousAsReadClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
-            onChapterSwipeRight = onChapterSwipeRight,
-            onChapterSwipeLeft = onChapterSwipeLeft,
+            onChapterSwipe = onChapterSwipe,
             onChapterSelected = onChapterSelected,
             onAllChapterSelected = onAllChapterSelected,
             onInvertSelection = onInvertSelection,
@@ -220,8 +211,6 @@ private fun MangaScreenSmallImpl(
     snackbarHostState: SnackbarHostState,
     dateRelativeTime: Int,
     dateFormat: DateFormat,
-    chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeThreshold: Float,
     onBackClicked: () -> Unit,
     onChapterClicked: (Chapter) -> Unit,
@@ -255,9 +244,8 @@ private fun MangaScreenSmallImpl(
     onMarkPreviousAsReadClicked: (Chapter) -> Unit,
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
-    // For swipe actions
-    onChapterSwipeRight: (Chapter) -> Unit,
-    onChapterSwipeLeft: (Chapter) -> Unit,
+    // For chapter swipe
+    onChapterSwipe: (Chapter, DismissDirection) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -429,14 +417,11 @@ private fun MangaScreenSmallImpl(
                         chapters = chapters,
                         dateRelativeTime = dateRelativeTime,
                         dateFormat = dateFormat,
-                        chapterSwipeLeftAction = chapterSwipeLeftAction,
-                        chapterSwipeRightAction = chapterSwipeRightAction,
                         chapterSwipeThreshold = chapterSwipeThreshold,
                         onChapterClicked = onChapterClicked,
                         onDownloadChapter = onDownloadChapter,
                         onChapterSelected = onChapterSelected,
-                        onChapterSwipeRight = onChapterSwipeRight,
-                        onChapterSwipeLeft = onChapterSwipeLeft,
+                        onChapterSwipe = onChapterSwipe,
                     )
                 }
             }
@@ -450,8 +435,6 @@ fun MangaScreenLargeImpl(
     snackbarHostState: SnackbarHostState,
     dateRelativeTime: Int,
     dateFormat: DateFormat,
-    chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeThreshold: Float,
     onBackClicked: () -> Unit,
     onChapterClicked: (Chapter) -> Unit,
@@ -486,8 +469,7 @@ fun MangaScreenLargeImpl(
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
     // For swipe actions
-    onChapterSwipeRight: (Chapter) -> Unit,
-    onChapterSwipeLeft: (Chapter) -> Unit,
+    onChapterSwipe: (Chapter, DismissDirection) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -653,14 +635,11 @@ fun MangaScreenLargeImpl(
                                 chapters = chapters,
                                 dateRelativeTime = dateRelativeTime,
                                 dateFormat = dateFormat,
-                                chapterSwipeLeftAction = chapterSwipeLeftAction,
-                                chapterSwipeRightAction = chapterSwipeRightAction,
                                 chapterSwipeThreshold = chapterSwipeThreshold,
                                 onChapterClicked = onChapterClicked,
                                 onDownloadChapter = onDownloadChapter,
                                 onChapterSelected = onChapterSelected,
-                                onChapterSwipeRight = onChapterSwipeRight,
-                                onChapterSwipeLeft = onChapterSwipeLeft,
+                                onChapterSwipe = onChapterSwipe,
                             )
                         }
                     }
@@ -717,14 +696,11 @@ private fun LazyListScope.sharedChapterItems(
     chapters: List<ChapterItem>,
     dateRelativeTime: Int,
     dateFormat: DateFormat,
-    chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeThreshold: Float,
     onChapterClicked: (Chapter) -> Unit,
     onDownloadChapter: ((List<ChapterItem>, ChapterDownloadAction) -> Unit)?,
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
-    onChapterSwipeRight: (Chapter) -> Unit,
-    onChapterSwipeLeft: (Chapter) -> Unit,
+    onChapterSwipe: (Chapter, DismissDirection) -> Unit,
 ) {
     items(
         items = chapters,
@@ -767,8 +743,6 @@ private fun LazyListScope.sharedChapterItems(
             downloadIndicatorEnabled = chapters.fastAll { !it.selected },
             downloadStateProvider = { chapterItem.downloadState },
             downloadProgressProvider = { chapterItem.downloadProgress },
-            chapterSwipeLeftAction = chapterSwipeLeftAction,
-            chapterSwipeRightAction = chapterSwipeRightAction,
             chapterSwipeThreshold = chapterSwipeThreshold,
             onLongClick = {
                 onChapterSelected(chapterItem, !chapterItem.selected, true, true)
@@ -787,11 +761,8 @@ private fun LazyListScope.sharedChapterItems(
             } else {
                 null
             },
-            onChapterSwipeRight = {
-                onChapterSwipeRight(chapterItem.chapter)
-            },
-            onChapterSwipeLeft = {
-                onChapterSwipeLeft(chapterItem.chapter)
+            onChapterSwipe = {
+                onChapterSwipe(chapterItem.chapter, it)
             },
         )
     }
