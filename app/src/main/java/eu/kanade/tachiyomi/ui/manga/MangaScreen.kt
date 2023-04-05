@@ -102,6 +102,8 @@ class MangaScreen(
             dateRelativeTime = screenModel.relativeTime,
             dateFormat = screenModel.dateFormat,
             isTabletUi = isTabletUi(),
+            chapterSwipeRightAction = screenModel.chapterSwipeRightAction,
+            chapterSwipeLeftAction = screenModel.chapterSwipeLeftAction,
             chapterSwipeThreshold = screenModel.chapterSwipeThreshold,
             onBackClicked = navigator::pop,
             onChapterClicked = { openChapter(context, it) },

@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.ui.manga
 
 import android.content.Context
-import androidx.compose.material.DismissDirection
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Immutable
@@ -122,6 +121,8 @@ class MangaInfoScreenModel(
     private val filteredChapters: Sequence<ChapterItem>?
         get() = successState?.processedChapters
 
+    val chapterSwipeRightAction = libraryPreferences.swipeRightAction().get()
+    val chapterSwipeLeftAction = libraryPreferences.swipeLeftAction().get()
     val chapterSwipeThreshold = libraryPreferences.swipeThreshold().get()
 
     val relativeTime by uiPreferences.relativeTime().asState(coroutineScope)
@@ -536,20 +537,15 @@ class MangaInfoScreenModel(
         }
     }
 
-    fun chapterSwipe(chapter: Chapter, dismissDirection: DismissDirection) {
-        val swipeAction = if (dismissDirection == DismissDirection.StartToEnd) {
-            libraryPreferences.swipeRightAction().get()
-        } else {
-            libraryPreferences.swipeLeftAction().get()
-        }
+    fun chapterSwipe(chapter: Chapter, swipeAction: LibraryPreferences.ChapterSwipeAction) {
         val chapterItem = getProcessedChapter(chapter.id)
         executeChapterSwipeAction(chapterItem, swipeAction)
         showUndoChapterSwipeDialog(chapter.id, swipeAction)
     }
 
-    fun executeChapterSwipeAction(chapterItem: ChapterItem, action: LibraryPreferences.ChapterSwipeAction) {
+    fun executeChapterSwipeAction(chapterItem: ChapterItem, swipeAction: LibraryPreferences.ChapterSwipeAction) {
         val chapter = chapterItem.chapter
-        when (action) {
+        when (swipeAction) {
             LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
                 markChaptersRead(listOf(chapter), !chapter.read)
             }
@@ -559,17 +555,11 @@ class MangaInfoScreenModel(
 
             LibraryPreferences.ChapterSwipeAction.Download -> {
                 val downloadAction: ChapterDownloadAction? = when (chapterItem.downloadState) {
-                    Download.State.NOT_DOWNLOADED -> {
-                        ChapterDownloadAction.START_NOW
-                    }
+                    Download.State.NOT_DOWNLOADED -> { ChapterDownloadAction.START_NOW }
                     Download.State.QUEUE,
                     Download.State.DOWNLOADING,
-                    -> {
-                        ChapterDownloadAction.CANCEL
-                    }
-                    Download.State.DOWNLOADED -> {
-                        ChapterDownloadAction.DELETE
-                    }
+            -> { ChapterDownloadAction.CANCEL }
+                    Download.State.DOWNLOADED -> { ChapterDownloadAction.DELETE }
                     Download.State.ERROR -> { null }
                 }
                 downloadAction?.let {

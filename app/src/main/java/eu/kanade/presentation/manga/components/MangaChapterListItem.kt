@@ -22,6 +22,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.FileDownloadOff
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.rememberDismissState
@@ -50,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.download.model.Download
+import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.presentation.core.components.material.ReadItemAlpha
 import tachiyomi.presentation.core.components.material.SecondaryItemAlpha
 import tachiyomi.presentation.core.util.selectedBackground
@@ -67,11 +72,13 @@ fun MangaChapterListItem(
     downloadIndicatorEnabled: Boolean,
     downloadStateProvider: () -> Download.State,
     downloadProgressProvider: () -> Int,
+    chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
+    chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeThreshold: Float,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
-    onChapterSwipe: (DismissDirection) -> Unit,
+    onChapterSwipe: (LibraryPreferences.ChapterSwipeAction) -> Unit,
 ) {
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
@@ -88,16 +95,14 @@ fun MangaChapterListItem(
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
-                val dismissDirection = DismissDirection.StartToEnd
-                onChapterSwipe(dismissDirection)
+                onChapterSwipe(chapterSwipeRightAction)
                 dismissState.snapTo(DismissValue.Default)
-                lastDismissDirection = dismissDirection
+                lastDismissDirection = DismissDirection.StartToEnd
             }
             DismissValue.DismissedToStart -> {
-                val dismissDirection = DismissDirection.EndToStart
-                onChapterSwipe(dismissDirection)
+                onChapterSwipe(chapterSwipeLeftAction)
                 dismissState.snapTo(DismissValue.Default)
-                lastDismissDirection = dismissDirection
+                lastDismissDirection = DismissDirection.EndToStart
             }
             DismissValue.Default -> { }
         }
@@ -117,35 +122,32 @@ fun MangaChapterListItem(
                     .fillMaxSize()
                     .background(backgroundColor),
             ) {
-                Icon(
+                val downloadState = downloadStateProvider()
+                SwipeBackgroundIcon(
                     modifier = Modifier
                         .padding(start = 16.dp)
                         .align(Alignment.CenterStart)
                         .alpha(
                             if (dismissState.dismissDirection == DismissDirection.StartToEnd) 1f else 0f,
                         ),
-                    imageVector = if (!bookmark) {
-                        Icons.Default.Bookmark
-                    } else {
-                        Icons.Default.BookmarkRemove
-                    },
                     tint = contentColorFor(backgroundColor),
-                    contentDescription = null,
+                    swipeAction = chapterSwipeRightAction,
+                    read = read,
+                    bookmark = bookmark,
+                    downloadState = downloadState,
                 )
-                Icon(
+                SwipeBackgroundIcon(
                     modifier = Modifier
                         .padding(end = 16.dp)
                         .align(Alignment.CenterEnd)
                         .alpha(
                             if (dismissState.dismissDirection == DismissDirection.EndToStart) 1f else 0f,
                         ),
-                    imageVector = if (!read) {
-                        Icons.Default.Visibility
-                    } else {
-                        Icons.Default.VisibilityOff
-                    },
                     tint = contentColorFor(backgroundColor),
-                    contentDescription = null,
+                    swipeAction = chapterSwipeLeftAction,
+                    read = read,
+                    bookmark = bookmark,
+                    downloadState = downloadState,
                 )
             }
         },
@@ -260,5 +262,48 @@ fun MangaChapterListItem(
                 }
             }
         },
+    )
+}
+
+@Composable
+private fun SwipeBackgroundIcon(
+    modifier: Modifier = Modifier,
+    tint: Color,
+    swipeAction: LibraryPreferences.ChapterSwipeAction,
+    read: Boolean,
+    bookmark: Boolean,
+    downloadState: Download.State,
+) {
+    val imageVector = when (swipeAction) {
+        LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
+            if (!read) {
+                Icons.Default.Visibility
+            } else {
+                Icons.Default.VisibilityOff
+            }
+        }
+        LibraryPreferences.ChapterSwipeAction.Bookmark -> {
+            if (!bookmark) {
+                Icons.Default.Bookmark
+            } else {
+                Icons.Default.BookmarkRemove
+            }
+        }
+        LibraryPreferences.ChapterSwipeAction.Download -> {
+            when (downloadState) {
+                Download.State.NOT_DOWNLOADED -> { Icons.Default.Download }
+                Download.State.QUEUE,
+                Download.State.DOWNLOADING,
+        -> { Icons.Default.FileDownloadOff }
+                Download.State.DOWNLOADED -> { Icons.Default.Delete }
+                Download.State.ERROR -> { Icons.Default.ErrorOutline }
+            }
+        }
+    }
+    Icon(
+        modifier = modifier,
+        imageVector = imageVector,
+        tint = tint,
+        contentDescription = null,
     )
 }
