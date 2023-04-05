@@ -108,7 +108,7 @@ fun MangaChapterListItem(
         background = {
             var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
             backgroundColor = when (dismissState.dismissDirection) {
-                DismissDirection.StartToEnd -> Color.LightGray
+                DismissDirection.StartToEnd -> MaterialTheme.colorScheme.surfaceVariant
                 DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
                 null -> backgroundColor
             }

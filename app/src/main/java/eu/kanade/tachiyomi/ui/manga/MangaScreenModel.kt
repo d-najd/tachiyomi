@@ -564,7 +564,7 @@ class MangaInfoScreenModel(
                     }
                     Download.State.QUEUE,
                     Download.State.DOWNLOADING,
-            -> {
+                    -> {
                         ChapterDownloadAction.CANCEL
                     }
                     Download.State.DOWNLOADED -> {
