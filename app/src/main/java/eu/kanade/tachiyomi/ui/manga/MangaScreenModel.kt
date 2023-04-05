@@ -379,16 +379,14 @@ class MangaInfoScreenModel(
     }
 
     /**
-     * Returns the updated chapter object with the given id.
+     * Returns the updated chapter with the given id.
      *
      * @param chapterId The id of the chapter to be fetched.
      * @return The updated chapter object.
      * @throws NullPointerException if the chapter with the given id is not found.
      */
-    fun getUpdatedChapter(chapterId: Long): Chapter {
-        val chapter = filteredChapters?.find { it.chapter.id == chapterId }
-        return chapter?.chapter ?: throw NullPointerException("Chapter with id $chapterId not found")
-    }
+    fun getProcessedChapter(chapterId: Long): ChapterItem =
+        filteredChapters?.find { it.chapter.id == chapterId } ?: throw NullPointerException("Chapter with id $chapterId not found")
 
     /**
      * Gets the category id's the manga is in, if the manga is not in a category, returns the default id.
@@ -544,17 +542,44 @@ class MangaInfoScreenModel(
         } else {
             libraryPreferences.swipeLeftAction().get()
         }
-        when (swipeAction) {
+        val chapterItem = getProcessedChapter(chapter.id)
+        executeChapterSwipeAction(chapterItem, swipeAction)
+        showUndoChapterSwipeDialog(chapter.id, swipeAction)
+    }
+
+    fun executeChapterSwipeAction(chapterItem: ChapterItem, action: LibraryPreferences.ChapterSwipeAction) {
+        val chapter = chapterItem.chapter
+        when (action) {
             LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
                 markChaptersRead(listOf(chapter), !chapter.read)
             }
             LibraryPreferences.ChapterSwipeAction.Bookmark -> {
                 bookmarkChapters(listOf(chapter), !chapter.bookmark)
             }
+
             LibraryPreferences.ChapterSwipeAction.Download -> {
+                val downloadAction: ChapterDownloadAction? = when (chapterItem.downloadState) {
+                    Download.State.NOT_DOWNLOADED -> {
+                        ChapterDownloadAction.START_NOW
+                    }
+                    Download.State.QUEUE,
+                    Download.State.DOWNLOADING,
+            -> {
+                        ChapterDownloadAction.CANCEL
+                    }
+                    Download.State.DOWNLOADED -> {
+                        ChapterDownloadAction.DELETE
+                    }
+                    Download.State.ERROR -> { null }
+                }
+                downloadAction?.let {
+                    runChapterDownloadActions(
+                        items = listOf(chapterItem),
+                        action = it,
+                    )
+                }
             }
         }
-        showUndoChapterSwipeDialog(chapter.id, swipeAction)
     }
 
     /**

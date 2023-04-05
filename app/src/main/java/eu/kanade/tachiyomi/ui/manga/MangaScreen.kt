@@ -54,7 +54,6 @@ import logcat.LogPriority
 import tachiyomi.core.util.lang.withIOContext
 import tachiyomi.core.util.system.logcat
 import tachiyomi.domain.chapter.model.Chapter
-import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.manga.model.Manga
 import tachiyomi.presentation.core.screens.LoadingScreen
 
@@ -152,17 +151,8 @@ class MangaScreen(
                     title = "TEST",
                     onDismissRequest = onDismissRequest,
                     onUndoAction = {
-                        val chapter = screenModel.getUpdatedChapter(dialog.chapterId)
-                        when (dialog.action) {
-                            LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
-                                screenModel.markChaptersRead(listOf(chapter), !chapter.read)
-                            }
-                            LibraryPreferences.ChapterSwipeAction.Bookmark -> {
-                                screenModel.bookmarkChapters(listOf(chapter), !chapter.bookmark)
-                            }
-                            LibraryPreferences.ChapterSwipeAction.Download -> {
-                            }
-                        }
+                        val chapterItem = screenModel.getProcessedChapter(dialog.chapterId)
+                        screenModel.executeChapterSwipeAction(chapterItem, dialog.action)
                     },
                 )
             }
