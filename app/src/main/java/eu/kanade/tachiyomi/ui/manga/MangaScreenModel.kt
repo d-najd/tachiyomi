@@ -645,7 +645,7 @@ class MangaInfoScreenModel(
         toggleAllSelection(false)
     }
 
-    fun swipeToMarkAsRead(chapter: Chapter) {
+    fun swipeChapterLeft(chapter: Chapter) {
         coroutineScope.launchIO {
             setReadStatus.await(
                 read = !chapter.read,
@@ -654,7 +654,7 @@ class MangaInfoScreenModel(
         }
     }
 
-    fun swipeToBookmark(chapter: Chapter) {
+    fun swipeChapterRight(chapter: Chapter) {
         coroutineScope.launchIO {
             ChapterUpdate(id = chapter.id, bookmark = !chapter.bookmark).let {
                 updateChapter.await(it)

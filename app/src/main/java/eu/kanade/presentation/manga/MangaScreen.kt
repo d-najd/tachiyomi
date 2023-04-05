@@ -89,7 +89,7 @@ fun MangaScreen(
     isTabletUi: Boolean,
     chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeThreshold: Int,
+    chapterSwipeThreshold: Float,
     onBackClicked: () -> Unit,
     onChapterClicked: (Chapter) -> Unit,
     onDownloadChapter: ((List<ChapterItem>, ChapterDownloadAction) -> Unit)?,
@@ -122,8 +122,8 @@ fun MangaScreen(
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
     // For swipe actions
-    onSwipeToBookmark: (Chapter) -> Unit,
-    onSwipeToMarkAsRead: (Chapter) -> Unit,
+    onChapterSwipeRight: (Chapter) -> Unit,
+    onChapterSwipeLeft: (Chapter) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -168,8 +168,8 @@ fun MangaScreen(
             onMultiMarkAsReadClicked = onMultiMarkAsReadClicked,
             onMarkPreviousAsReadClicked = onMarkPreviousAsReadClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
-            onSwipeToBookmark = onSwipeToBookmark,
-            onSwipeToMarkAsRead = onSwipeToMarkAsRead,
+            onChapterSwipeRight = onChapterSwipeRight,
+            onChapterSwipeLeft = onChapterSwipeLeft,
             onChapterSelected = onChapterSelected,
             onAllChapterSelected = onAllChapterSelected,
             onInvertSelection = onInvertSelection,
@@ -205,8 +205,8 @@ fun MangaScreen(
             onMultiMarkAsReadClicked = onMultiMarkAsReadClicked,
             onMarkPreviousAsReadClicked = onMarkPreviousAsReadClicked,
             onMultiDeleteClicked = onMultiDeleteClicked,
-            onSwipeToBookmark = onSwipeToBookmark,
-            onSwipeToMarkAsRead = onSwipeToMarkAsRead,
+            onChapterSwipeRight = onChapterSwipeRight,
+            onChapterSwipeLeft = onChapterSwipeLeft,
             onChapterSelected = onChapterSelected,
             onAllChapterSelected = onAllChapterSelected,
             onInvertSelection = onInvertSelection,
@@ -222,7 +222,7 @@ private fun MangaScreenSmallImpl(
     dateFormat: DateFormat,
     chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeThreshold: Int,
+    chapterSwipeThreshold: Float,
     onBackClicked: () -> Unit,
     onChapterClicked: (Chapter) -> Unit,
     onDownloadChapter: ((List<ChapterItem>, ChapterDownloadAction) -> Unit)?,
@@ -256,8 +256,8 @@ private fun MangaScreenSmallImpl(
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
     // For swipe actions
-    onSwipeToBookmark: (Chapter) -> Unit,
-    onSwipeToMarkAsRead: (Chapter) -> Unit,
+    onChapterSwipeRight: (Chapter) -> Unit,
+    onChapterSwipeLeft: (Chapter) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -435,8 +435,8 @@ private fun MangaScreenSmallImpl(
                         onChapterClicked = onChapterClicked,
                         onDownloadChapter = onDownloadChapter,
                         onChapterSelected = onChapterSelected,
-                        onSwipeToBookmark = onSwipeToBookmark,
-                        onSwipeToMarkAsRead = onSwipeToMarkAsRead,
+                        onChapterSwipeRight = onChapterSwipeRight,
+                        onChapterSwipeLeft = onChapterSwipeLeft,
                     )
                 }
             }
@@ -452,7 +452,7 @@ fun MangaScreenLargeImpl(
     dateFormat: DateFormat,
     chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeThreshold: Int,
+    chapterSwipeThreshold: Float,
     onBackClicked: () -> Unit,
     onChapterClicked: (Chapter) -> Unit,
     onDownloadChapter: ((List<ChapterItem>, ChapterDownloadAction) -> Unit)?,
@@ -486,8 +486,8 @@ fun MangaScreenLargeImpl(
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
     // For swipe actions
-    onSwipeToBookmark: (Chapter) -> Unit,
-    onSwipeToMarkAsRead: (Chapter) -> Unit,
+    onChapterSwipeRight: (Chapter) -> Unit,
+    onChapterSwipeLeft: (Chapter) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -659,8 +659,8 @@ fun MangaScreenLargeImpl(
                                 onChapterClicked = onChapterClicked,
                                 onDownloadChapter = onDownloadChapter,
                                 onChapterSelected = onChapterSelected,
-                                onSwipeToBookmark = onSwipeToBookmark,
-                                onSwipeToMarkAsRead = onSwipeToMarkAsRead,
+                                onChapterSwipeRight = onChapterSwipeRight,
+                                onChapterSwipeLeft = onChapterSwipeLeft,
                             )
                         }
                     }
@@ -719,12 +719,12 @@ private fun LazyListScope.sharedChapterItems(
     dateFormat: DateFormat,
     chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeThreshold: Int,
+    chapterSwipeThreshold: Float,
     onChapterClicked: (Chapter) -> Unit,
     onDownloadChapter: ((List<ChapterItem>, ChapterDownloadAction) -> Unit)?,
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
-    onSwipeToBookmark: (Chapter) -> Unit,
-    onSwipeToMarkAsRead: (Chapter) -> Unit,
+    onChapterSwipeRight: (Chapter) -> Unit,
+    onChapterSwipeLeft: (Chapter) -> Unit,
 ) {
     items(
         items = chapters,
@@ -787,11 +787,11 @@ private fun LazyListScope.sharedChapterItems(
             } else {
                 null
             },
-            onSwipeToBookmark = {
-                onSwipeToBookmark(chapterItem.chapter)
+            onChapterSwipeRight = {
+                onChapterSwipeRight(chapterItem.chapter)
             },
-            onSwipeToMarkAsRead = {
-                onSwipeToMarkAsRead(chapterItem.chapter)
+            onChapterSwipeLeft = {
+                onChapterSwipeLeft(chapterItem.chapter)
             },
         )
     }

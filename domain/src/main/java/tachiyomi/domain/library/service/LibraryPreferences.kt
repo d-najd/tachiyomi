@@ -124,7 +124,7 @@ class LibraryPreferences(
 
     fun swipeLeftAction() = preferenceStore.getEnum("pref_chapter_swipe_left_action", ChapterSwipeAction.MarkAsRead)
 
-    fun swipeThreshold() = preferenceStore.getInt("pref_chapter_swipe_threshold_percent", 20)
+    fun swipeThreshold() = preferenceStore.getFloat("pref_chapter_swipe_threshold", .2f)
 
     // endregion
 

@@ -14,24 +14,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.DismissValue
+import androidx.compose.material.FractionalThreshold
+import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,12 +70,12 @@ fun MangaChapterListItem(
     downloadProgressProvider: () -> Int,
     chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeThreshold: Int,
+    chapterSwipeThreshold: Float,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
-    onSwipeToBookmark: () -> Unit,
-    onSwipeToMarkAsRead: () -> Unit,
+    onChapterSwipeRight: () -> Unit,
+    onChapterSwipeLeft: () -> Unit,
 ) {
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
@@ -91,12 +92,12 @@ fun MangaChapterListItem(
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
-                onSwipeToBookmark()
+                onChapterSwipeRight()
                 dismissState.snapTo(DismissValue.Default)
                 lastDismissDirection = DismissDirection.StartToEnd
             }
             DismissValue.DismissedToStart -> {
-                onSwipeToMarkAsRead()
+                onChapterSwipeLeft()
                 dismissState.snapTo(DismissValue.Default)
                 lastDismissDirection = DismissDirection.EndToStart
             }
@@ -105,6 +106,7 @@ fun MangaChapterListItem(
     }
     SwipeToDismiss(
         state = dismissState,
+        dismissThresholds = { FractionalThreshold(chapterSwipeThreshold) },
         background = {
             var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
             backgroundColor = when (dismissState.dismissDirection) {
@@ -122,18 +124,14 @@ fun MangaChapterListItem(
                         .padding(start = 16.dp)
                         .align(Alignment.CenterStart)
                         .alpha(
-                            if (dismissState.dismissDirection == DismissDirection.StartToEnd) {
-                                1f
-                            } else {
-                                0f
-                            },
+                            if (dismissState.dismissDirection == DismissDirection.StartToEnd) 1f else 0f,
                         ),
                     imageVector = if (!bookmark) {
                         Icons.Default.Bookmark
                     } else {
                         Icons.Default.BookmarkRemove
                     },
-                    tint = contentColorFor(backgroundColor = Color.LightGray),
+                    tint = contentColorFor(backgroundColor),
                     contentDescription = null,
                 )
                 Icon(
@@ -141,18 +139,14 @@ fun MangaChapterListItem(
                         .padding(end = 16.dp)
                         .align(Alignment.CenterEnd)
                         .alpha(
-                            if (dismissState.dismissDirection == DismissDirection.EndToStart) {
-                                1f
-                            } else {
-                                0f
-                            },
+                            if (dismissState.dismissDirection == DismissDirection.EndToStart) 1f else 0f,
                         ),
                     imageVector = if (!read) {
                         Icons.Default.Visibility
                     } else {
                         Icons.Default.VisibilityOff
                     },
-                    tint = contentColorFor(backgroundColor = MaterialTheme.colorScheme.primary),
+                    tint = contentColorFor(backgroundColor),
                     contentDescription = null,
                 )
             }
@@ -172,10 +166,10 @@ fun MangaChapterListItem(
             ) {
                 Row(
                     modifier = Modifier
-                        .selectedBackground(selected)
                         .background(
                             MaterialTheme.colorScheme.background.copy(dismissContentAlpha),
                         )
+                        .selectedBackground(selected)
                         .alpha(dismissContentAlpha)
                         .combinedClickable(
                             onClick = onClick,
