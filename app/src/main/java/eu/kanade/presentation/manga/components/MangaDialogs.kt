@@ -4,6 +4,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import eu.kanade.tachiyomi.R
 
@@ -42,11 +43,8 @@ fun DeleteChaptersDialog(
 fun UndoSwipeOnChapterDialog(
     title: String,
     onDismissRequest: () -> Unit,
-    onSwipeAction: () -> Unit,
     onUndoAction: () -> Unit,
 ) {
-    onSwipeAction()
-
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = {

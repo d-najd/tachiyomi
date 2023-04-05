@@ -2,7 +2,6 @@ package eu.kanade.tachiyomi.ui.manga
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -129,7 +128,7 @@ class MangaScreen(
             onMultiMarkAsReadClicked = screenModel::markChaptersRead,
             onMarkPreviousAsReadClicked = screenModel::markPreviousChapterRead,
             onMultiDeleteClicked = screenModel::showDeleteChapterDialog,
-            onChapterSwipe = screenModel::showUndoSwipeOnChapterDialog,
+            onChapterSwipe = screenModel::chapterSwipe,
             onChapterSelected = screenModel::toggleSelection,
             onAllChapterSelected = screenModel::toggleAllSelection,
             onInvertSelection = screenModel::invertSelection,
@@ -152,25 +151,14 @@ class MangaScreen(
                 UndoSwipeOnChapterDialog(
                     title = "TEST",
                     onDismissRequest = onDismissRequest,
-                    onSwipeAction = {
-                        when (dialog.action) {
-                            LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
-                                screenModel.markChaptersRead(listOf(dialog.chapter), !dialog.chapter.read)
-                            }
-                            LibraryPreferences.ChapterSwipeAction.Bookmark -> {
-                                screenModel.bookmarkChapters(listOf(dialog.chapter), !dialog.chapter.bookmark)
-                            }
-                            LibraryPreferences.ChapterSwipeAction.Download -> {
-                            }
-                        }
-                    },
                     onUndoAction = {
+                        val chapter = screenModel.getUpdatedChapter(dialog.chapterId)
                         when (dialog.action) {
                             LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
-                                screenModel.markChaptersRead(listOf(dialog.chapter), !dialog.chapter.read)
+                                screenModel.markChaptersRead(listOf(chapter), !chapter.read)
                             }
                             LibraryPreferences.ChapterSwipeAction.Bookmark -> {
-                                screenModel.bookmarkChapters(listOf(dialog.chapter), dialog.chapter.bookmark)
+                                screenModel.bookmarkChapters(listOf(chapter), !chapter.bookmark)
                             }
                             LibraryPreferences.ChapterSwipeAction.Download -> {
                             }

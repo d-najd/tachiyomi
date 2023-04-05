@@ -379,6 +379,18 @@ class MangaInfoScreenModel(
     }
 
     /**
+     * Returns the updated chapter object with the given id.
+     *
+     * @param chapterId The id of the chapter to be fetched.
+     * @return The updated chapter object.
+     * @throws NullPointerException if the chapter with the given id is not found.
+     */
+    fun getUpdatedChapter(chapterId: Long): Chapter {
+        val chapter = filteredChapters?.find { it.chapter.id == chapterId }
+        return chapter?.chapter ?: throw NullPointerException("Chapter with id $chapterId not found")
+    }
+
+    /**
      * Gets the category id's the manga is in, if the manga is not in a category, returns the default id.
      *
      * @param manga the manga to get categories from.
@@ -524,6 +536,25 @@ class MangaInfoScreenModel(
                 snackbarHostState.showSnackbar(message = message)
             }
         }
+    }
+
+    fun chapterSwipe(chapter: Chapter, dismissDirection: DismissDirection) {
+        val swipeAction = if (dismissDirection == DismissDirection.StartToEnd) {
+            libraryPreferences.swipeRightAction().get()
+        } else {
+            libraryPreferences.swipeLeftAction().get()
+        }
+        when (swipeAction) {
+            LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
+                markChaptersRead(listOf(chapter), !chapter.read)
+            }
+            LibraryPreferences.ChapterSwipeAction.Bookmark -> {
+                bookmarkChapters(listOf(chapter), !chapter.bookmark)
+            }
+            LibraryPreferences.ChapterSwipeAction.Download -> {
+            }
+        }
+        showUndoChapterSwipeDialog(chapter.id, swipeAction)
     }
 
     /**
@@ -902,7 +933,7 @@ class MangaInfoScreenModel(
 
     sealed class Dialog {
         data class ChangeCategory(val manga: Manga, val initialSelection: List<CheckboxState<Category>>) : Dialog()
-        data class UndoSwipeOnChapter(val chapter: Chapter, val action: LibraryPreferences.ChapterSwipeAction) : Dialog()
+        data class UndoSwipeOnChapter(val chapterId: Long, val action: LibraryPreferences.ChapterSwipeAction) : Dialog()
         data class DeleteChapters(val chapters: List<Chapter>) : Dialog()
         data class DuplicateManga(val manga: Manga, val duplicate: Manga) : Dialog()
         object SettingsSheet : Dialog()
@@ -928,16 +959,11 @@ class MangaInfoScreenModel(
         }
     }
 
-    fun showUndoSwipeOnChapterDialog(chapter: Chapter, dismissDirection: DismissDirection) {
-        val swipeAction = if (dismissDirection == DismissDirection.StartToEnd) {
-            libraryPreferences.swipeRightAction().get()
-        } else {
-            libraryPreferences.swipeLeftAction().get()
-        }
+    private fun showUndoChapterSwipeDialog(chapterId: Long, swipeAction: LibraryPreferences.ChapterSwipeAction) {
         mutableState.update { state ->
             when (state) {
                 MangaScreenState.Loading -> state
-                is MangaScreenState.Success -> state.copy(dialog = Dialog.UndoSwipeOnChapter(chapter, swipeAction))
+                is MangaScreenState.Success -> state.copy(dialog = Dialog.UndoSwipeOnChapter(chapterId, swipeAction))
             }
         }
     }
