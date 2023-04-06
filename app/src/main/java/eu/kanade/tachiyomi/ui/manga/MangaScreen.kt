@@ -30,7 +30,6 @@ import eu.kanade.presentation.manga.EditCoverAction
 import eu.kanade.presentation.manga.MangaScreen
 import eu.kanade.presentation.manga.components.DeleteChaptersDialog
 import eu.kanade.presentation.manga.components.MangaCoverDialog
-import eu.kanade.presentation.manga.components.UndoSwipeOnChapterDialog
 import eu.kanade.presentation.util.AssistContentScreen
 import eu.kanade.presentation.util.Screen
 import eu.kanade.presentation.util.isTabletUi
@@ -145,16 +144,6 @@ class MangaScreen(
                     onEditCategories = { navigator.push(CategoryScreen()) },
                     onConfirm = { include, _ ->
                         screenModel.moveMangaToCategoriesAndAddToLibrary(dialog.manga, include)
-                    },
-                )
-            }
-            is MangaInfoScreenModel.Dialog.UndoSwipeOnChapter -> {
-                UndoSwipeOnChapterDialog(
-                    title = "TEST",
-                    onDismissRequest = onDismissRequest,
-                    onUndoAction = {
-                        val chapterItem = screenModel.getProcessedChapter(dialog.chapterId)
-                        screenModel.executeChapterSwipeAction(chapterItem, dialog.action)
                     },
                 )
             }
