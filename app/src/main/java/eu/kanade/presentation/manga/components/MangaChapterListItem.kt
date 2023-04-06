@@ -294,7 +294,7 @@ private fun SwipeBackgroundIcon(
                 Download.State.NOT_DOWNLOADED -> { Icons.Default.Download }
                 Download.State.QUEUE,
                 Download.State.DOWNLOADING,
-        -> { Icons.Default.FileDownloadOff }
+                -> { Icons.Default.FileDownloadOff }
                 Download.State.DOWNLOADED -> { Icons.Default.Delete }
                 Download.State.ERROR -> { Icons.Default.ErrorOutline }
             }

@@ -694,6 +694,14 @@
     <string name="set_chapter_settings_as_default">Set as default</string>
     <string name="no_chapters_error">No chapters found</string>
     <string name="are_you_sure">Are you sure?</string>
+    <string name="snack_chapter_marked_as_read">Marked as read</string>
+    <string name="snack_chapter_marked_as_unread">Marked as unread</string>
+    <string name="snack_chapter_bookmarked">Bookmarked</string>
+    <string name="snack_chapter_bookmark_removed">Removed bookmark</string>
+    <string name="snack_chapter_downloading">Downloading</string>
+    <string name="snack_chapter_deleted">Deleted</string>
+    <string name="snack_chapter_canceled_download">Cancelled download</string>
+    <string name="snack_chapter_download_error">Download Error</string>
 
     <!-- Tracking Screen -->
     <string name="tracker_anilist" translatable="false">AniList</string>
