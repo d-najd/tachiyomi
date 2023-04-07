@@ -74,6 +74,7 @@ object SettingsLibraryScreen : SearchableSettings {
             getDisplayGroup(libraryPreferences),
             getCategoriesGroup(LocalNavigator.currentOrThrow, allCategories, libraryPreferences),
             getGlobalUpdateGroup(allCategories, libraryPreferences),
+            getChapterSwipeActionsGroup(libraryPreferences),
         )
     }
 
@@ -261,6 +262,53 @@ object SettingsLibraryScreen : SearchableSettings {
                     enabled = Injekt.get<TrackManager>().hasLoggedServices(),
                     title = stringResource(R.string.pref_library_update_refresh_trackers),
                     subtitle = stringResource(R.string.pref_library_update_refresh_trackers_summary),
+                ),
+            ),
+        )
+    }
+
+    @Composable
+    private fun getChapterSwipeActionsGroup(
+        libraryPreferences: LibraryPreferences,
+    ): Preference.PreferenceGroup {
+        val chapterSwipeRightActionPref = libraryPreferences.swipeRightAction()
+        val chapterSwipeLeftActionPref = libraryPreferences.swipeLeftAction()
+        val chapterSwipeThresholdPref = libraryPreferences.swipeThreshold()
+
+        return Preference.PreferenceGroup(
+            title = stringResource(R.string.pref_chapter_swipe),
+            preferenceItems = listOf(
+                Preference.PreferenceItem.ListPreference(
+                    pref = chapterSwipeRightActionPref,
+                    title = stringResource(R.string.pref_chapter_swipe_right),
+                    entries = mapOf(
+                        LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
+                        LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
+                        LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
+                    ),
+                ),
+                Preference.PreferenceItem.ListPreference(
+                    pref = chapterSwipeLeftActionPref,
+                    title = stringResource(R.string.pref_chapter_swipe_left),
+                    entries = mapOf(
+                        LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
+                        LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
+                        LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
+                    ),
+                ),
+                Preference.PreferenceItem.ListPreference(
+                    pref = chapterSwipeThresholdPref,
+                    title = stringResource(R.string.pref_chapter_swipe_threshold),
+                    entries = mapOf(
+                        .05f to stringResource(R.string.pref_chapter_swipe_threshold_5),
+                        .1f to stringResource(R.string.pref_chapter_swipe_threshold_10),
+                        .15f to stringResource(R.string.pref_chapter_swipe_threshold_15),
+                        .2f to stringResource(R.string.pref_chapter_swipe_threshold_20),
+                        .25f to stringResource(R.string.pref_chapter_swipe_threshold_25),
+                        .3f to stringResource(R.string.pref_chapter_swipe_threshold_30),
+                        .4f to stringResource(R.string.pref_chapter_swipe_threshold_40),
+                        .5f to stringResource(R.string.pref_chapter_swipe_threshold_50),
+                    ),
                 ),
             ),
         )

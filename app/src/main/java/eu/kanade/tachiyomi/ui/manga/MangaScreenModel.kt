@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.ui.manga
 
 import android.content.Context
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Immutable
@@ -120,6 +121,10 @@ class MangaInfoScreenModel(
 
     private val filteredChapters: Sequence<ChapterItem>?
         get() = successState?.processedChapters
+
+    val chapterSwipeRightAction = libraryPreferences.swipeRightAction().get()
+    val chapterSwipeLeftAction = libraryPreferences.swipeLeftAction().get()
+    val chapterSwipeThreshold = libraryPreferences.swipeThreshold().get()
 
     val relativeTime by uiPreferences.relativeTime().asState(coroutineScope)
     val dateFormat by mutableStateOf(UiPreferences.dateFormat(uiPreferences.dateFormat().get()))
@@ -519,6 +524,87 @@ class MangaInfoScreenModel(
 
             coroutineScope.launch {
                 snackbarHostState.showSnackbar(message = message)
+            }
+        }
+    }
+
+    fun chapterSwipe(chapterItem: ChapterItem, swipeAction: LibraryPreferences.ChapterSwipeAction) {
+        coroutineScope.launch {
+            executeChapterSwipeAction(chapterItem, swipeAction)
+            val result = snackbarHostState.showSnackbar(
+                message = chapterUndoSwipeSnackbarMessage(chapterItem, swipeAction),
+                actionLabel = context.getString(R.string.action_undo),
+                withDismissAction = false,
+                duration = SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                // updated chapter is needed because the state of the chapter item does not get updated
+                val updatedChapterItem = allChapters?.find { it.chapter.id == chapterItem.chapter.id }
+                    ?: throw NullPointerException("Chapter with id ${chapterItem.chapter.id} not found")
+
+                executeChapterSwipeAction(updatedChapterItem, swipeAction)
+            }
+        }
+    }
+
+    private fun chapterUndoSwipeSnackbarMessage(
+        chapterItem: ChapterItem,
+        swipeAction: LibraryPreferences.ChapterSwipeAction,
+    ): String =
+        when (swipeAction) {
+            LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
+                if (chapterItem.chapter.read) {
+                    context.getString(R.string.snack_chapter_marked_as_unread)
+                } else {
+                    context.getString(R.string.snack_chapter_marked_as_read)
+                }
+            }
+            LibraryPreferences.ChapterSwipeAction.Bookmark -> {
+                if (chapterItem.chapter.bookmark) {
+                    context.getString(R.string.snack_chapter_bookmark_removed)
+                } else {
+                    context.getString(R.string.snack_chapter_bookmarked)
+                }
+            }
+            LibraryPreferences.ChapterSwipeAction.Download -> {
+                when (chapterItem.downloadState) {
+                    Download.State.NOT_DOWNLOADED -> context.getString(R.string.snack_chapter_downloading)
+                    Download.State.QUEUE,
+                    Download.State.DOWNLOADING,
+                    -> context.getString(R.string.snack_chapter_canceled_download)
+                    Download.State.DOWNLOADED -> context.getString(R.string.snack_chapter_deleted)
+                    Download.State.ERROR -> context.getString(R.string.snack_chapter_download_error)
+                }
+            }
+        }
+
+    private fun executeChapterSwipeAction(
+        chapterItem: ChapterItem,
+        swipeAction: LibraryPreferences.ChapterSwipeAction,
+    ) {
+        val chapter = chapterItem.chapter
+        when (swipeAction) {
+            LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
+                markChaptersRead(listOf(chapter), !chapter.read)
+            }
+            LibraryPreferences.ChapterSwipeAction.Bookmark -> {
+                bookmarkChapters(listOf(chapter), !chapter.bookmark)
+            }
+            LibraryPreferences.ChapterSwipeAction.Download -> {
+                val downloadAction: ChapterDownloadAction? = when (chapterItem.downloadState) {
+                    Download.State.NOT_DOWNLOADED -> ChapterDownloadAction.START_NOW
+                    Download.State.QUEUE,
+                    Download.State.DOWNLOADING,
+                    -> ChapterDownloadAction.CANCEL
+                    Download.State.DOWNLOADED -> ChapterDownloadAction.DELETE
+                    Download.State.ERROR -> null
+                }
+                downloadAction?.let {
+                    runChapterDownloadActions(
+                        items = listOf(chapterItem),
+                        action = it,
+                    )
+                }
             }
         }
     }
