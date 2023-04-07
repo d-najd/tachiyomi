@@ -122,7 +122,7 @@ fun MangaScreen(
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
     // For chapter swipe
-    onChapterSwipe: (Chapter, LibraryPreferences.ChapterSwipeAction) -> Unit,
+    onChapterSwipe: (ChapterItem, LibraryPreferences.ChapterSwipeAction) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -253,7 +253,7 @@ private fun MangaScreenSmallImpl(
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
     // For chapter swipe
-    onChapterSwipe: (Chapter, LibraryPreferences.ChapterSwipeAction) -> Unit,
+    onChapterSwipe: (ChapterItem, LibraryPreferences.ChapterSwipeAction) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -481,7 +481,7 @@ fun MangaScreenLargeImpl(
     onMultiDeleteClicked: (List<Chapter>) -> Unit,
 
     // For swipe actions
-    onChapterSwipe: (Chapter, LibraryPreferences.ChapterSwipeAction) -> Unit,
+    onChapterSwipe: (ChapterItem, LibraryPreferences.ChapterSwipeAction) -> Unit,
 
     // Chapter selection
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
@@ -716,7 +716,7 @@ private fun LazyListScope.sharedChapterItems(
     onChapterClicked: (Chapter) -> Unit,
     onDownloadChapter: ((List<ChapterItem>, ChapterDownloadAction) -> Unit)?,
     onChapterSelected: (ChapterItem, Boolean, Boolean, Boolean) -> Unit,
-    onChapterSwipe: (Chapter, LibraryPreferences.ChapterSwipeAction) -> Unit,
+    onChapterSwipe: (ChapterItem, LibraryPreferences.ChapterSwipeAction) -> Unit,
 ) {
     items(
         items = chapters,
@@ -780,7 +780,7 @@ private fun LazyListScope.sharedChapterItems(
                 null
             },
             onChapterSwipe = {
-                onChapterSwipe(chapterItem.chapter, it)
+                onChapterSwipe(chapterItem, it)
             },
         )
     }

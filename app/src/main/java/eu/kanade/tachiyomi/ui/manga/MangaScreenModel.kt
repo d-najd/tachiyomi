@@ -381,17 +381,6 @@ class MangaInfoScreenModel(
     }
 
     /**
-     * Returns the processed chapter with the given id.
-     *
-     * @param chapterId The id of the chapter to be fetched.
-     * @return The updated chapter object.
-     * @throws NullPointerException if the chapter with the given id is not found.
-     */
-    private fun getProcessedChapter(chapterId: Long): ChapterItem =
-        filteredChapters?.find { it.chapter.id == chapterId }
-            ?: throw NullPointerException("Chapter with id $chapterId not found")
-
-    /**
      * Gets the category id's the manga is in, if the manga is not in a category, returns the default id.
      *
      * @param manga the manga to get categories from.
@@ -539,9 +528,8 @@ class MangaInfoScreenModel(
         }
     }
 
-    fun chapterSwipe(chapter: Chapter, swipeAction: LibraryPreferences.ChapterSwipeAction) {
+    fun chapterSwipe(chapterItem: ChapterItem, swipeAction: LibraryPreferences.ChapterSwipeAction) {
         coroutineScope.launch {
-            var chapterItem = getProcessedChapter(chapter.id)
             executeChapterSwipeAction(chapterItem, swipeAction)
             val result = snackbarHostState.showSnackbar(
                 message = chapterUndoSwipeSnackbarMessage(chapterItem, swipeAction),
@@ -550,8 +538,11 @@ class MangaInfoScreenModel(
                 duration = SnackbarDuration.Short,
             )
             if (result == SnackbarResult.ActionPerformed) {
-                chapterItem = getProcessedChapter(chapterItem.chapter.id)
-                executeChapterSwipeAction(chapterItem, swipeAction)
+                // updated chapter is needed because the state of the chapter item does not get updated
+                val updatedChapterItem = allChapters?.find { it.chapter.id == chapterItem.chapter.id }
+                    ?: throw NullPointerException("Chapter with id ${chapterItem.chapter.id} not found")
+
+                executeChapterSwipeAction(updatedChapterItem, swipeAction)
             }
         }
     }
