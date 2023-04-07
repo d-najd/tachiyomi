@@ -240,7 +240,7 @@ class MangaInfoScreenModel(
                 coroutineScope.launch {
                     if (!hasDownloads()) return@launch
                     val result = snackbarHostState.showSnackbar(
-                        message = "Hello World",
+                        message = context.getString(R.string.delete_downloads_for_manga),
                         actionLabel = context.getString(R.string.action_delete),
                         withDismissAction = true,
                     )
