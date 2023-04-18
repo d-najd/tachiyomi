@@ -86,6 +86,7 @@ fun MangaChapterListItem(
     val dismissState = rememberDismissState()
     var lastDismissDirection: DismissDirection? by remember { mutableStateOf(null) }
     val animateDismissContentAlpha by animateFloatAsState(
+        label = "AnimateSwipeContentAlpha",
         targetValue = if (lastDismissDirection != null) 1f else 0f,
         animationSpec = tween(durationMillis = if (lastDismissDirection != null) 500 else 0),
         finishedListener = {
