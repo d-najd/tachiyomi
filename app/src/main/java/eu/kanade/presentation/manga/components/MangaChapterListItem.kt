@@ -72,8 +72,8 @@ fun MangaChapterListItem(
     downloadIndicatorEnabled: Boolean,
     downloadStateProvider: () -> Download.State,
     downloadProgressProvider: () -> Int,
-    chapterSwipeRightAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeLeftAction: LibraryPreferences.ChapterSwipeAction,
+    chapterSwipeEndAction: LibraryPreferences.ChapterSwipeAction,
+    chapterSwipeStartAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeThreshold: Float,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
@@ -95,12 +95,12 @@ fun MangaChapterListItem(
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
-                onChapterSwipe(chapterSwipeRightAction)
+                onChapterSwipe(chapterSwipeEndAction)
                 dismissState.snapTo(DismissValue.Default)
                 lastDismissDirection = DismissDirection.StartToEnd
             }
             DismissValue.DismissedToStart -> {
-                onChapterSwipe(chapterSwipeLeftAction)
+                onChapterSwipe(chapterSwipeStartAction)
                 dismissState.snapTo(DismissValue.Default)
                 lastDismissDirection = DismissDirection.EndToStart
             }
@@ -131,7 +131,7 @@ fun MangaChapterListItem(
                             if (dismissState.dismissDirection == DismissDirection.StartToEnd) 1f else 0f,
                         ),
                     tint = contentColorFor(backgroundColor),
-                    swipeAction = chapterSwipeRightAction,
+                    swipeAction = chapterSwipeEndAction,
                     read = read,
                     bookmark = bookmark,
                     downloadState = downloadState,
@@ -144,7 +144,7 @@ fun MangaChapterListItem(
                             if (dismissState.dismissDirection == DismissDirection.EndToStart) 1f else 0f,
                         ),
                     tint = contentColorFor(backgroundColor),
-                    swipeAction = chapterSwipeLeftAction,
+                    swipeAction = chapterSwipeStartAction,
                     read = read,
                     bookmark = bookmark,
                     downloadState = downloadState,

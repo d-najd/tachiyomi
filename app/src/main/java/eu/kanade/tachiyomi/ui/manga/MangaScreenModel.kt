@@ -122,8 +122,8 @@ class MangaInfoScreenModel(
     private val filteredChapters: Sequence<ChapterItem>?
         get() = successState?.processedChapters
 
-    val chapterSwipeRightAction = libraryPreferences.swipeRightAction().get()
-    val chapterSwipeLeftAction = libraryPreferences.swipeLeftAction().get()
+    val chapterSwipeEndAction = libraryPreferences.swipeEndAction().get()
+    val chapterSwipeStartAction = libraryPreferences.swipeStartAction().get()
     val chapterSwipeThreshold = libraryPreferences.swipeThreshold().get()
 
     val relativeTime by uiPreferences.relativeTime().asState(coroutineScope)

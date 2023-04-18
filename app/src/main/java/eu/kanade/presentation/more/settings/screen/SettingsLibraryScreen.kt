@@ -271,15 +271,15 @@ object SettingsLibraryScreen : SearchableSettings {
     private fun getChapterSwipeActionsGroup(
         libraryPreferences: LibraryPreferences,
     ): Preference.PreferenceGroup {
-        val chapterSwipeRightActionPref = libraryPreferences.swipeRightAction()
-        val chapterSwipeLeftActionPref = libraryPreferences.swipeLeftAction()
+        val chapterSwipeEndActionPref = libraryPreferences.swipeEndAction()
+        val chapterSwipeStartActionPref = libraryPreferences.swipeStartAction()
         val chapterSwipeThresholdPref = libraryPreferences.swipeThreshold()
 
         return Preference.PreferenceGroup(
             title = stringResource(R.string.pref_chapter_swipe),
             preferenceItems = listOf(
                 Preference.PreferenceItem.ListPreference(
-                    pref = chapterSwipeRightActionPref,
+                    pref = chapterSwipeEndActionPref,
                     title = stringResource(R.string.pref_chapter_swipe_right),
                     entries = mapOf(
                         LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
@@ -288,7 +288,7 @@ object SettingsLibraryScreen : SearchableSettings {
                     ),
                 ),
                 Preference.PreferenceItem.ListPreference(
-                    pref = chapterSwipeLeftActionPref,
+                    pref = chapterSwipeStartActionPref,
                     title = stringResource(R.string.pref_chapter_swipe_left),
                     entries = mapOf(
                         LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
