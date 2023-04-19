@@ -1,5 +1,6 @@
 package eu.kanade.presentation.manga.components
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -71,6 +72,8 @@ fun MangaChapterListItem(
     downloadIndicatorEnabled: Boolean,
     downloadStateProvider: () -> Download.State,
     downloadProgressProvider: () -> Int,
+    chapterSwipeEndEnabled: Boolean,
+    chapterSwipeStartEnabled: Boolean,
     chapterSwipeEndAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeStartAction: LibraryPreferences.ChapterSwipeAction,
     onLongClick: () -> Unit,
@@ -80,6 +83,14 @@ fun MangaChapterListItem(
 ) {
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
+
+    val dismissDirections = mutableSetOf<DismissDirection>()
+    if (chapterSwipeStartEnabled) {
+        dismissDirections.add(DismissDirection.EndToStart)
+    }
+    if (chapterSwipeEndEnabled) {
+        dismissDirections.add(DismissDirection.StartToEnd)
+    }
 
     val dismissState = rememberDismissState()
     var lastDismissDirection: DismissDirection? by remember { mutableStateOf(null) }
@@ -108,48 +119,56 @@ fun MangaChapterListItem(
     }
     SwipeToDismiss(
         state = dismissState,
+        directions = dismissDirections,
         background = {
             var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
             backgroundColor = when (dismissState.dismissDirection) {
-                DismissDirection.StartToEnd -> MaterialTheme.colorScheme.surfaceVariant
-                DismissDirection.EndToStart -> MaterialTheme.colorScheme.primary
+                DismissDirection.StartToEnd -> {
+                    MaterialTheme.colorScheme.surfaceVariant
+                }
+                DismissDirection.EndToStart -> {
+                    MaterialTheme.colorScheme.primary
+                }
                 null -> backgroundColor
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(backgroundColor),
-            ) {
-                val downloadState = downloadStateProvider()
-                SwipeBackgroundIcon(
+            if (dismissState.overflow.value == 0f) {
+                Box(
                     modifier = Modifier
-                        .padding(start = 16.dp)
-                        .align(Alignment.CenterStart)
-                        .alpha(
-                            if (dismissState.dismissDirection == DismissDirection.StartToEnd) 1f else 0f,
-                        ),
-                    tint = contentColorFor(backgroundColor),
-                    swipeAction = chapterSwipeEndAction,
-                    read = read,
-                    bookmark = bookmark,
-                    downloadState = downloadState,
-                )
-                SwipeBackgroundIcon(
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .align(Alignment.CenterEnd)
-                        .alpha(
-                            if (dismissState.dismissDirection == DismissDirection.EndToStart) 1f else 0f,
-                        ),
-                    tint = contentColorFor(backgroundColor),
-                    swipeAction = chapterSwipeStartAction,
-                    read = read,
-                    bookmark = bookmark,
-                    downloadState = downloadState,
-                )
+                        .fillMaxSize()
+                        .background(backgroundColor),
+                ) {
+                    val downloadState = downloadStateProvider()
+                    SwipeBackgroundIcon(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .align(Alignment.CenterStart)
+                            .alpha(
+                                if (dismissState.dismissDirection == DismissDirection.StartToEnd) 1f else 0f,
+                            ),
+                        tint = contentColorFor(backgroundColor),
+                        swipeAction = chapterSwipeEndAction,
+                        read = read,
+                        bookmark = bookmark,
+                        downloadState = downloadState,
+                    )
+                    SwipeBackgroundIcon(
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .align(Alignment.CenterEnd)
+                            .alpha(
+                                if (dismissState.dismissDirection == DismissDirection.EndToStart) 1f else 0f,
+                            ),
+                        tint = contentColorFor(backgroundColor),
+                        swipeAction = chapterSwipeStartAction,
+                        read = read,
+                        bookmark = bookmark,
+                        downloadState = downloadState,
+                    )
+                }
             }
         },
         dismissContent = {
+            Log.wtf("TETET", "offset ${dismissState.offset.value}, progress ${dismissState.progress.fraction}, ${dismissState.overflow.value}")
             val animateCornerRato = if (dismissState.offset.value != 0f) min(dismissState.progress.fraction / .075f, 1f) else 0f
             val animateCornerShape = (8f * animateCornerRato).dp
             val dismissContentAlpha = if (lastDismissDirection != null) animateDismissContentAlpha else 1f

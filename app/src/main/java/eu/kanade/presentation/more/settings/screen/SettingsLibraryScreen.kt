@@ -271,15 +271,25 @@ object SettingsLibraryScreen : SearchableSettings {
     private fun getChapterSwipeActionsGroup(
         libraryPreferences: LibraryPreferences,
     ): Preference.PreferenceGroup {
+        val chapterSwipeEndEnabledPref = libraryPreferences.swipeEndEnabled()
+        val chapterSwipeStartEnabledPref = libraryPreferences.swipeStartEnabled()
         val chapterSwipeEndActionPref = libraryPreferences.swipeEndAction()
         val chapterSwipeStartActionPref = libraryPreferences.swipeStartAction()
 
         return Preference.PreferenceGroup(
             title = stringResource(R.string.pref_chapter_swipe),
             preferenceItems = listOf(
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = chapterSwipeEndEnabledPref,
+                    title = stringResource(R.string.pref_chapter_swipe_end_enabled),
+                ),
+                Preference.PreferenceItem.SwitchPreference(
+                    pref = chapterSwipeStartEnabledPref,
+                    title = stringResource(R.string.pref_chapter_swipe_start_enabled),
+                ),
                 Preference.PreferenceItem.ListPreference(
                     pref = chapterSwipeEndActionPref,
-                    title = stringResource(R.string.pref_chapter_swipe_right),
+                    title = stringResource(R.string.pref_chapter_swipe_end),
                     entries = mapOf(
                         LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
                         LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
@@ -288,7 +298,7 @@ object SettingsLibraryScreen : SearchableSettings {
                 ),
                 Preference.PreferenceItem.ListPreference(
                     pref = chapterSwipeStartActionPref,
-                    title = stringResource(R.string.pref_chapter_swipe_left),
+                    title = stringResource(R.string.pref_chapter_swipe_start),
                     entries = mapOf(
                         LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
                         LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),

@@ -122,6 +122,8 @@ class MangaInfoScreenModel(
     private val filteredChapters: Sequence<ChapterItem>?
         get() = successState?.processedChapters
 
+    val chapterSwipeEndEnabled = libraryPreferences.swipeEndEnabled().get()
+    val chapterSwipeStartEnabled = libraryPreferences.swipeStartEnabled().get()
     val chapterSwipeEndAction = libraryPreferences.swipeEndAction().get()
     val chapterSwipeStartAction = libraryPreferences.swipeStartAction().get()
 
