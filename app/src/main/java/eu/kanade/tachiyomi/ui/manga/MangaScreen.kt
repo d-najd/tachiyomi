@@ -103,7 +103,6 @@ class MangaScreen(
             isTabletUi = isTabletUi(),
             chapterSwipeEndAction = screenModel.chapterSwipeEndAction,
             chapterSwipeStartAction = screenModel.chapterSwipeStartAction,
-            chapterSwipeThreshold = screenModel.chapterSwipeThreshold,
             onBackClicked = navigator::pop,
             onChapterClicked = { openChapter(context, it) },
             onDownloadChapter = screenModel::runChapterDownloadActions.takeIf { !successState.source.isLocalOrStub() },

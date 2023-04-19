@@ -124,8 +124,6 @@ class LibraryPreferences(
 
     fun swipeStartAction() = preferenceStore.getEnum("pref_chapter_swipe_start_action", ChapterSwipeAction.MarkAsRead)
 
-    fun swipeThreshold() = preferenceStore.getFloat("pref_chapter_swipe_threshold", .2f)
-
     // endregion
 
     enum class ChapterSwipeAction {

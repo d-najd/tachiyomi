@@ -273,7 +273,6 @@ object SettingsLibraryScreen : SearchableSettings {
     ): Preference.PreferenceGroup {
         val chapterSwipeEndActionPref = libraryPreferences.swipeEndAction()
         val chapterSwipeStartActionPref = libraryPreferences.swipeStartAction()
-        val chapterSwipeThresholdPref = libraryPreferences.swipeThreshold()
 
         return Preference.PreferenceGroup(
             title = stringResource(R.string.pref_chapter_swipe),
@@ -294,20 +293,6 @@ object SettingsLibraryScreen : SearchableSettings {
                         LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
                         LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
                         LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
-                    ),
-                ),
-                Preference.PreferenceItem.ListPreference(
-                    pref = chapterSwipeThresholdPref,
-                    title = stringResource(R.string.pref_chapter_swipe_threshold),
-                    entries = mapOf(
-                        .05f to stringResource(R.string.pref_chapter_swipe_threshold_5),
-                        .1f to stringResource(R.string.pref_chapter_swipe_threshold_10),
-                        .15f to stringResource(R.string.pref_chapter_swipe_threshold_15),
-                        .2f to stringResource(R.string.pref_chapter_swipe_threshold_20),
-                        .25f to stringResource(R.string.pref_chapter_swipe_threshold_25),
-                        .3f to stringResource(R.string.pref_chapter_swipe_threshold_30),
-                        .4f to stringResource(R.string.pref_chapter_swipe_threshold_40),
-                        .5f to stringResource(R.string.pref_chapter_swipe_threshold_50),
                     ),
                 ),
             ),

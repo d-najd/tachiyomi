@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
-import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
@@ -74,7 +73,6 @@ fun MangaChapterListItem(
     downloadProgressProvider: () -> Int,
     chapterSwipeEndAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeStartAction: LibraryPreferences.ChapterSwipeAction,
-    chapterSwipeThreshold: Float,
     onLongClick: () -> Unit,
     onClick: () -> Unit,
     onDownloadClick: ((ChapterDownloadAction) -> Unit)?,
@@ -110,7 +108,6 @@ fun MangaChapterListItem(
     }
     SwipeToDismiss(
         state = dismissState,
-        dismissThresholds = { FractionalThreshold(chapterSwipeThreshold) },
         background = {
             var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
             backgroundColor = when (dismissState.dismissDirection) {

@@ -124,7 +124,6 @@ class MangaInfoScreenModel(
 
     val chapterSwipeEndAction = libraryPreferences.swipeEndAction().get()
     val chapterSwipeStartAction = libraryPreferences.swipeStartAction().get()
-    val chapterSwipeThreshold = libraryPreferences.swipeThreshold().get()
 
     val relativeTime by uiPreferences.relativeTime().asState(coroutineScope)
     val dateFormat by mutableStateOf(UiPreferences.dateFormat(uiPreferences.dateFormat().get()))
