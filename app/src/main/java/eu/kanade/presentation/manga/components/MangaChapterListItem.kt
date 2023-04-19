@@ -1,6 +1,5 @@
 package eu.kanade.presentation.manga.components
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -168,9 +167,8 @@ fun MangaChapterListItem(
             }
         },
         dismissContent = {
-            Log.wtf("TETET", "offset ${dismissState.offset.value}, progress ${dismissState.progress.fraction}, ${dismissState.overflow.value}")
-            val animateCornerRato = if (dismissState.offset.value != 0f) min(dismissState.progress.fraction / .075f, 1f) else 0f
-            val animateCornerShape = (8f * animateCornerRato).dp
+            val animateCornerRatio = if (dismissState.offset.value != 0f) min(dismissState.progress.fraction / .075f, 1f) else 0f
+            val animateCornerShape = (8f * animateCornerRatio).dp
             val dismissContentAlpha = if (lastDismissDirection != null) animateDismissContentAlpha else 1f
             Card(
                 modifier = modifier,
