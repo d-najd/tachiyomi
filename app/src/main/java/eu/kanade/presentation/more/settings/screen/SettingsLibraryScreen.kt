@@ -291,8 +291,8 @@ object SettingsLibraryScreen : SearchableSettings {
                     pref = chapterSwipeEndActionPref,
                     title = stringResource(R.string.pref_chapter_swipe_end),
                     entries = mapOf(
-                        LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
-                        LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
+                        LibraryPreferences.ChapterSwipeAction.ToggleBookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
+                        LibraryPreferences.ChapterSwipeAction.ToggleRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
                         LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
                     ),
                 ),
@@ -300,8 +300,8 @@ object SettingsLibraryScreen : SearchableSettings {
                     pref = chapterSwipeStartActionPref,
                     title = stringResource(R.string.pref_chapter_swipe_start),
                     entries = mapOf(
-                        LibraryPreferences.ChapterSwipeAction.Bookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
-                        LibraryPreferences.ChapterSwipeAction.MarkAsRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
+                        LibraryPreferences.ChapterSwipeAction.ToggleBookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
+                        LibraryPreferences.ChapterSwipeAction.ToggleRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
                         LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
                     ),
                 ),

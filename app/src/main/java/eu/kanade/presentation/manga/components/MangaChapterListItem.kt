@@ -290,14 +290,14 @@ private fun SwipeBackgroundIcon(
     downloadState: Download.State,
 ) {
     val imageVector = when (swipeAction) {
-        LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
+        LibraryPreferences.ChapterSwipeAction.ToggleRead -> {
             if (!read) {
                 Icons.Default.Visibility
             } else {
                 Icons.Default.VisibilityOff
             }
         }
-        LibraryPreferences.ChapterSwipeAction.Bookmark -> {
+        LibraryPreferences.ChapterSwipeAction.ToggleBookmark -> {
             if (!bookmark) {
                 Icons.Default.Bookmark
             } else {

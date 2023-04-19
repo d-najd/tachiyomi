@@ -540,10 +540,10 @@ class MangaInfoScreenModel(
     ) {
         val chapter = chapterItem.chapter
         when (swipeAction) {
-            LibraryPreferences.ChapterSwipeAction.MarkAsRead -> {
+            LibraryPreferences.ChapterSwipeAction.ToggleRead -> {
                 markChaptersRead(listOf(chapter), !chapter.read)
             }
-            LibraryPreferences.ChapterSwipeAction.Bookmark -> {
+            LibraryPreferences.ChapterSwipeAction.ToggleBookmark -> {
                 bookmarkChapters(listOf(chapter), !chapter.bookmark)
             }
             LibraryPreferences.ChapterSwipeAction.Download -> {

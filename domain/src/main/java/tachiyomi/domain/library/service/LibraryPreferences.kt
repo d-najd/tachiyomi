@@ -124,15 +124,15 @@ class LibraryPreferences(
 
     fun swipeStartEnabled() = preferenceStore.getBoolean("pref_chapter_swipe_start_enabled", true)
 
-    fun swipeEndAction() = preferenceStore.getEnum("pref_chapter_swipe_end_action", ChapterSwipeAction.Bookmark)
+    fun swipeEndAction() = preferenceStore.getEnum("pref_chapter_swipe_end_action", ChapterSwipeAction.ToggleBookmark)
 
-    fun swipeStartAction() = preferenceStore.getEnum("pref_chapter_swipe_start_action", ChapterSwipeAction.MarkAsRead)
+    fun swipeStartAction() = preferenceStore.getEnum("pref_chapter_swipe_start_action", ChapterSwipeAction.ToggleRead)
 
     // endregion
 
     enum class ChapterSwipeAction {
-        MarkAsRead,
-        Bookmark,
+        ToggleRead,
+        ToggleBookmark,
         Download,
     }
 
