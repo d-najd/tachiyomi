@@ -1,6 +1,5 @@
 package eu.kanade.presentation.manga.components
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -84,15 +83,16 @@ fun MangaChapterListItem(
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
 
     val dismissDirections = mutableSetOf<DismissDirection>()
-    if (chapterSwipeStartEnabled) {
-        dismissDirections.add(DismissDirection.EndToStart)
-    }
-    if (chapterSwipeEndEnabled) {
-        dismissDirections.add(DismissDirection.StartToEnd)
-    }
-
-    val dismissState = rememberDismissState()
     var lastDismissDirection: DismissDirection? by remember { mutableStateOf(null) }
+    if (lastDismissDirection == null) {
+        if (chapterSwipeStartEnabled) {
+            dismissDirections.add(DismissDirection.EndToStart)
+        }
+        if (chapterSwipeEndEnabled) {
+            dismissDirections.add(DismissDirection.StartToEnd)
+        }
+    }
+    val dismissState = rememberDismissState()
     val animateDismissContentAlpha by animateFloatAsState(
         label = "animateDismissContentAlpha",
         targetValue = if (lastDismissDirection != null) 1f else 0f,
@@ -104,14 +104,14 @@ fun MangaChapterListItem(
     LaunchedEffect(dismissState.currentValue) {
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
+                lastDismissDirection = DismissDirection.StartToEnd
                 onChapterSwipe(chapterSwipeEndAction)
                 dismissState.snapTo(DismissValue.Default)
-                lastDismissDirection = DismissDirection.StartToEnd
             }
             DismissValue.DismissedToStart -> {
+                lastDismissDirection = DismissDirection.EndToStart
                 onChapterSwipe(chapterSwipeStartAction)
                 dismissState.snapTo(DismissValue.Default)
-                lastDismissDirection = DismissDirection.EndToStart
             }
             DismissValue.Default -> {}
         }
@@ -120,13 +120,19 @@ fun MangaChapterListItem(
         state = dismissState,
         directions = dismissDirections,
         background = {
-            val backgroundColor = MaterialTheme.colorScheme.primary
-            if (dismissState.dismissDirection in dismissDirections) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(backgroundColor),
-                ) {
+            val backgroundColor = if (chapterSwipeEndEnabled && (dismissState.dismissDirection == DismissDirection.StartToEnd || lastDismissDirection == DismissDirection.StartToEnd)) {
+                MaterialTheme.colorScheme.primary
+            } else if (chapterSwipeStartEnabled && (dismissState.dismissDirection == DismissDirection.EndToStart || lastDismissDirection == DismissDirection.EndToStart)) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                Color.Unspecified
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backgroundColor),
+            ) {
+                if (dismissState.dismissDirection in dismissDirections) {
                     val downloadState = downloadStateProvider()
                     SwipeBackgroundIcon(
                         modifier = Modifier
