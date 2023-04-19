@@ -113,7 +113,7 @@ fun MangaChapterListItem(
                 onChapterSwipe(chapterSwipeStartAction)
                 dismissState.snapTo(DismissValue.Default)
             }
-            DismissValue.Default -> {}
+            DismissValue.Default -> { }
         }
     }
     SwipeToDismiss(
