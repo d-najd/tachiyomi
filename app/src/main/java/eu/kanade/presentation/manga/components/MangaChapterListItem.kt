@@ -1,5 +1,6 @@
 package eu.kanade.presentation.manga.components
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -107,25 +108,35 @@ fun MangaChapterListItem(
                 dismissState.snapTo(DismissValue.Default)
                 lastDismissDirection = DismissDirection.StartToEnd
             }
+
             DismissValue.DismissedToStart -> {
                 onChapterSwipe(chapterSwipeStartAction)
                 dismissState.snapTo(DismissValue.Default)
                 lastDismissDirection = DismissDirection.EndToStart
             }
-            DismissValue.Default -> { }
+
+            DismissValue.Default -> {}
         }
     }
+    Log.wtf(
+        "TETET",
+        "overflow ${dismissState.overflow.value} progress ${dismissState.progress.fraction} offset ${dismissState.offset.value}"
+    )
     SwipeToDismiss(
         state = dismissState,
         directions = dismissDirections,
         background = {
-            val backgroundColor = MaterialTheme.colorScheme.primary
-            if (dismissState.overflow.value == 0f) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(backgroundColor),
-                ) {
+            val backgroundColor = if (dismissState.dismissDirection in dismissDirections) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                Color.Unspecified
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backgroundColor),
+            ) {
+                if (dismissState.dismissDirection in dismissDirections) {
                     val downloadState = downloadStateProvider()
                     SwipeBackgroundIcon(
                         modifier = Modifier
@@ -157,9 +168,13 @@ fun MangaChapterListItem(
             }
         },
         dismissContent = {
-            val animateCornerRatio = if (dismissState.offset.value != 0f) min(dismissState.progress.fraction / .075f, 1f) else 0f
+            val animateCornerRatio = if (dismissState.offset.value != 0f) min(
+                dismissState.progress.fraction / .075f,
+                1f
+            ) else 0f
             val animateCornerShape = (8f * animateCornerRatio).dp
-            val dismissContentAlpha = if (lastDismissDirection != null) animateDismissContentAlpha else 1f
+            val dismissContentAlpha =
+                if (lastDismissDirection != null) animateDismissContentAlpha else 1f
             Card(
                 modifier = modifier,
                 colors = CardDefaults.elevatedCardColors(
