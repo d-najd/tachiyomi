@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.BookmarkRemove
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.FileDownloadOff
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -120,16 +119,7 @@ fun MangaChapterListItem(
         state = dismissState,
         directions = dismissDirections,
         background = {
-            var backgroundColor by remember { mutableStateOf(Color.Unspecified) }
-            backgroundColor = when (dismissState.dismissDirection) {
-                DismissDirection.StartToEnd -> {
-                    MaterialTheme.colorScheme.surfaceVariant
-                }
-                DismissDirection.EndToStart -> {
-                    MaterialTheme.colorScheme.primary
-                }
-                null -> backgroundColor
-            }
+            val backgroundColor = MaterialTheme.colorScheme.primary
             if (dismissState.overflow.value == 0f) {
                 Box(
                     modifier = Modifier
@@ -304,12 +294,13 @@ private fun SwipeBackgroundIcon(
         }
         LibraryPreferences.ChapterSwipeAction.Download -> {
             when (downloadState) {
-                Download.State.NOT_DOWNLOADED -> { Icons.Default.Download }
+                Download.State.NOT_DOWNLOADED,
+                Download.State.ERROR,
+                -> { Icons.Default.Download }
                 Download.State.QUEUE,
                 Download.State.DOWNLOADING,
                 -> { Icons.Default.FileDownloadOff }
                 Download.State.DOWNLOADED -> { Icons.Default.Delete }
-                Download.State.ERROR -> { Icons.Default.ErrorOutline }
             }
         }
     }

@@ -547,20 +547,19 @@ class MangaInfoScreenModel(
                 bookmarkChapters(listOf(chapter), !chapter.bookmark)
             }
             LibraryPreferences.ChapterSwipeAction.Download -> {
-                val downloadAction: ChapterDownloadAction? = when (chapterItem.downloadState) {
-                    Download.State.NOT_DOWNLOADED -> ChapterDownloadAction.START_NOW
+                val downloadAction: ChapterDownloadAction = when (chapterItem.downloadState) {
+                    Download.State.ERROR,
+                    Download.State.NOT_DOWNLOADED,
+            -> ChapterDownloadAction.START_NOW
                     Download.State.QUEUE,
                     Download.State.DOWNLOADING,
                     -> ChapterDownloadAction.CANCEL
                     Download.State.DOWNLOADED -> ChapterDownloadAction.DELETE
-                    Download.State.ERROR -> null
                 }
-                downloadAction?.let {
-                    runChapterDownloadActions(
-                        items = listOf(chapterItem),
-                        action = it,
-                    )
-                }
+                runChapterDownloadActions(
+                    items = listOf(chapterItem),
+                    action = downloadAction,
+                )
             }
         }
     }
