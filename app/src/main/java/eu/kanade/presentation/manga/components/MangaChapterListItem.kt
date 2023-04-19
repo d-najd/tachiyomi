@@ -94,7 +94,7 @@ fun MangaChapterListItem(
     val dismissState = rememberDismissState()
     var lastDismissDirection: DismissDirection? by remember { mutableStateOf(null) }
     val animateDismissContentAlpha by animateFloatAsState(
-        label = "AnimateSwipeContentAlpha",
+        label = "animateDismissContentAlpha",
         targetValue = if (lastDismissDirection != null) 1f else 0f,
         animationSpec = tween(durationMillis = if (lastDismissDirection != null) 500 else 0),
         finishedListener = {
@@ -108,35 +108,25 @@ fun MangaChapterListItem(
                 dismissState.snapTo(DismissValue.Default)
                 lastDismissDirection = DismissDirection.StartToEnd
             }
-
             DismissValue.DismissedToStart -> {
                 onChapterSwipe(chapterSwipeStartAction)
                 dismissState.snapTo(DismissValue.Default)
                 lastDismissDirection = DismissDirection.EndToStart
             }
-
             DismissValue.Default -> {}
         }
     }
-    Log.wtf(
-        "TETET",
-        "overflow ${dismissState.overflow.value} progress ${dismissState.progress.fraction} offset ${dismissState.offset.value}"
-    )
     SwipeToDismiss(
         state = dismissState,
         directions = dismissDirections,
         background = {
-            val backgroundColor = if (dismissState.dismissDirection in dismissDirections) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                Color.Unspecified
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(backgroundColor),
-            ) {
-                if (dismissState.dismissDirection in dismissDirections) {
+            val backgroundColor = MaterialTheme.colorScheme.primary
+            if (dismissState.dismissDirection in dismissDirections) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(backgroundColor),
+                ) {
                     val downloadState = downloadStateProvider()
                     SwipeBackgroundIcon(
                         modifier = Modifier
