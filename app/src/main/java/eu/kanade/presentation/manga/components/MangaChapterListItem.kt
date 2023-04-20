@@ -170,10 +170,14 @@ fun MangaChapterListItem(
             }
         },
         dismissContent = {
-            val animateCornerRatio = if (dismissState.offset.value != 0f) min(
-                dismissState.progress.fraction / .075f,
-                1f
-            ) else 0f
+	        val animateCornerRatio = if (dismissState.offset.value != 0f) {
+		        min(
+			        dismissState.progress.fraction / .075f,
+			        1f,
+		        )
+	        } else {
+		        0f
+	        }
             val animateCornerShape = (8f * animateCornerRatio).dp
             val dismissContentAlpha =
                 if (lastDismissDirection != null) animateDismissContentAlpha else 1f
