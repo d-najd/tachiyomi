@@ -82,7 +82,8 @@ fun MangaChapterListItem(
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
 
-    val dismissDirections = mutableSetOf<DismissDirection>()
+    val dismissState = rememberDismissState()
+    val dismissDirections = remember { mutableSetOf<DismissDirection>() }
     var lastDismissDirection: DismissDirection? by remember { mutableStateOf(null) }
     if (lastDismissDirection == null) {
         if (chapterSwipeStartEnabled) {
@@ -92,7 +93,6 @@ fun MangaChapterListItem(
             dismissDirections.add(DismissDirection.StartToEnd)
         }
     }
-    val dismissState = rememberDismissState()
     val animateDismissContentAlpha by animateFloatAsState(
         label = "animateDismissContentAlpha",
         targetValue = if (lastDismissDirection != null) 1f else 0f,
@@ -105,13 +105,19 @@ fun MangaChapterListItem(
         when (dismissState.currentValue) {
             DismissValue.DismissedToEnd -> {
                 lastDismissDirection = DismissDirection.StartToEnd
+                val dismissDirectionsCopy = dismissDirections.toSet()
+                dismissDirections.clear()
                 onChapterSwipe(chapterSwipeEndAction)
                 dismissState.snapTo(DismissValue.Default)
+                dismissDirections.addAll(dismissDirectionsCopy)
             }
             DismissValue.DismissedToStart -> {
                 lastDismissDirection = DismissDirection.EndToStart
+                val dismissDirectionsCopy = dismissDirections.toSet()
+                dismissDirections.clear()
                 onChapterSwipe(chapterSwipeStartAction)
                 dismissState.snapTo(DismissValue.Default)
+                dismissDirections.addAll(dismissDirectionsCopy)
             }
             DismissValue.Default -> { }
         }
