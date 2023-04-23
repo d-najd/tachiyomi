@@ -70,8 +70,6 @@ fun MangaChapterListItem(
     downloadIndicatorEnabled: Boolean,
     downloadStateProvider: () -> Download.State,
     downloadProgressProvider: () -> Int,
-    chapterSwipeEndEnabled: Boolean,
-    chapterSwipeStartEnabled: Boolean,
     chapterSwipeEndAction: LibraryPreferences.ChapterSwipeAction,
     chapterSwipeStartAction: LibraryPreferences.ChapterSwipeAction,
     onLongClick: () -> Unit,
@@ -81,6 +79,9 @@ fun MangaChapterListItem(
 ) {
     val textAlpha = if (read) ReadItemAlpha else 1f
     val textSubtitleAlpha = if (read) ReadItemAlpha else SecondaryItemAlpha
+
+    val chapterSwipeStartEnabled = chapterSwipeStartAction != LibraryPreferences.ChapterSwipeAction.Disabled
+    val chapterSwipeEndEnabled = chapterSwipeEndAction != LibraryPreferences.ChapterSwipeAction.Disabled
 
     val dismissState = rememberDismissState()
     val dismissDirections = remember { mutableSetOf<DismissDirection>() }
@@ -324,11 +325,16 @@ private fun SwipeBackgroundIcon(
                 Download.State.DOWNLOADED -> { Icons.Default.Delete }
             }
         }
+        LibraryPreferences.ChapterSwipeAction.Disabled -> {
+            null
+        }
     }
-    Icon(
-        modifier = modifier,
-        imageVector = imageVector,
-        tint = tint,
-        contentDescription = null,
-    )
+    imageVector?.let {
+        Icon(
+            modifier = modifier,
+            imageVector = imageVector,
+            tint = tint,
+            contentDescription = null,
+        )
+    }
 }

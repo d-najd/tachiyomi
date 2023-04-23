@@ -222,22 +222,12 @@ object SettingsLibraryScreen : SearchableSettings {
     private fun getChapterSwipeActionsGroup(
         libraryPreferences: LibraryPreferences,
     ): Preference.PreferenceGroup {
-        val chapterSwipeEndEnabledPref = libraryPreferences.swipeEndEnabled()
-        val chapterSwipeStartEnabledPref = libraryPreferences.swipeStartEnabled()
         val chapterSwipeEndActionPref = libraryPreferences.swipeEndAction()
         val chapterSwipeStartActionPref = libraryPreferences.swipeStartAction()
 
         return Preference.PreferenceGroup(
             title = stringResource(R.string.pref_chapter_swipe),
             preferenceItems = listOf(
-                Preference.PreferenceItem.SwitchPreference(
-                    pref = chapterSwipeEndEnabledPref,
-                    title = stringResource(R.string.pref_chapter_swipe_end_enabled),
-                ),
-                Preference.PreferenceItem.SwitchPreference(
-                    pref = chapterSwipeStartEnabledPref,
-                    title = stringResource(R.string.pref_chapter_swipe_start_enabled),
-                ),
                 Preference.PreferenceItem.ListPreference(
                     pref = chapterSwipeEndActionPref,
                     title = stringResource(R.string.pref_chapter_swipe_end),
@@ -245,6 +235,7 @@ object SettingsLibraryScreen : SearchableSettings {
                         LibraryPreferences.ChapterSwipeAction.ToggleBookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
                         LibraryPreferences.ChapterSwipeAction.ToggleRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
                         LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
+                        LibraryPreferences.ChapterSwipeAction.Disabled to stringResource(R.string.pref_chapter_swipe_action_disabled),
                     ),
                 ),
                 Preference.PreferenceItem.ListPreference(
@@ -254,6 +245,7 @@ object SettingsLibraryScreen : SearchableSettings {
                         LibraryPreferences.ChapterSwipeAction.ToggleBookmark to stringResource(R.string.pref_chapter_swipe_action_bookmark),
                         LibraryPreferences.ChapterSwipeAction.ToggleRead to stringResource(R.string.pref_chapter_swipe_action_mark_read),
                         LibraryPreferences.ChapterSwipeAction.Download to stringResource(R.string.pref_chapter_swipe_action_download_chapter),
+                        LibraryPreferences.ChapterSwipeAction.Disabled to stringResource(R.string.pref_chapter_swipe_action_disabled),
                     ),
                 ),
             ),

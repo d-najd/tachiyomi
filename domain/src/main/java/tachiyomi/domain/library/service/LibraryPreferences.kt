@@ -120,10 +120,6 @@ class LibraryPreferences(
 
     // region Swipe Actions
 
-    fun swipeEndEnabled() = preferenceStore.getBoolean("pref_chapter_swipe_end_enabled", true)
-
-    fun swipeStartEnabled() = preferenceStore.getBoolean("pref_chapter_swipe_start_enabled", true)
-
     fun swipeEndAction() = preferenceStore.getEnum("pref_chapter_swipe_end_action", ChapterSwipeAction.ToggleBookmark)
 
     fun swipeStartAction() = preferenceStore.getEnum("pref_chapter_swipe_start_action", ChapterSwipeAction.ToggleRead)
@@ -134,6 +130,7 @@ class LibraryPreferences(
         ToggleRead,
         ToggleBookmark,
         Download,
+        Disabled,
     }
 
     companion object {

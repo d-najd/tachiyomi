@@ -121,8 +121,6 @@ class MangaInfoScreenModel(
     private val filteredChapters: Sequence<ChapterItem>?
         get() = successState?.processedChapters
 
-    val chapterSwipeEndEnabled = libraryPreferences.swipeEndEnabled().get()
-    val chapterSwipeStartEnabled = libraryPreferences.swipeStartEnabled().get()
     val chapterSwipeEndAction = libraryPreferences.swipeEndAction().get()
     val chapterSwipeStartAction = libraryPreferences.swipeStartAction().get()
 
@@ -528,12 +526,18 @@ class MangaInfoScreenModel(
         }
     }
 
+    /**
+     * @throws IllegalStateException if the swipe action is [LibraryPreferences.ChapterSwipeAction.Disabled]
+     */
     fun chapterSwipe(chapterItem: ChapterItem, swipeAction: LibraryPreferences.ChapterSwipeAction) {
         coroutineScope.launch {
             executeChapterSwipeAction(chapterItem, swipeAction)
         }
     }
 
+    /**
+     * @throws IllegalStateException if the swipe action is [LibraryPreferences.ChapterSwipeAction.Disabled]
+     */
     private fun executeChapterSwipeAction(
         chapterItem: ChapterItem,
         swipeAction: LibraryPreferences.ChapterSwipeAction,
@@ -561,6 +565,7 @@ class MangaInfoScreenModel(
                     action = downloadAction,
                 )
             }
+            LibraryPreferences.ChapterSwipeAction.Disabled -> throw IllegalStateException()
         }
     }
 
