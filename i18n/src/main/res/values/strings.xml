@@ -274,13 +274,8 @@
     <string name="exclude">Exclude: %s</string>
 
     <string name="pref_chapter_swipe">Chapter swipe</string>
-    <string name="pref_chapter_swipe_end_enabled">Swipe to end</string>
-    <string name="pref_chapter_swipe_start_enabled">Swipe to start</string>
     <string name="pref_chapter_swipe_end">Swipe to end action</string>
     <string name="pref_chapter_swipe_start">Swipe to start action</string>
-    <string name="pref_chapter_swipe_action_bookmark">Bookmark</string>
-    <string name="pref_chapter_swipe_action_mark_read">Mark as read</string>
-    <string name="pref_chapter_swipe_action_download_chapter">Download chapter</string>
 
       <!-- Extension section -->
     <string name="multi_lang">Multi</string>
